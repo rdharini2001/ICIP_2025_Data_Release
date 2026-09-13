@@ -1,0 +1,16 @@
+__pycache__/
+*.pyc
+*.pyo
+
+# LaTeX build junk (main.pdf and main.bbl are committed on purpose)
+paper/*.aux
+paper/*.log
+paper/*.out
+paper/*.blg
+paper/*.synctex.gz
+paper/*.fls
+paper/*.fdb_latexmk
+
+# local scratch, never the actual dataset
+/avid_out/
+*.zip

@@ -1,0 +1,142 @@
+\begin{thebibliography}{19}
+\providecommand{\natexlab}[1]{#1}
+\providecommand{\url}[1]{\texttt{#1}}
+\expandafter\ifx\csname urlstyle\endcsname\relax
+  \providecommand{\doi}[1]{doi: #1}\else
+  \providecommand{\doi}{doi: \begingroup \urlstyle{rm}\Url}\fi
+
+\bibitem[Gebru et~al.(2021)Gebru, Morgenstern, Vecchione, Vaughan, Wallach,
+  Daum{\'e}, and Crawford]{gebru2021datasheets}
+Timnit Gebru, Jamie Morgenstern, Briana Vecchione, Jennifer~Wortman Vaughan,
+  Hanna Wallach, III Daum{\'e}, Hal, and Kate Crawford.
+\newblock Datasheets for datasets.
+\newblock \emph{Communications of the ACM}, 64\penalty0 (12):\penalty0 86--92,
+  2021.
+
+\bibitem[Hendrycks and Dietterich(2019)]{hendrycks2019benchmarking}
+Dan Hendrycks and Thomas Dietterich.
+\newblock Benchmarking neural network robustness to common corruptions and
+  perturbations.
+\newblock In \emph{International Conference on Learning Representations
+  (ICLR)}, 2019.
+
+\bibitem[Hu et~al.(2022)Hu, Shen, Wallis, Allen-Zhu, Li, Wang, Wang, and
+  Chen]{hu2022lora}
+Edward~J. Hu, Yelong Shen, Phillip Wallis, Zeyuan Allen-Zhu, Yuanzhi Li, Shean
+  Wang, Lu~Wang, and Weizhu Chen.
+\newblock {LoRA}: Low-rank adaptation of large language models.
+\newblock \emph{arXiv preprint arXiv:2106.09685}, 2022.
+
+\bibitem[Huang et~al.(2023{\natexlab{a}})Huang, Li, Blasch,
+  et~al.]{huang20233rdantiuav}
+Bo~Huang, Jianan Li, Erik Blasch, et~al.
+\newblock The 3rd anti-{UAV} workshop and challenge: Methods and results.
+\newblock \emph{arXiv preprint arXiv:2305.07290}, 2023{\natexlab{a}}.
+
+\bibitem[Huang et~al.(2023{\natexlab{b}})Huang, Li, Chen, Wang, Zhao, and
+  Xu]{huang2023antiuav410}
+Bo~Huang, Jianan Li, Junjie Chen, Gang Wang, Jian Zhao, and Tingfa Xu.
+\newblock Anti-{UAV}410: A thermal infrared benchmark and customized scheme for
+  tracking drones in the wild.
+\newblock \emph{IEEE Transactions on Pattern Analysis and Machine
+  Intelligence}, 2023{\natexlab{b}}.
+\newblock \doi{10.1109/TPAMI.2023.3335338}.
+
+\bibitem[Hwang et~al.(2015)Hwang, Park, Kim, Choi, and Kweon]{hwang2015kaist}
+Soonmin Hwang, Jaesik Park, Namil Kim, Yukyung Choi, and In~So Kweon.
+\newblock Multispectral pedestrian detection: Benchmark dataset and baselines.
+\newblock In \emph{Proceedings of the IEEE Conference on Computer Vision and
+  Pattern Recognition (CVPR)}, pages 1037--1045, 2015.
+
+\bibitem[Jia et~al.(2021)Jia, Zhu, Li, Tang, and Zhou]{jia2021llvip}
+Xinyu Jia, Chuang Zhu, Minzhen Li, Wenqi Tang, and Wenli Zhou.
+\newblock {LLVIP}: A visible-infrared paired dataset for low-light vision.
+\newblock In \emph{Proceedings of the IEEE/CVF International Conference on
+  Computer Vision Workshops (ICCVW)}, pages 3489--3497, 2021.
+
+\bibitem[Jiang et~al.(2023)Jiang, Wang, Peng, Yu, Wang, Xing, Li, Guo, Ye,
+  Jiao, Zhao, and Han]{jiang2023antiuav}
+Nan Jiang, Kuiran Wang, Xiaoke Peng, Xuehui Yu, Qiang Wang, Junliang Xing,
+  Guorong Li, Guodong Guo, Qixiang Ye, Jianbin Jiao, Jian Zhao, and Zhenjun
+  Han.
+\newblock Anti-{UAV}: A large-scale benchmark for vision-based {UAV} tracking.
+\newblock \emph{IEEE Transactions on Multimedia}, 25:\penalty0 486--500, 2023.
+
+\bibitem[Liu et~al.(2022)Liu, Fan, Huang, Wu, Liu, Zhong, and
+  Luo]{liu2022tardal}
+Jinyuan Liu, Xin Fan, Zhanbo Huang, Guanyao Wu, Risheng Liu, Wei Zhong, and
+  Zhongxuan Luo.
+\newblock Target-aware dual adversarial learning and a multi-scenario
+  multi-modality benchmark to fuse infrared and visible for object detection.
+\newblock In \emph{Proceedings of the IEEE/CVF Conference on Computer Vision
+  and Pattern Recognition (CVPR)}, 2022.
+
+\bibitem[Liu et~al.(2024)Liu, Feng, Hu, Yuan, and Fan]{liu2024uavc}
+Xiaoqiong Liu, Yunhe Feng, Shu Hu, Xiaohui Yuan, and Heng Fan.
+\newblock Benchmarking the robustness of {UAV} tracking against common
+  corruptions.
+\newblock \emph{arXiv preprint arXiv:2403.11424}, 2024.
+
+\bibitem[Parmar et~al.(2024)Parmar, Park, Narasimhan, and
+  Zhu]{parmar2024img2imgturbo}
+Gaurav Parmar, Taesung Park, Srinivasa Narasimhan, and Jun-Yan Zhu.
+\newblock One-step image translation with text-to-image models.
+\newblock \emph{arXiv preprint arXiv:2403.12036}, 2024.
+
+\bibitem[Peng et~al.(2020)Peng, Li, and Zhu]{peng2020dronergbt}
+Tao Peng, Qiang Li, and Pengfei Zhu.
+\newblock {RGB-T} crowd counting from drone: A benchmark and {MMCCN} network.
+\newblock In \emph{Proceedings of the Asian Conference on Computer Vision
+  (ACCV)}, 2020.
+
+\bibitem[Solovyev et~al.(2021)Solovyev, Wang, and Gabruseva]{solovyev2021wbf}
+Roman Solovyev, Weimin Wang, and Tatiana Gabruseva.
+\newblock Weighted boxes fusion: Ensembling boxes from different object
+  detection models.
+\newblock \emph{Image and Vision Computing}, 107:\penalty0 104117, 2021.
+
+\bibitem[{Teledyne FLIR}(2018)]{flir2018adas}
+{Teledyne FLIR}.
+\newblock {FREE} teledyne {FLIR} thermal dataset for algorithm training ({ADAS}
+  dataset v2).
+\newblock \url{https://oem.flir.com/solutions/automotive/adas-dataset-form/},
+  2018.
+
+\bibitem[Xie et~al.(2025)Xie, Zhang, Wang, Liu, Lu, Chen, and
+  Hu]{xie2025cstantiuav}
+Bin Xie, Congxuan Zhang, Fagan Wang, Peng Liu, Feng Lu, Zhen Chen, and Weiming
+  Hu.
+\newblock {CST} anti-{UAV}: A thermal infrared benchmark for tiny {UAV}
+  tracking in complex scenes.
+\newblock In \emph{Proceedings of the IEEE/CVF International Conference on
+  Computer Vision Workshops (ICCVW)}, 2025.
+
+\bibitem[Xu et~al.(2020)Xu, Ma, Le, Jiang, and Guo]{xu2020fusiondn}
+Han Xu, Jiayi Ma, Zhuliang Le, Junjun Jiang, and Xiaojie Guo.
+\newblock {FusionDN}: A unified densely connected network for image fusion.
+\newblock In \emph{Proceedings of the AAAI Conference on Artificial
+  Intelligence}, 2020.
+
+\bibitem[Zhang et~al.(2022)Zhang, Zhao, Wang, Lu, and Ruan]{zhang2022vtuav}
+Pengyu Zhang, Jie Zhao, Dong Wang, Huchuan Lu, and Xiang Ruan.
+\newblock Visible-thermal {UAV} tracking: A large-scale benchmark and new
+  baseline.
+\newblock In \emph{Proceedings of the IEEE/CVF Conference on Computer Vision
+  and Pattern Recognition (CVPR)}, 2022.
+
+\bibitem[Zhu et~al.(2017)Zhu, Park, Isola, and Efros]{zhu2017cyclegan}
+Jun-Yan Zhu, Taesung Park, Phillip Isola, and Alexei~A. Efros.
+\newblock Unpaired image-to-image translation using cycle-consistent
+  adversarial networks.
+\newblock In \emph{Proceedings of the IEEE International Conference on Computer
+  Vision (ICCV)}, 2017.
+
+\bibitem[Zhu et~al.(2022)Zhu, Wen, Du, Bian, Fan, Hu, and
+  Ling]{zhu2022visdrone}
+Pengfei Zhu, Longyin Wen, Dawei Du, Xiao Bian, Heng Fan, Qinghua Hu, and Haibin
+  Ling.
+\newblock Detection and tracking meet drones challenge.
+\newblock \emph{IEEE Transactions on Pattern Analysis and Machine
+  Intelligence}, 44\penalty0 (11):\penalty0 7380--7399, 2022.
+
+\end{thebibliography}
