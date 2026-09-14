@@ -1,9 +1,22 @@
-\begin{thebibliography}{19}
+\begin{thebibliography}{27}
 \providecommand{\natexlab}[1]{#1}
 \providecommand{\url}[1]{\texttt{#1}}
 \expandafter\ifx\csname urlstyle\endcsname\relax
   \providecommand{\doi}[1]{doi: #1}\else
   \providecommand{\doi}{doi: \begingroup \urlstyle{rm}\Url}\fi
+
+\bibitem[Blum and Mitchell(1998)]{blum1998cotraining}
+Avrim Blum and Tom Mitchell.
+\newblock Combining labeled and unlabeled data with co-training.
+\newblock In \emph{Proceedings of the Eleventh Annual Conference on
+  Computational Learning Theory (COLT)}, pages 92--100, 1998.
+\newblock \doi{10.1145/279943.279962}.
+
+\bibitem[Cohen et~al.(2019)Cohen, Rosenfeld, and Kolter]{cohen2019certified}
+Jeremy Cohen, Elan Rosenfeld, and J.~Zico Kolter.
+\newblock Certified adversarial robustness via randomized smoothing.
+\newblock In \emph{Proceedings of the International Conference on Machine
+  Learning (ICML)}, volume~97, pages 1310--1320, 2019.
 
 \bibitem[Gebru et~al.(2021)Gebru, Morgenstern, Vecchione, Vaughan, Wallach,
   Daum{\'e}, and Crawford]{gebru2021datasheets}
@@ -42,6 +55,14 @@ Bo~Huang, Jianan Li, Junjie Chen, Gang Wang, Jian Zhao, and Tingfa Xu.
   Intelligence}, 2023{\natexlab{b}}.
 \newblock \doi{10.1109/TPAMI.2023.3335338}.
 
+\bibitem[Huang et~al.(2021)Huang, Niu, Liu, Ding, Xiao, Wu, and
+  Peng]{huang2021noisycorrespondence}
+Zhenyu Huang, Guocheng Niu, Xiao Liu, Wenbiao Ding, Xinyan Xiao, Hua Wu, and
+  Xi~Peng.
+\newblock Learning with noisy correspondence for cross-modal matching.
+\newblock In \emph{Advances in Neural Information Processing Systems
+  (NeurIPS)}, 2021.
+
 \bibitem[Hwang et~al.(2015)Hwang, Park, Kim, Choi, and Kweon]{hwang2015kaist}
 Soonmin Hwang, Jaesik Park, Namil Kim, Yukyung Choi, and In~So Kweon.
 \newblock Multispectral pedestrian detection: Benchmark dataset and baselines.
@@ -62,6 +83,19 @@ Nan Jiang, Kuiran Wang, Xiaoke Peng, Xuehui Yu, Qiang Wang, Junliang Xing,
 \newblock Anti-{UAV}: A large-scale benchmark for vision-based {UAV} tracking.
 \newblock \emph{IEEE Transactions on Multimedia}, 25:\penalty0 486--500, 2023.
 
+\bibitem[Jin et~al.(2025)Jin, Gao, Guo, Liu, Chang, Tian, and
+  Meng]{jin2025dodsa}
+Hang Jin, Chenqiang Gao, Junjie Guo, Fangcen Liu, Qinyao Chang, Kanghui Tian,
+  and Deyu Meng.
+\newblock {DOD-SA}: Infrared-visible decoupled object detection with
+  single-modality annotations.
+\newblock \emph{arXiv preprint arXiv:2508.10445}, 2025.
+
+\bibitem[Jocher et~al.(2023)Jocher, Chaurasia, and Qiu]{jocher2023yolov8}
+Glenn Jocher, Ayush Chaurasia, and Jing Qiu.
+\newblock {Ultralytics YOLOv8}.
+\newblock \url{https://github.com/ultralytics/ultralytics}, 2023.
+
 \bibitem[Liu et~al.(2022)Liu, Fan, Huang, Wu, Liu, Zhong, and
   Luo]{liu2022tardal}
 Jinyuan Liu, Xin Fan, Zhanbo Huang, Guanyao Wu, Risheng Liu, Wei Zhong, and
@@ -76,6 +110,20 @@ Xiaoqiong Liu, Yunhe Feng, Shu Hu, Xiaohui Yuan, and Heng Fan.
 \newblock Benchmarking the robustness of {UAV} tracking against common
   corruptions.
 \newblock \emph{arXiv preprint arXiv:2403.11424}, 2024.
+
+\bibitem[Liu et~al.(2025)Liu, Luo, Wang, Wei, Zuo, and Zhang]{liu2025codaf}
+Zongzhen Liu, Hui Luo, Zhixing Wang, Yuxing Wei, Haorui Zuo, and Jianlin Zhang.
+\newblock Cross-modal offset-guided dynamic alignment and fusion for weakly
+  aligned {UAV} object detection.
+\newblock \emph{arXiv preprint arXiv:2506.16737}, 2025.
+
+\bibitem[Ming et~al.(2026)Ming, Wang, Zhao, Xiao, Guo, Zhou, Sun, Fang, Yang,
+  and Zhao]{ming2026jfrdet}
+Qi~Ming, Yuyang Wang, Mingjing Zhao, Yifan Xiao, Zhixin Guo, Zhiqiang Zhou,
+  Peng Sun, Juan Fang, Fuqiang Yang, and Xudong Zhao.
+\newblock Bridging severe cross-modal misalignment: End-to-end visible-infrared
+  object detection via explicit feature-domain affine registration.
+\newblock \emph{arXiv preprint arXiv:2608.10680}, 2026.
 
 \bibitem[Parmar et~al.(2024)Parmar, Park, Narasimhan, and
   Zhu]{parmar2024img2imgturbo}
@@ -123,6 +171,14 @@ Pengyu Zhang, Jie Zhao, Dong Wang, Huchuan Lu, and Xiang Ruan.
   baseline.
 \newblock In \emph{Proceedings of the IEEE/CVF Conference on Computer Vision
   and Pattern Recognition (CVPR)}, 2022.
+
+\bibitem[Zhu et~al.(2025)Zhu, Zhang, Gu, Quan, Wang, Fan, Tang, Xie, Zhang, and
+  Wei]{zhu2025alignfreenet}
+Dingkun Zhu, Haote Zhang, Lipeng Gu, Wuzhou Quan, Fu~Lee Wang, Honghui Fan,
+  Jiali Tang, Haoran Xie, Xiaoping Zhang, and Mingqiang Wei.
+\newblock {AlignFreeNet}: Is cross-modal pre-alignment necessary? an end-to-end
+  alignment-free lightweight network for visible-infrared object detection.
+\newblock \emph{arXiv preprint arXiv:2507.20146}, 2025.
 
 \bibitem[Zhu et~al.(2017)Zhu, Park, Isola, and Efros]{zhu2017cyclegan}
 Jun-Yan Zhu, Taesung Park, Phillip Isola, and Alexei~A. Efros.
