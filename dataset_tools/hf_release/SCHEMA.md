@@ -36,7 +36,10 @@ YOLO-style, one row per object, normalized `[0, 1]` coordinates:
 <class_id> <cx> <cy> <w> <h>
 ```
 
-`class_id`: `0` = drone, `1` = bird. Boxes are given once per pair (i.e. the
+`class_id`: `0` = bird, `1` = drone (confirmed against the real Roboflow-exported
+label files — this is the opposite of the placeholder mapping used before real
+data was available, so double-check any code you wrote against the old
+assumption). Boxes are given once per pair (i.e. the
 same box file is the ground truth for both the RGB and IR frame in that
 pair) since annotation was performed on the weakly-aligned pair jointly; see
 `alignment_shift_px` in `pairs.jsonl` for how far the two modalities can

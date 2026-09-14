@@ -38,19 +38,38 @@ detection + tracking data only; the payload-identification subset and task
 are explicitly excluded.**
 
 - **Modality:** paired RGB and thermal/IR, both as extracted frame pairs and
-  as source video (30 fps, 10 s clips, 320×256).
-- **Classes:** `drone`, `bird` — a fine-grained, thermally-confusable
-  negative class most drone-detection datasets don't include.
-- **Scale:** ~45K train / 6.5K val / 13K test RGB-IR pairs, plus 40
-  validation and 25 test video sequences (see `metadata/videos.jsonl` for the
-  exact, post-restructuring counts — fill in once `build_hf_dataset.py` has
-  run over the real corpus).
+  as source video (24 fps measured, 10.4-13.7s clips measured, 320×256).
+- **Classes:** `bird` (label id 0), `drone` (label id 1) — a fine-grained,
+  thermally-confusable negative class most drone-detection datasets don't
+  include.
+- **Scale (real, measured, deduplicated):** 28,790 train pairs across 102
+  videos; 3,250 validation pairs across 13 videos; Test reported separately
+  per modality (6,500 IR frames / 3,250 RGB frames, 13 IR videos / 12 RGB
+  videos) because Test's RGB and IR files cannot currently be matched into
+  pairs — see "Known issues" below. Note the asymmetry: Test RGB went
+  through the same export pipeline as Train/Validation (2 file variants per
+  frame, deduplicated to 3,250), but Test IR did not (6,500 raw,
+  sequentially-numbered frames, no duplicate to remove) — a further sign
+  the two modalities' Test data came from different processing passes.
+  Train/Validation's raw source export contained exactly 2x their listed
+  counts: every frame had a systematic Roboflow noise-augmentation
+  duplicate, which we identified and removed (kept the
+  smaller-filesize, clean variant) rather than silently double the
+  advertised scale.
+- **Extreme small-object distribution:** 67.6% of all ~32K annotated boxes
+  are 8-16px wide in a 320x256 frame; zero boxes exceed 48px in either
+  split. Standard COCO small/medium/large buckets are not informative here
+  (>99% "small"); see `dataset_tools/hf_release/bbox_histogram.py` for the
+  fine-grained bucketing we recommend using instead.
 - **Alignment:** RGB and IR are captured from physically offset optics
   (different FOVs, boresight-aligned at best) — **weakly aligned, not
-  pixel-registered**, unlike LLVIP/M3FD/KAIST. Every pair ships with an
-  estimated `alignment_shift_px` / `alignment_confidence` (see
-  `dataset_tools/alignment/`) so this is a documented property, not a
-  discovered defect.
+  pixel-registered**, unlike LLVIP/M3FD/KAIST, and the two modalities'
+  boxes are annotated once and shared (not independently corrected per
+  modality). On a real 300-pair sample, measured shift is bimodal: 46% at
+  zero measurable offset, but 32.3% exceed 5px (up to 17px; mean 4.66px,
+  median 1.0px, $\sigma=6.44$px) — large relative to the 8-16px targets
+  themselves. See `dataset_tools/alignment/` and
+  `metadata/real_alignment_sample.json`.
 - **Built-in corruption suite (AVID-C):** speckle noise, salt-and-pepper
   noise, Gaussian blur, uneven illumination, motion blur, camera
   instability/jitter, and additive white Gaussian noise, each at 5
@@ -82,11 +101,24 @@ challenge's release; verify/re-state the exact annotation protocol
 (single-annotator vs. reviewed, tool used) once you have that documentation
 in hand — flagging this as a gap in the current card rather than guessing.
 
-**Splits.** Video-level, not frame-level (Experiment E8 in `PLAN.md`
-demonstrates why: naive frame-level splitting on 30 fps/10 s clips measured
-~88% train-frame leakage into val/test on a corpus shaped like this one, vs.
-0% for video-level splitting — inflating any metric computed on a
-frame-level split).
+**Splits.** Video-level, not frame-level (Experiment E8 in `PLAN.md`: on the
+real 32,040-frame/115-video corpus, naive frame-level splitting measured
+**87.5%** train-frame leakage into val/test, vs. **0.0%** for video-level
+splitting — inflating any metric computed on a frame-level split).
+
+## Known Issues
+
+- **Test-split RGB/IR pairing is unresolved.** The Test export's RGB files
+  use a `V_` prefix with independent numbering (`V_BIRD_00564_*`) while IR
+  files use a different scheme (`IR_BIRD_068142_*`); this mismatch persists
+  at the raw video level (13 IR videos vs. 12 RGB videos, no shared IDs, no
+  manifest). Treat Test as single-modality-only evaluation data until a
+  corrected export resolves this.
+- **Alignment metadata is sample-based, not exhaustive.** Computing
+  `alignment_shift_px` for all 32,040 pairs would cost ~9.8 CPU-hours at
+  ~1.1s/pair; the released `metadata/real_alignment_sample.json` covers a
+  random 300-pair sample. Extending to the full corpus is a straightforward
+  but not-yet-run batch job (`dataset_tools/hf_release/real_alignment_sample.py`).
 
 ## Considerations for Using the Data
 

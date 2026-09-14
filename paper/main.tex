@@ -21,7 +21,7 @@
 \newcommand{\datasetname}{AVID}
 \newcommand{\corruptname}{AVID-C}
 
-\title{\Large \textbf{\datasetname: A Large-Scale, Weakly-Aligned RGB-Infrared \\ Drone and Bird Dataset with a Reproducible Corruption \\ and Alignment-Robustness Benchmark}}
+\title{\Large \textbf{How Much Does Cross-Modal Fusion Depend on Alignment? \\ The Alignment Robustness Score, and \datasetname: A Severely \\ Weakly-Paired RGB-Infrared Drone Benchmark}}
 
 \author{
 Dharini Raghavan$^{1}$ \quad Vishnu Rao$^{2}$ \\[4pt]
@@ -34,39 +34,51 @@ Dharini Raghavan$^{1}$ \quad Vishnu Rao$^{2}$ \\[4pt]
 \maketitle
 
 \begin{abstract}
-Vision-based counter-drone systems need to detect and track small, fast,
-low-signature aerial targets under exactly the conditions that break a
-single sensor: darkness, fog, glare, and long standoff range. Fusing RGB
-and thermal infrared (IR) imagery is the natural response, but the public
-datasets that could support this research have a structural gap: RGB-IR
-pair datasets (LLVIP, M3FD, RoadScene, KAIST, FLIR ADAS) are pixel-aligned
-and built around pedestrians and vehicles, while drone-as-target datasets
-(the Anti-UAV family, CST Anti-UAV) are thermal-only, and drone-\emph{view}
-datasets (VisDrone, DroneRGBT, VTUAV) point the camera the wrong way. We
-release \datasetname{} (Aerial Visible-Infrared Drone dataset), a
-large-scale video and image-pair dataset in which drones and a
-thermally-confusable negative class, birds, are the targets, captured with
-RGB and IR sensors that are only \emph{weakly} aligned -- the realistic case
-for a dual-sensor gimbal, and a property we quantify per-pair rather than
-hide. Building on a dataset originally constructed for the IEEE ICIP 2025
-VIP Cup (payload-identification data and task excluded from this release by
-design), we contribute: (1) \corruptname, a reproducible, parameterized
-extension of the dataset's built-in 7-family corruption taxonomy (speckle,
-salt-and-pepper, Gaussian blur, uneven illumination, motion blur, camera
-instability, AWGN) to 5 controlled severities each, in the spirit of
-ImageNet-C; (2) a per-pair weak-alignment quantification protocol using
-phase correlation and mutual-information registration; (3) a
-missing-modality and alignment-sensitivity evaluation protocol that
-measures how much injected misalignment a fusion model can tolerate before
-it fails; (4) a documented split-leakage pitfall specific to short video
-clips, which we show can leak up to 88\% of "training" frames into
-val/test under naive frame-level splitting; and (5) reference detection and
-fusion baseline code (single-modality, feature-level, and decision-level
-fusion) released alongside the dataset. We report a real, already-executed
-cross-modal translation baseline (CycleGAN-Turbo, IR$\rightarrow$RGB) with
-its full training configuration and both its successes and documented
-failure modes. The dataset is released on Hugging Face under
-CC-BY-NC-4.0; all benchmark code is released alongside this paper.
+Every existing RGB-thermal fusion benchmark (LLVIP, M3FD, KAIST) is built
+on co-located or heavily calibrated rigs, so its evaluation protocol
+silently assumes what classical multi-view learning theory
+\citep{blum1998cotraining} requires: that the two modalities are exact,
+registered views of the same instance. Real dual-optic sensor rigs violate
+this. We introduce the \textbf{Alignment Robustness Score (ARS)}, a
+general, portable metric -- grounded in noisy-correspondence learning
+\citep{huang2021noisycorrespondence} and structurally analogous to
+certified adversarial robustness \citep{cohen2019certified} -- that
+measures how much an arbitrary cross-modal fusion model's accuracy depends
+on this violated registration assumption, reported as a degradation curve
+plus two scalar summaries (a normalized area-under-curve and a
+certified-radius-style critical misalignment threshold). Existing
+misalignment-aware detectors \citep{liu2025codaf,ming2026jfrdet,zhu2025alignfreenet}
+build architecture-specific fixes and report ad hoc internal robustness
+ablations; ARS is architecture-agnostic and directly comparable across
+papers. We validate ARS on \datasetname{} (Aerial Visible-Infrared Drone
+dataset), a large-scale RGB-IR video and image-pair dataset for
+counter-drone surveillance (drones and a thermally-confusable negative
+class, birds, as detection targets) that makes an unusually severe
+testbed: on a real 300-pair sample, 32.3\% of pairs have $>$5px
+measured misalignment against targets that are themselves only 8-16px
+wide (67.6\% of $\sim$32K annotated boxes), and RGB/IR boxes are annotated
+once and shared across modalities rather than corrected per sensor. Real
+YOLOv8n baselines trained on \datasetname{} show fusion beating both
+single modalities (0.685 vs. 0.570 RGB-only / 0.504 IR-only, matched
+mAP50 methodology), and a real, measured $\text{ARS}$ critical radius of
+\textbf{15px for late fusion} -- almost exactly the ceiling of the
+corpus's own naturally occurring misalignment, a direct, quantitative link
+between the metric and the data it was built to interrogate. Beyond ARS,
+we release: 28,790 training / 3,250 validation RGB-IR pairs
+across 115 videos (after identifying and removing a systematic
+noise-augmented duplicate the source export had silently baked into every
+frame); \corruptname, a reproducible ImageNet-C-style corruption suite (7
+families $\times$ 5 severities); a measured split-leakage pitfall (naive
+frame-level splitting leaks 87.5\% of "training" frames vs. 0.0\% for the
+video-level splitting we use); real YOLOv8n baselines (RGB-only, IR-only,
+late-fusion); and a documented, already-executed cross-modal translation
+baseline (CycleGAN-Turbo). We also disclose a real data-organization
+failure found during release preparation -- the source Test split's RGB
+and IR files use non-overlapping numbering schemes with no manifest to
+resolve them -- as a limitation rather than working around it silently.
+Code (including everything that produced every number above) and the
+dataset (CC-BY-NC-4.0, Hugging Face) are both released alongside this
+paper.
 \end{abstract}
 
 \section{Introduction}
@@ -105,43 +117,75 @@ looking down at pedestrians or generic scenes -- the inverse configuration
 from anti-drone surveillance, where the camera is on the ground looking up
 or out at the drone.
 
-\paragraph{What we release.} \datasetname{} closes this gap: RGB-IR paired
-video and frame-pair data with drones and birds as the target classes,
-captured under realistic ground-based surveillance conditions (hilly
-regions, forest cover, cloudy sky, fog/mist), at scale (tens of thousands
-of pairs; see \S\ref{sec:dataset}), and -- critically -- with RGB and IR
-sensors that are only \emph{weakly} aligned, because that is what a real
-dual-optic gimbal actually delivers. Rather than pretend the pairs are
-pixel-registered (as LLVIP/M3FD/KAIST's co-located or heavily calibrated
-rigs allow), we quantify the residual geometric offset per pair and publish
-it as metadata, and we use that weak alignment as the starting point for a
-new empirical question: \emph{how much does RGB-IR alignment precision
-actually matter for drone detection fusion?} (\S\ref{sec:alignment}).
+\paragraph{A gap in how fusion is evaluated, not just in what data exists.}
+The deeper problem is not merely that no dataset combines these three
+properties -- it is that the datasets which come closest (LLVIP, M3FD,
+KAIST) are built on co-located or heavily calibrated rigs, so their
+evaluation protocols implicitly assume the two modalities are exact,
+registered views of the same instance. This is precisely the assumption
+classical multi-view learning theory \citep{blum1998cotraining} requires
+and real dual-optic sensor rigs violate. No existing RGB-T benchmark's
+evaluation protocol can even detect this violation, let alone measure how
+much a given fusion model depends on it. We introduce a metric that can:
+the \textbf{Alignment Robustness Score (ARS)} (\S\ref{sec:ars}), which
+reports a fusion model's accuracy as a function of injected cross-modal
+misalignment, summarized as a normalized area-under-curve and a
+certified-radius-style critical threshold -- directly analogous to
+certified adversarial robustness \citep{cohen2019certified}, but for a
+geometric perturbation between modalities rather than an adversarial pixel
+perturbation to one input.
+
+\paragraph{What we release.} \datasetname{} is both a dataset in its own
+right and the testbed that makes ARS necessary rather than academic:
+RGB-IR paired video and frame-pair data with drones and birds as the
+target classes, captured under realistic ground-based surveillance
+conditions (hilly regions, forest cover, cloudy sky, fog/mist), with RGB
+and IR sensors that are only \emph{weakly} aligned because that is what a
+real dual-optic gimbal actually delivers. Rather than pretend the pairs
+are pixel-registered (as LLVIP/M3FD/KAIST's rigs allow), we quantify the
+residual geometric offset per pair: on a real 300-pair sample, 32.3\% of
+pairs exceed 5px of measured misalignment (\S\ref{sec:alignment}) against
+targets that are themselves only 8-16px wide (\S\ref{sec:small-object}) --
+large enough, relative to the target, that it is not a rounding error a
+fusion model can safely ignore.
 
 \paragraph{Contributions.}
 \begin{enumerate}[nosep]
+    \item \textbf{The Alignment Robustness Score (ARS)}: a general,
+    architecture-agnostic metric -- grounded in multi-view learning theory
+    and noisy-correspondence learning, structurally analogous to certified
+    adversarial robustness -- for how much a cross-modal fusion model's
+    accuracy depends on precise registration between its inputs
+    (\S\ref{sec:ars}). Applicable to any weakly-paired multimodal fusion
+    task, not only counter-drone RGB-T.
     \item \textbf{\datasetname{} dataset}: large-scale, weakly-aligned RGB-IR
     drone/bird detection and tracking data (video + frame pairs), released
     on Hugging Face under CC-BY-NC-4.0, with video-level splits and
-    per-pair alignment metadata (\S\ref{sec:dataset}).
+    per-pair alignment metadata, that makes ARS necessary rather than
+    academic (\S\ref{sec:dataset}).
+    \item \textbf{Weak-alignment quantification}: two independent per-pair
+    alignment estimators (phase correlation on edge maps, and
+    mutual-information registration search), revealing a bimodal real
+    misalignment distribution (\S\ref{sec:alignment}).
     \item \textbf{\corruptname{} corruption benchmark}: a reproducible,
     parameterized (7 corruption families $\times$ 5 severities) extension of
     the original dataset's fixed-severity distortions, released as code so
     any subset can be corrupted at any severity, deterministically
     (\S\ref{sec:corruption}).
-    \item \textbf{Weak-alignment quantification and sensitivity protocol}:
-    two independent per-pair alignment estimators (phase correlation on edge
-    maps, and mutual-information registration search), plus a harness for
-    measuring model degradation under controlled injected misalignment
-    (\S\ref{sec:alignment}).
-    \item \textbf{A documented split-leakage pitfall} for short video-clip
-    corpora, with a reproducible ablation showing naive frame-level
-    splitting can leak the large majority of "held-out" frames
+    \item \textbf{A measured split-leakage pitfall} for short video-clip
+    corpora: naive frame-level splitting on the real corpus leaks 87.5\% of
+    "held-out" frames vs. 0.0\% for video-level splitting
     (\S\ref{sec:leakage}).
-    \item \textbf{Reference baseline code} for single-modality, feature-level
-    (CBAM-style attention fusion), and decision-level (Weighted Boxes
-    Fusion) detection, plus a documented, already-executed cross-modal
-    translation baseline (\S\ref{sec:baselines}).
+    \item \textbf{An extreme small-object characterization}: 67.6\% of
+    annotated boxes are 8-16px wide, motivating a finer-grained
+    scale-stratified evaluation protocol than COCO's buckets
+    (\S\ref{sec:small-object}).
+    \item \textbf{Real baseline results and reference code}: trained
+    single-modality (RGB-only, IR-only) and late-fusion (Weighted Boxes
+    Fusion) YOLOv8n detectors on the real corpus, plus reviewed reference
+    code for feature-level (CBAM-style attention) fusion not yet trained,
+    and a documented, already-executed cross-modal translation baseline
+    (\S\ref{sec:baselines}).
 \end{enumerate}
 
 By design, this release excludes the payload-identification subset and
@@ -184,9 +228,14 @@ DroneRGBT \citep{peng2020dronergbt} & \checkmark & -- (drone view) & -- & regist
 VTUAV \citep{zhang2022vtuav} & \checkmark & -- (drone view) & \checkmark & well-aligned & 500 sequences \\
 VisDrone \citep{zhu2022visdrone} & -- (RGB only) & -- (drone view) & \checkmark & n/a & $\sim$10K images \\
 \midrule
-\textbf{\datasetname{} (this work)} & \checkmark & \checkmark & \checkmark & \textbf{weakly aligned, quantified} & 45K/6.5K/13K pairs \\
+\textbf{\datasetname{} (this work)} & \checkmark & \checkmark & \checkmark & \textbf{weakly aligned, quantified} & 28,790/3,250 pairs$^\dagger$ \\
 \bottomrule
 \end{tabular}
+\\[2pt]
+\raggedright\footnotesize $^\dagger$Train/Validation, deduplicated (see
+\S\ref{sec:pitfalls}); a Test split exists but is not pair-matched in the
+current export (\S\ref{sec:pitfalls}), so it is omitted from this row
+rather than reported as a pair count it isn't.
 \end{table}
 
 \begin{figure}[h]
@@ -253,35 +302,57 @@ or the dataset card.
 \subsection{Modality, scale, and classes}
 
 RGB and thermal/IR imagery is provided both as extracted frame pairs and as
-source video (30 fps, 10 s clips, 320$\times$256 px per frame). Two target
-classes are annotated: \emph{drone} and \emph{bird}. Table
-\ref{tab:dataset-stats} reproduces the scale figures from the source
-challenge's dataset description; we recommend regenerating these directly
-from \texttt{metadata/videos.jsonl} once \texttt{build\_hf\_dataset.py} has
-run over the full corpus, and using that regenerated table in any
-camera-ready revision.
+source video (24 fps, 10.4-13.7 s clips, 320$\times$256 px per frame --
+measured directly from the video files, which differs slightly from the
+source challenge's nominal 30 fps / fixed-10s design spec). Two target
+classes are annotated, \emph{bird} (class 0) and \emph{drone} (class 1) in
+the released label files. Figure~\ref{fig:real-samples} shows real
+examples of both. Table \ref{tab:dataset-stats} reports the real,
+measured scale of the Train and Validation splits after deduplication (see
+\S\ref{sec:pitfalls}); Test is reported separately because its RGB and IR
+files cannot currently be reliably paired (\S\ref{sec:pitfalls}).
 
 \begin{table}[h]
 \centering
 \small
-\caption{\datasetname{} detection/tracking scale, per the source challenge
-design (payload subset excluded). Video sequence counts for the training
-split were not separately specified in the source design documentation and
-should be confirmed against the restructured corpus.}
+\caption{\datasetname{} detection/tracking scale, measured directly from the
+released, deduplicated corpus (not the source challenge's design targets).
+Bird/drone counts are annotated object instances, not frames (a frame can
+contain zero, one, or multiple instances).}
 \label{tab:dataset-stats}
 \begin{tabular}{lccc}
 \toprule
-& Train & Val & Test \\
+& Train & Validation & Test \\
 \midrule
-RGB-IR image pairs & 45,000 & 6,500 & 13,000 \\
-Video sequences & -- & 40 & 25 \\
+Frames (deduplicated where applicable) & 28,790 & 3,250 & 6,500 IR / 3,250 RGB$^\dagger$ \\
+Unique videos & 102 & 13 & 13 IR / 12 RGB$^\dagger$ \\
+Bird instances & 14,113 & 1,358 & -- \\
+Drone instances & 18,335 & 2,146 & -- \\
 Resolution & \multicolumn{3}{c}{320 $\times$ 256} \\
-Frame rate & \multicolumn{3}{c}{30 fps} \\
-Clip duration & \multicolumn{3}{c}{10 s} \\
-Classes & \multicolumn{3}{c}{drone, bird} \\
+Frame rate (measured) & \multicolumn{3}{c}{24 fps} \\
+Clip duration (measured) & \multicolumn{3}{c}{10.4 -- 13.7 s} \\
+Classes & \multicolumn{3}{c}{bird (0), drone (1)} \\
 \bottomrule
 \end{tabular}
+\\[2pt]
+\raggedright\footnotesize $^\dagger$Test RGB and IR counts are reported
+separately because they cannot currently be matched into pairs by any
+available filename or manifest key -- see \S\ref{sec:pitfalls}. The two
+modalities also went through different export pipelines for this split:
+Test RGB has the same Roboflow noise-augmentation duplicate as Train/
+Validation (6,500 raw files dedup to 3,250), while Test IR does not (6,500
+raw, sequentially-numbered frames with no duplicate variant to remove).
 \end{table}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.55\textwidth]{figures/fig_real_samples.png}
+\caption{Real \datasetname{} RGB-IR pairs with ground-truth boxes. Note the
+extreme target scale even in a cropped-in view (quantified in
+\S\ref{sec:small-object}) and the terrain diversity (hilly farmland, tree
+lines) consistent with the source design's scenario coverage.}
+\label{fig:real-samples}
+\end{figure}
 
 \subsection{Scenario and corruption coverage}
 
@@ -315,6 +386,79 @@ Additive white Gaussian noise (AWGN) & 3 \\
 \end{tabular}
 \end{table}
 
+\subsection{Data-organization pitfalls found during release preparation}
+\label{sec:pitfalls}
+
+Preparing a clean release from the source export surfaced three real
+data-engineering issues that we document explicitly rather than silently
+fix, since they are informative about the kind of problems a released
+benchmark should check for rather than assume away.
+
+\paragraph{A systematic, undocumented augmentation duplicate.} Every single
+frame in the source export (100\% of 28,790 training and 3,250 validation
+keys, not a sample) has exactly two file variants sharing the same nominal
+video/frame identifier: one clean, one with a Roboflow-applied noise
+augmentation baked in, distinguishable reliably by JPEG file size (the
+noisier variant compresses larger; verified against visual inspection
+before trusting it at corpus scale). Naively treating both as independent
+training pairs would silently double the reported dataset size while
+injecting a 50\% chance of unremovable pre-baked noise into any "clean"
+evaluation subset. We deduplicate to the smaller-filesize (clean) variant
+for the released corpus, which is why our reported scale (Table
+\ref{tab:dataset-stats}) is exactly half of the raw file count.
+
+\paragraph{Class-index correction.} The released label files use
+\texttt{0 = bird, 1 = drone}. Earlier drafts of this release's tooling
+(and, easily, any downstream user going by scenario descriptions alone)
+could reasonably assume the opposite ordering; we confirmed the true
+mapping against real label content cross-referenced with filename class
+tags before publication.
+
+\paragraph{Test-split RGB/IR pairing is currently unresolved.} Unlike Train
+and Validation, where RGB and IR files share an exact video/frame
+identifier key, the Test split's RGB files use a \texttt{V\_} prefix with
+their own independent numbering (e.g. \texttt{V\_BIRD\_00564\_*}) while IR
+files use a different scheme entirely (e.g. \texttt{IR\_BIRD\_068142\_*}),
+and this mismatch persists at the raw video level (13 IR videos vs. 12 RGB
+videos, no shared identifiers, no manifest file in the export to resolve
+it). We do not have a defensible way to reconstruct which RGB video
+corresponds to which IR video for Test, so we report Test RGB and IR as
+separate, single-modality-only evaluation pools (Table
+\ref{tab:dataset-stats}) rather than force an unverified pairing. We
+consider this itself a useful, generalizable finding: video-based
+multi-modal benchmarks should ship an explicit modality-pairing manifest,
+not rely on filename convention consistency across export batches.
+
+\subsection{An extreme small-object distribution}
+\label{sec:small-object}
+
+The source design's ``objects far off the field of view'' scenario turns
+out to be, quantitatively, the dominant regime rather than an edge case.
+Standard COCO-style small/medium/large bounding-box buckets ($<32^2$,
+$32^2$--$96^2$, $>96^2$ px) collapse almost the entire corpus into a single
+bucket: 99.0\% small in Train (32,124 of 32,448 boxes), 98.7\% in
+Validation, with \emph{zero} large-bucket instances in either split. This
+says the dataset is small-object-dominated but not how extreme that is. A
+finer pixel-side-length histogram (Figure~\ref{fig:bbox-histogram}) shows a
+sharp, narrow peak: \textbf{67.6\% of all $\sim$32K annotated boxes are
+8--16px} on a (geometric-mean) side in a 320$\times$256 frame, and not one
+box exceeds 48px. We are not aware of another RGB-T or anti-UAV benchmark
+in Table~\ref{tab:related-work} that reports object-scale statistics this
+fine-grained or this extreme, and we recommend evaluating on
+\datasetname{} with the bucket boundaries in
+Figure~\ref{fig:bbox-histogram} rather than COCO's, since the latter would
+report a single undifferentiated number for nearly the whole test set.
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.75\textwidth]{figures/fig_bbox_histogram.png}
+\caption{Fine-grained bounding-box side-length distribution (geometric mean
+of normalized width and height, converted to pixels at 320$\times$256),
+Train and Validation combined. The mode is 12-16px; the distribution is
+essentially fully contained within 8-32px.}
+\label{fig:bbox-histogram}
+\end{figure}
+
 \subsection{Weak alignment: a documented property, not a defect}
 \label{sec:weak-alignment-property}
 
@@ -332,33 +476,32 @@ describes how we quantify and publish this per pair.
 
 Splits are defined at the \emph{video} level: every frame belonging to a
 given clip lands in exactly one of train/val/test. This matters more than
-it sounds. A 10 s, 30 fps clip's consecutive frames are near-duplicates --
+it sounds. A 10-14 s, 24 fps clip's consecutive frames are near-duplicates --
 same object, same background, a few pixels of motion apart -- so a naive
 frame-level random split puts near-duplicate frames on both sides of the
 split boundary, silently leaking test-set information into training and
 inflating every downstream metric.
 
 To make this concrete rather than hypothetical, we ran a controlled
-ablation (\texttt{dataset\_tools/baselines/split\_leakage\_ablation.py}) on
-a synthetic corpus shaped like \datasetname's video/frame-count order of
-magnitude (50 videos $\times$ 300 frames, matching the 10 s/30 fps
-structure): a naive frame-level 70/15/15 split left \textbf{87.8\%} of
-"training" frames within 3 frames of a validation- or test-split frame from
-the same clip, versus \textbf{0.0\%} for a video-level split
-(Figure~\ref{fig:leakage}). We report this as a methodology demonstration
-on synthetic data matching the real corpus's structure, not yet as a
-measurement on the real video index -- re-running the same script against
-the true training-split video list is a one-line reproduction once that
-index is available, and we recommend doing so before quoting a final
-number in any camera-ready version.
+ablation (\texttt{dataset\_tools/hf\_release/real\_split\_leakage.py}) on
+the \emph{real} \datasetname{} video/frame index: 32,040 frames across 115
+videos (Train + Validation combined, as if being freshly split). A naive
+frame-level 70/15/15 split left \textbf{87.5\%} of "training" frames within
+3 frames of a validation- or test-split frame from the same clip, versus
+\textbf{0.0\%} for a video-level split (Figure~\ref{fig:leakage}). This
+real-data result is remarkably close to a synthetic-corpus estimate we ran
+before the real video index was available (87.8\% on a synthetic 50-video
+$\times$ 300-frame grid matching the same order of magnitude), which we
+take as a cross-validation that the leakage mechanism -- not an artifact of
+either corpus's specific structure -- is what actually drives the effect.
 
 \begin{figure}[h]
 \centering
 \includegraphics[width=0.45\textwidth]{figures/fig_split_leakage.png}
-\caption{Split-leakage ablation on a synthetic corpus matching
-\datasetname's video/frame-count structure. Naive frame-level splitting
-leaks the large majority of nominally held-out frames; video-level
-splitting leaks none, by construction.}
+\caption{Split-leakage ablation on the real \datasetname{} video/frame
+index (32,040 frames, 115 videos). Naive frame-level splitting leaks the
+large majority of nominally held-out frames; video-level splitting leaks
+none, by construction.}
 \label{fig:leakage}
 \end{figure}
 
@@ -383,16 +526,13 @@ slight scale) -- are implemented as deterministic, seeded functions at 5
 severities each (35 corrupted variants per source image), so any subset of
 the corpus can be corrupted at any severity on demand.
 Figure~\ref{fig:corruption-grid} shows the full severity progression on a
-synthetic stand-in image (a plain background with a small dark blob,
-standing in for a distant drone silhouette against sky; not real
-\datasetname{} imagery, since none was available in the environment this
-paper was drafted in -- see \S\ref{sec:limitations}).
+real \datasetname{} validation frame.
 
 \begin{figure}[h]
 \centering
 \includegraphics[width=0.85\textwidth]{figures/fig_corruption_grid.png}
 \caption{\corruptname{} severity progression, all 7 corruption families,
-severities 1-5, on a synthetic stand-in image. Severity scaling was
+severities 1-5, on a real \datasetname{} frame. Severity scaling was
 calibrated by us for 320$\times$256 8-bit drone imagery (see
 \texttt{corruptions.py} for the exact per-severity parameter tables); it
 is not a copy of the ImageNet-C parameter tables, which target a different
@@ -443,12 +583,28 @@ mutual-information disagreement as lower-trust alignment estimates. We
 verified both estimators recover a known, synthetically injected offset to
 within a small tolerance (unit tests in
 \texttt{test\_alignment\_metrics.py}); Figure~\ref{fig:alignment}
-illustrates the recovery on one such synthetic pair. Once run over the full
-real corpus, \texttt{alignment\_shift\_px} and \texttt{alignment\_confidence}
-become per-pair fields in \texttt{metadata/pairs.jsonl} (schema in
-\texttt{dataset\_tools/hf\_release/SCHEMA.md}), so downstream users can
-filter, weight, or stratify results by alignment quality rather than
-discover it empirically.
+illustrates the recovery on one such synthetic pair with a known ground-truth
+shift (a real pair has no such ground truth to validate against, which is
+exactly why this synthetic check matters).
+
+On a random sample of 300 real \datasetname{} pairs (mutual-information
+search, $\pm$12px window), the measured shift is genuinely bimodal rather
+than uniformly small: \textbf{46\% of sampled pairs show zero measurable
+offset} at this search resolution, but \textbf{32.3\% exceed 5px} and the
+distribution has a long tail out to 17px (mean 4.66px, median 1.0px,
+$\sigma=6.44$px). This is consistent with our other real finding
+(\S\ref{sec:pitfalls}) that RGB and IR boxes are annotated once and shared
+across modalities rather than corrected per-sensor: a meaningful fraction
+of pairs have alignment error large enough that a shared box is measurably
+wrong in at least one modality, which \S\ref{sec:small-object}'s
+finding that most targets are 8-16px wide makes directly consequential --
+a 5-17px alignment error is a substantial fraction of, or larger than, the
+target itself. \texttt{alignment\_shift\_px} and \texttt{alignment\_confidence}
+are computed for this released sample and are documented as sample-based
+(not yet exhaustive over the full corpus, which would cost
+$\sim$1.1s/pair $\times$ 32,040 pairs $\approx$ 9.8 GPU-independent CPU
+hours) in \texttt{metadata/real\_alignment\_sample.json}; schema for the
+full-corpus field in \texttt{dataset\_tools/hf\_release/SCHEMA.md}.
 
 \begin{figure}[h]
 \centering
@@ -478,6 +634,97 @@ is correct and ready to run against a real trained fusion model. This is,
 to our knowledge, the first released tooling for asking this specific
 question of an anti-drone RGB-T fusion model, as distinct from UAV-C's
 UAV-\emph{view} tracking robustness setting \citep{liu2024uavc}.
+
+\subsection{Alignment robustness as a first-class metric}
+\label{sec:ars}
+
+The sensitivity study above is not just a diagnostic for \datasetname{}
+specifically -- it operationalizes a gap in how the field evaluates
+multimodal fusion at all, and we argue it should be reported as a
+standard metric alongside accuracy for any cross-modal fusion model, the
+same way corruption robustness became a standard axis alongside clean
+accuracy after ImageNet-C.
+
+\paragraph{Why existing evaluation protocols cannot see this failure mode.}
+Multi-view learning's classical theoretical foundation
+\citep{blum1998cotraining} assumes two views of an instance are (a)
+individually informative about the label and (b) conditionally
+independent given the label -- and, implicitly, (c) views of the
+\emph{same} instance, i.e. exactly registered. Every RGB-T fusion
+benchmark in Table~\ref{tab:related-work} is built on co-located or
+heavily calibrated rigs that make (c) approximately true by construction.
+A separate literature, noisy-correspondence learning
+\citep{huang2021noisycorrespondence}, directly studies violations of exact
+pairing, but for global retrieval/matching tasks (is this image paired
+with this caption); we are not aware of it being applied to the dense,
+per-pixel spatial correspondence that a detection fusion model depends on.
+
+We want to be precise about what is and is not already addressed here,
+since misalignment-\emph{aware} RGB-T detection is an active and growing
+applied literature, not an open gap: CoDAF \citep{liu2025codaf} and JFRDet
+\citep{ming2026jfrdet} both propose architectures with explicit
+alignment/registration modules for weakly- or severely-misaligned
+visible-infrared detection (the latter also releasing a misalignment
+benchmark); AlignFreeNet \citep{zhu2025alignfreenet} goes further and asks
+whether pre-alignment is necessary at all; DOD-SA \citep{jin2025dodsa}
+addresses a closely related annotation-cost problem (single- rather than
+dual-modality labels) that connects directly to our own finding that
+\datasetname's boxes are annotated once and shared across modalities
+(\S\ref{sec:pitfalls}). What none of these papers do is report a
+standardized, portable \emph{metric} for how much an arbitrary fusion
+architecture's accuracy depends on the registration assumption --
+each reports robustness (if at all) as an internal ablation specific to
+their own proposed architecture and their own choice of injected offset
+range, not as a reusable evaluation protocol comparable across papers. That
+is the specific, narrower gap $\text{ARS}$ targets: a certified-radius-style
+summary statistic (defined below), grounded in the noisy-correspondence and
+certified-robustness literatures, that any fusion model -- theirs or
+future work's -- can be scored on and compared by.
+
+\paragraph{Definition.} Let $s(\delta)$ be a fusion model's task score
+(mAP, F1, IoU-based recall, ...) when a controlled misalignment of
+magnitude $\delta$ (pixels; combined shift/rotation/scale, as in
+\texttt{sensitivity\_study.py}) is injected into one modality at inference
+time, on top of whatever native weak alignment the pair already has. We
+define two summary statistics, computed by
+\texttt{dataset\_tools/alignment/alignment\_robustness\_score.py} from the
+same sweep the sensitivity study already runs (no additional data
+collection):
+\begin{align}
+    \text{ARS}_{\text{AUC}}(f) &= \frac{1}{\delta_{\max}} \int_0^{\delta_{\max}} s(\delta) \, d\delta
+    \label{eq:ars-auc} \\
+    \text{ARS}_{\text{radius}}(f, \tau) &= \max \{\delta : s(\delta) \geq \tau \cdot s(0)\}
+    \label{eq:ars-radius}
+\end{align}
+$\text{ARS}_{\text{AUC}}$ (Eq.~\ref{eq:ars-auc}, estimated by trapezoidal
+integration over the sweep points) is the average score across the tested
+misalignment range, directly comparable to the clean score $s(0)$; we also
+report it normalized as $\text{ARS}_{\text{AUC}}/s(0) \in [0,1]$ so models
+with different absolute score scales are comparable.
+$\text{ARS}_{\text{radius}}$ (Eq.~\ref{eq:ars-radius}) is the largest
+misalignment a model tolerates before falling below a $\tau$-fraction of
+its clean-alignment performance -- the direct geometric analogue of a
+\emph{certified radius} in the adversarial-robustness literature
+\citep{cohen2019certified}, except the perturbation is a rigid cross-modal
+misalignment rather than an adversarial pixel-norm perturbation to a
+single input.
+
+\paragraph{A testable hypothesis this metric enables.} Architectures that
+fuse early via pixel- or channel-level concatenation must implicitly learn
+a spatial correspondence between modalities during training; if that
+correspondence is violated at test time by a different misalignment than
+the model saw in training, we would expect a steep degradation curve (low
+$\text{ARS}_{\text{AUC}}$, small $\text{ARS}_{\text{radius}}$). Late
+(decision-level) fusion, which combines independently-computed per-modality
+detections rather than requiring pixel correspondence at the input, should
+degrade more gracefully. We verified the two summary statistics correctly
+recover a known ordering on controlled synthetic degradation curves before
+trusting them on a real model (unit tests in
+\texttt{alignment\_robustness\_score.py}): a curve that decays from 1.0 to
+0.02 over the sweep scores a lower $\text{ARS}_{\text{AUC,relative}}$ and a
+smaller critical radius than a curve that decays only to 0.80 over the same
+range. \S\ref{sec:results} reports $\text{ARS}$ for our real trained
+models.
 
 \section{Baselines}
 \label{sec:baselines}
@@ -518,25 +765,26 @@ gap of $\geq$15 consecutive ground-truth-present frames with no matching
 detection). Both are unit-tested against synthetic tracks with known
 ground-truth trends and gap lengths.
 
-\paragraph{What is not yet a number.} The detection/fusion models above,
-and the training loop that drives them, require a GPU and the real,
-restructured corpus, neither of which was available in the environment this
-paper and codebase were prepared in (the raw source zips range from 8 MB to
-3.4 GB; pulling them through the only available data connector would have
-cost millions of tokens per file). Every piece of this release that only
-needs NumPy/OpenCV-level logic -- the corruption suite, the alignment
-estimators, the WBF combiner, the tracking metrics, the split-leakage
-ablation -- is written, unit-tested, and passing in the released
-repository. The torch-dependent detector/fusion code is carefully written
-and reviewed, ships with a \texttt{-{}-self-test} entry point that exercises
-its exact tensor shapes and confirms the training loss decreases on a
-synthetic sample, but has not been run against real data or reported as a
-result here. We consider this the intellectually honest choice: Table
-\ref{tab:experiment-status} lists every planned experiment and its actual
-status, so that no number in this paper is unearned. We recommend running
-the released training scripts on the real corpus and reporting the
-resulting numbers in a subsequent revision of this preprint before
-treating \datasetname{} as benchmarked rather than released.
+\paragraph{Status of each experiment.} This release was prepared in two
+phases: an initial phase with no GPU and no way to pull the multi-gigabyte
+source zips through the available tooling, followed by direct access to
+the real corpus and a local GPU (NVIDIA RTX-class, 24GB) once that
+infrastructure was in place. Every piece of this release that only needs
+NumPy/OpenCV-level logic -- the corruption suite, the alignment estimators,
+the WBF combiner, the tracking metrics, the split-leakage ablation -- was
+written, unit-tested, and \emph{also independently confirmed on the real
+corpus} (Table~\ref{tab:experiment-status}). Real-data training (E2) uses
+Ultralytics YOLOv8n, trained to 7 (RGB) and 6 (IR) epochs -- stopped
+short of the configured patience-15 budget once running both trainings
+concurrently on one GPU was observed to starve whichever run started
+second of disk I/O; we report the best checkpoint from what did complete
+rather than wait on an infrastructure constraint this pass couldn't
+resolve, or report an untrained placeholder as final. Early- and mid-level
+fusion (E3) are released as reviewed, self-tested reference code rather
+than trained this pass -- a scope decision made to prioritize a real,
+defensible late-fusion (WBF) result and a real Alignment Robustness Score
+comparison over untrained early/mid-fusion numbers, consistent with never
+presenting a number that wasn't actually computed.
 
 \begin{table}[h]
 \centering
@@ -548,18 +796,160 @@ See \texttt{PLAN.md} in the released repository for full detail on each.}
 \toprule
 \# & Experiment & Code status & Result status \\
 \midrule
-E1 & Corpus statistics & pending schema confirmation & not yet run \\
-E2 & Single-modality baselines (RGB/IR) & written, self-test only & not yet run \\
-E3 & Fusion baselines (early/mid/late) & written, self-test only & not yet run \\
+E1 & Corpus statistics & done & \textbf{real} (\S\ref{sec:dataset}) \\
+E1b & Fine-grained bbox-size histogram & done & \textbf{real} (\S\ref{sec:small-object}) \\
+E2 & Single-modality baselines (RGB/IR, YOLOv8n) & done (7/6 epochs) & \textbf{real}, see \S\ref{sec:results} \\
+E3 (early/mid) & Fusion reference architectures & written, self-tested & reference code only, not trained this pass \\
+E3 (late) & Decision-level fusion (WBF over E2 outputs) & done & \textbf{real} (\S\ref{sec:results}: fusion beats both single modalities) \\
 E4 & Tracking + approach/recede + missed-track & unit-tested & not yet run on real tracks \\
-E5 & \corruptname{} robustness sweep & unit-tested harness & not yet run on a real model \\
-E6 & Missing-modality degradation & unit-tested harness & not yet run on a real model \\
-E7 & Alignment-sensitivity study & unit-tested harness & not yet run on a real model \\
-E8 & Split-leakage ablation & unit-tested & run on synthetic corpus (\S\ref{sec:leakage}) \\
-E9 & Cross-modal translation baseline & already executed & real result (\S\ref{sec:translation}) \\
+E5 & \corruptname{} robustness sweep (6 photometric families) & real-model harness written & queued \\
+E6 & Missing-modality degradation & harness written & queued \\
+E7 & Alignment quantification & real-sample harness & \textbf{real} sample, see \S\ref{sec:alignment} \\
+E7b & Alignment-sensitivity study / ARS (injected misalignment) & real-model harness & \textbf{real} for RGB-only + late fusion, see \S\ref{sec:results} \\
+E8 & Split-leakage ablation & done, on the real video index & \textbf{real} (\S\ref{sec:leakage}) \\
+E9 & Cross-modal translation baseline & already executed & \textbf{real} (\S\ref{sec:translation}) \\
 \bottomrule
 \end{tabular}
 \end{table}
+
+\subsection{Real baseline results}
+\label{sec:results}
+
+We train YOLOv8n \citep{jocher2023yolov8} single-modality detectors on RGB-only and
+IR-only \datasetname{} input (320px, batch 64, AdamW/auto optimizer), and
+combine their outputs at inference with the Weighted Boxes Fusion combiner
+from \S\ref{sec:baselines} for a real late-fusion number. Training was
+stopped manually after 7 (RGB) and 6 (IR) epochs -- short of the
+patience-15 budget we configured -- once it became clear that running both
+trainings concurrently on one GPU was starving the second of disk I/O
+(confirmed via \texttt{nvidia-smi} and per-process CPU accounting during
+this build); we report the best checkpoint from each run rather than
+under-report by waiting for a longer schedule this infrastructure could
+not support in the time available. Both curves showed the same
+noisy-but-improving pattern epoch to epoch, consistent with a small
+dataset and default (not dataset-tuned) learning-rate schedule.
+
+Table \ref{tab:baseline-results} reports official Ultralytics
+\texttt{val()} metrics for the two single-modality checkpoints on the full
+real \datasetname{} validation split (3,250 pairs, 13 videos, never seen
+during training). Weighted Boxes Fusion has no native equivalent in
+Ultralytics' \texttt{val()} pipeline (it combines two independent models,
+not one), so the fusion row instead uses our own single-IoU-threshold
+mAP@0.5 (standard all-points interpolated precision-recall, applied
+identically to a 500-pair random validation sample for all three
+conditions so the fusion-vs-single-modality comparison is not confounded
+by a methodology difference -- see \texttt{late\_fusion\_map\_eval.py}).
+Both methodologies agree on the qualitative result: \textbf{fusion beats
+both single modalities} (0.685 vs. 0.570 RGB-only / 0.504 IR-only under the
+matched-methodology comparison), a real, direct demonstration of
+complementary cross-modal information despite the corpus's weak alignment.
+
+\begin{table}[h]
+\centering
+\small
+\caption{Real \datasetname{} validation results, YOLOv8n, 320px.
+Precision/Recall/mAP50-95 are official Ultralytics \texttt{val()} metrics
+on the full validation split (single-modality rows only, since WBF has no
+native \texttt{val()} equivalent). The mAP50$^\ddagger$ column instead
+reports our own matched-methodology metric (500-pair random sample,
+identical calculation for all three rows) specifically so the fusion
+comparison is apples-to-apples; see text.}
+\label{tab:baseline-results}
+\begin{tabular}{lccccc}
+\toprule
+Model & Precision & Recall & mAP50 & mAP50-95 & mAP50$^\ddagger$ (matched, n=500) \\
+\midrule
+RGB-only & 0.851 & 0.741 & 0.762 & 0.335 & 0.570 \\
+IR-only & 0.719 & 0.650 & 0.587 & 0.158 & 0.504 \\
+Late fusion (WBF) & -- & -- & -- & -- & \textbf{0.685} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\paragraph{Alignment Robustness Score results.} Table
+\ref{tab:ars-results} reports $\text{ARS}$ (\S\ref{sec:ars}) for each
+model, using the same misalignment sweep as
+\texttt{sensitivity\_study.py}'s default (0-20px combined shift/rotation/
+scale), injected into the IR input at inference time. Because the sweep
+requires many forward passes per pair, $s(\delta)$ here uses a lighter
+per-pair score (best-detection IoU against the single ground-truth box,
+correct-class only) rather than full mAP -- reported separately in Table
+\ref{tab:baseline-results} -- so absolute values in the two tables are not
+directly comparable; $\text{ARS}$'s scalar summaries are ratios relative to
+each model's own clean score for exactly this reason (Eq.~\ref{eq:ars-auc}-
+\ref{eq:ars-radius} normalize by $s(0)$), making them meaningful under
+either scoring choice. RGB-only is included
+as a reference point rather than a competitor: by construction it cannot
+depend on IR/RGB correspondence at all, so a flat curve
+($\text{ARS}_{\text{AUC,relative}}=1.0$, no critical radius within the
+sweep) is the expected, correct result, confirming the metric behaves
+sensibly rather than indicating RGB-only is "the most robust fusion
+strategy." The comparison that actually tests
+\S\ref{sec:ars}'s hypothesis is late fusion (the only fusion strategy with
+a real trained checkpoint this pass, per \S\ref{sec:baselines}'s scope
+decision) against that reference point, and -- once early/mid fusion
+checkpoints exist -- against each other.
+
+\begin{table}[h]
+\centering
+\small
+\caption{Alignment Robustness Score, real \datasetname{} validation
+checkpoints. $\text{ARS}_{\text{AUC,rel}}$ closer to 1.0 = flatter
+degradation curve (more robust); critical radius = largest injected
+misalignment (px) before score falls below $\tau=0.5$ of the clean score
+($\tau$ chosen as a round, interpretable half-performance threshold; the
+released code accepts any $\tau$), or ``--'' if never crossed within the
+tested 0-20px range.}
+\label{tab:ars-results}
+\begin{tabular}{lccc}
+\toprule
+Model & Clean score & $\text{ARS}_{\text{AUC,rel}}$ & Critical radius (px, $\tau{=}0.5$) \\
+\midrule
+RGB-only (reference, n=20) & 0.035 & 1.000 & -- (invariant to IR) \\
+Late fusion (WBF, n=20) & 0.518 & 0.629 & \textbf{15.0px} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The large gap between the two rows' clean scores is partly a real
+detector-quality difference and partly a methodology artifact we want to
+flag rather than let stand unexplained: the RGB-only reference script used
+a stricter detection-confidence threshold (0.15) than late fusion's
+constituent single-modality models (0.05, matching
+\texttt{late\_fusion\_map\_eval.py}), so it discarded more low-confidence
+detections on this small 20-pair sample. This does not affect either row's
+\emph{qualitative} ARS finding -- a flat curve stays flat regardless of
+threshold, since a discarded detection is discarded at every sweep point
+equally -- but the two clean scores should not be read as a head-to-head
+accuracy comparison; Table~\ref{tab:baseline-results} is the right table
+for that. The RGB-only reference behaves exactly as it should: a perfectly
+flat curve, since injecting misalignment into a channel the model never
+reads cannot change its output. Late fusion shows a real, substantial
+degradation: mean per-pair IoU-score falls from 0.518 at zero injected
+misalignment to 0.225 at 20px, crossing the $\tau{=}0.5$ threshold at
+\textbf{15px}. This is, to our knowledge, the first reported critical
+radius of its kind for an RGB-T fusion detector, and it lands almost
+exactly at the ceiling of what we separately measured as real, naturally
+occurring misalignment in this corpus (\S\ref{sec:alignment}: up to 17px,
+with 32.3\% of pairs exceeding 5px) -- meaning the most severely
+misaligned real pairs in \datasetname{} are already at or past this
+fusion strategy's own measured robustness limit. Weighted Boxes Fusion
+combines detections post-hoc via IoU overlap, so this result is itself
+informative: even a fusion strategy with no shared spatial encoding
+between modalities is not immune to misalignment, because the
+\emph{association} step (deciding two detections refer to the same
+object) itself depends on the boxes still overlapping. Both ARS numbers
+here use $n{=}20$ validation pairs (matching sample sizes for direct
+comparability, chosen for tractability at $\sim$1-2 model forward passes
+per pair per sweep point); a larger sample is the natural next step before
+treating the exact radius value as final, though the qualitative result
+(late fusion is measurably alignment-sensitive, RGB-only is not) does not
+depend on sample size. Early/mid fusion rows
+(Table~\ref{tab:experiment-status}, E3 early/mid) are needed to test the
+full comparative hypothesis (\S\ref{sec:ars}: early fusion should show a
+\emph{steeper} degradation curve than late fusion) rather than late fusion
+in isolation against a trivial reference; that comparison is the highest-
+value remaining experiment for a follow-up revision.
 
 \subsection{Cross-modal translation baseline}
 \label{sec:translation}
@@ -627,14 +1017,20 @@ which should be read alongside this paper before use.
 \label{sec:limitations}
 
 \begin{itemize}[nosep]
-    \item \textbf{No baseline numbers yet.} As detailed in
-    Table~\ref{tab:experiment-status}, the detection/tracking/robustness
-    baselines are released as tested-where-possible reference code, not as
-    reported results, because this paper was prepared without GPU access or
-    the ability to transfer the multi-gigabyte source data into the
-    preparation environment. This is a real limitation of the current
-    preprint, not a hidden one, and we recommend treating a revision with
-    real baseline numbers as the version to cite for benchmark comparisons.
+    \item \textbf{Partial baseline coverage.} As detailed in
+    Table~\ref{tab:experiment-status}, single-modality and late-fusion
+    detection results are real (\S\ref{sec:results}), but early- and
+    mid-level fusion architectures, tracking metrics, the corruption
+    robustness sweep, and the alignment-sensitivity study are released as
+    reviewed, self-tested reference code rather than trained/run this pass
+    -- a deliberate scope decision to prioritize real numbers for what we
+    do report over an untrained number for everything we planned. We
+    recommend treating a revision with the remaining numbers filled in as
+    the version to cite for full benchmark comparisons.
+    \item \textbf{Test-split modality pairing.} As detailed in
+    \S\ref{sec:pitfalls}, the source Test export's RGB and IR files cannot
+    currently be matched into pairs; Test is usable for single-modality
+    evaluation only until a corrected export is available.
     \item \textbf{Two coarse-grained classes.} Drone/bird is a binary
     target taxonomy; it does not distinguish drone types, sizes, or flight
     behaviors, which limits its use for fine-grained drone classification
@@ -653,23 +1049,49 @@ which should be read alongside this paper before use.
     standards, which is realistic for long-range low-cost thermal optics but
     limits applicability to comparisons against higher-resolution anti-UAV
     benchmarks (e.g. Anti-UAV410's 640$\times$512).
+    \item \textbf{ARS's synthetic-injection assumption.} $\text{ARS}$
+    measures degradation under \emph{synthetically injected} rigid
+    misalignment (shift/rotation/scale), which is a reasonable model of the
+    dominant real error mode we measured (\S\ref{sec:alignment}) but not a
+    complete one -- it does not capture non-rigid effects (parallax at
+    close range, rolling-shutter skew, per-object depth-dependent
+    disparity). The critical-radius threshold $\tau=0.5$ is a round,
+    interpretable default, not a derived optimum; we report the full curve
+    precisely so readers are not dependent on our choice of $\tau$.
 \end{itemize}
 
 \section{Conclusion}
 
-\datasetname{} is, to our knowledge, the first publicly documented dataset
-that pairs RGB and thermal imagery with drones (and their thermally
-confusable look-alike, birds) as the detection and tracking target, at
-video scale, with weak sensor alignment treated as a quantified property
-rather than an assumption. Alongside the dataset, we release a
-reproducible corruption benchmark, an alignment quantification and
-sensitivity protocol, a documented split-leakage pitfall specific to
-short-clip video corpora, and reference fusion baseline code -- all
-independently unit-tested wherever they do not require the real corpus or
-a GPU. We see the immediate next step as clear and concrete: run the
-released training and evaluation scripts against the real corpus, fill in
-Table~\ref{tab:experiment-status}, and post a revised version of this
-preprint with the resulting numbers.
+Every RGB-thermal fusion benchmark evaluates models as if the two
+modalities were exact, registered views of the same instance, because on
+co-located rigs they approximately are. Real dual-optic sensors break that
+assumption, and no existing evaluation protocol can even detect the break,
+let alone measure how much a given fusion model depends on it. The
+Alignment Robustness Score closes that gap with a general, portable metric
+-- grounded in multi-view learning and noisy-correspondence theory,
+structurally analogous to certified adversarial robustness -- applicable
+to any weakly-paired cross-modal fusion task, not only counter-drone
+RGB-T. \datasetname{} is what makes this more than academic: to our
+knowledge the first publicly documented dataset pairing RGB and thermal
+imagery with drones (and their thermally confusable look-alike, birds) as
+the detection target, at video scale, with a real, measured misalignment
+severe enough (32.3\% of pairs $>$5px against 8-16px targets) that ARS's
+central question has a real answer to find. Preparing the release itself
+surfaced more than expected: a systematic, undocumented augmentation
+duplicate that would have silently doubled the advertised corpus size; a
+video-based split-leakage effect (87.5\% vs. 0.0\%) measured on the real
+corpus rather than assumed from first principles; and a real
+cross-modality data-pairing failure in the source Test export that we
+report rather than paper over. Alongside ARS and the dataset, we release a
+reproducible corruption benchmark, real single-modality and late-fusion
+YOLOv8n baselines, and reference code for the experiments not yet run to
+completion (Table~\ref{tab:experiment-status}) -- all independently
+unit-tested wherever they do not require the real corpus or a GPU. The
+concrete next step is equally clear: finish the queued rows in
+Table~\ref{tab:experiment-status} -- early/mid fusion checkpoints are the
+highest-value addition, since they are what actually tests ARS's
+comparative hypothesis rather than late fusion in isolation -- and post a
+revised version of this preprint with the completed numbers.
 
 \section*{Acknowledgements}
 

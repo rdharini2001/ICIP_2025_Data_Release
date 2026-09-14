@@ -130,7 +130,9 @@ def build_dataset(records: Iterator[RawRecord], out_root, compute_alignment=True
             if rec.label_path:
                 with open(rec.label_path) as lf:
                     class_ids = {int(line.split()[0]) for line in lf if line.strip()}
-                classes_present = [{0: "drone", 1: "bird"}.get(c, str(c)) for c in class_ids]
+                # Confirmed against the real Roboflow export labels (not the
+                # class order we originally assumed): class 0 = bird, class 1 = drone.
+                classes_present = [{0: "bird", 1: "drone"}.get(c, str(c)) for c in class_ids]
 
             record_out = {
                 "video_id": rec.video_id,

@@ -14,6 +14,123 @@ should enforce.
 Per your direction: **payload data and payload task are excluded entirely** from
 this release. Everything below concerns the drone/bird detection+tracking data only.
 
+## -1. THEORETICAL PIVOT (2026-09-14, later same day): the paper's spine
+
+Per explicit direction, the paper's central contribution is no longer
+"here's a dataset with YOLO baselines" -- it's the **Alignment Robustness
+Score (ARS)**, a general, portable metric for how much an arbitrary
+cross-modal fusion model's accuracy depends on the (usually silently
+assumed) precise registration between its input modalities. AVID becomes
+the testbed that makes this measurable and severe (32.3% of pairs >5px
+misalignment against 8-16px targets), not the point of the paper by
+itself. See `dataset_tools/alignment/alignment_robustness_score.py` (built
+and unit-tested) and `paper/main.tex` §"Alignment robustness as a
+first-class metric" for the full theoretical framing:
+
+- Grounded in multi-view learning theory (Blum & Mitchell 1998
+  co-training): classic theory assumes views are registered to the same
+  instance; weak pairing violates that specific assumption.
+- Connected to noisy-correspondence learning (Huang et al., NeurIPS 2021),
+  which studies violated pairing for global retrieval/matching but -- as
+  far as a dedicated verification pass found -- not for dense, per-pixel
+  spatial correspondence in detection.
+- The metric itself (AUC + critical radius) is a direct structural
+  analogue of certified adversarial robustness (Cohen et al., ICML 2019
+  randomized smoothing), applied to a geometric cross-modal perturbation
+  instead of an adversarial pixel-norm one.
+- Important scope correction from an initial overclaim: misalignment-
+  *aware* RGB-T detection is an active, real applied literature (CoDAF,
+  JFRDet, AlignFreeNet, DOD-SA -- all verified real 2025/2026 arXiv papers,
+  citations added to references.bib). None of them report a standardized,
+  portable metric comparable across architectures/papers -- each reports
+  robustness, if at all, as an internal ablation specific to their own
+  proposed fix. That is the precise, narrower gap ARS targets.
+
+Testable hypothesis ARS enables: early/pixel-level fusion architectures
+should show a steeper ARS degradation curve (lower AUC, smaller critical
+radius) than late/decision-level fusion, since early fusion implicitly
+learns a spatial correspondence during training that late fusion never
+requires. See PLAN.md §4 (updated) for which fusion strategies we
+actually get real ARS numbers for in this pass vs. release as protocol only.
+
+**FINAL REAL RESULT (2026-09-14, end of session):** RGB-only and IR-only
+YOLOv8n trained to 7/6 epochs (stopped early -- running both concurrently
+on one GPU was starving whichever started second of disk I/O; see
+`dataset_tools/baselines/README.md`-style honesty in the paper itself,
+`sec:results`). Official Ultralytics val(): RGB P=0.851/R=0.741/
+mAP50=0.762/mAP50-95=0.335; IR P=0.719/R=0.650/mAP50=0.587/mAP50-95=0.158.
+Matched-methodology mAP50 (our own single-IoU-threshold AP, n=500,
+identical calc for all three so the comparison isn't confounded by
+methodology): RGB 0.570, IR 0.504, **late fusion (WBF) 0.685 -- fusion
+beats both single modalities**. Real ARS (n=20 pairs each): RGB-only is
+the expected flat/trivial reference (ars_auc_relative=1.0, no critical
+radius, since it never reads IR); **late fusion has a real critical
+radius of 15px** (score 0.518->0.225 over the 0-20px sweep), which lands
+almost exactly at the ceiling of the corpus's own real measured
+misalignment (up to 17px, §0). This is the paper's central empirical
+result. Early/mid fusion ARS (to test the comparative hypothesis directly)
+remains the single highest-value follow-up experiment.
+
+## 0. STATUS UPDATE (2026-09-14): real data, real GPU, real numbers
+
+Everything below §1 was written before we had the actual pixel data. As of
+2026-09-14 we have the real `releasev1` export extracted and indexed
+(Train + Validation splits; the Test split and a `pre_releasev2` release
+were left unextracted per your call to work with what's already in hand —
+see the note at the end of this section), plus a local RTX Blackwell GPU
+(24GB VRAM), so this is no longer a "prepare scripts for later" plan for
+E1-E8 — those are now either DONE with real numbers or actively running.
+Corrections and real findings vs. the original placeholder assumptions:
+
+- **Real scale (Train+Validation, `releasev1`, deduplicated):** 28,790
+  train pairs / 102 videos, 3,250 validation pairs / 13 videos. The
+  earlier "45K/6.5K/13K" figures were the *source challenge's* stated
+  design targets, not what's in this specific export -- and even the raw
+  file counts in this export (57,580 train "pairs") turned out to be an
+  artifact: **every single frame has exactly one clean copy and one
+  Roboflow noise-augmented duplicate** (confirmed across the full corpus,
+  not a sample), so the true unique-frame count is exactly half the raw
+  file count. We dedupe by keeping the smaller-filesize variant (verified
+  reliable indicator of "the clean original" against visual inspection).
+- **Class index correction:** the real label files use `0 = bird, 1 =
+  drone`, the opposite of the placeholder mapping used before real data
+  was available. Fixed in SCHEMA.md and build_hf_dataset.py.
+- **RGB and IR share identical box coordinates per nominal frame** —
+  confirmed on real data, not assumed. Annotation was done once per frame
+  and copied to both modalities, which does *not* correct for the real
+  physical RGB/IR offset -- directly motivating §3.3 (alignment
+  quantification).
+- **The Test split has a real, disclosed data-organization problem**: RGB
+  and IR files in `Test_detection&tracking(_with_labels)` use completely
+  different, non-overlapping numbering schemes, even at the raw video
+  level (13 IR videos vs. 12 RGB videos, no shared IDs, no manifest file
+  to resolve it). Train/Validation pair perfectly by filename key; Test
+  does not. We are treating Test as single-modality-only evaluation data
+  until/unless a corrected release (`pre_releasev2`, not yet extracted)
+  resolves this -- see the runbook note below. **This asymmetry itself is
+  worth a paragraph in the paper's Limitations**: it is exactly the kind
+  of real-world data-engineering failure mode a released benchmark should
+  document rather than silently paper over.
+- **Extreme small-object distribution (new finding, real data):** COCO-style
+  small/medium/large bucketing collapses almost the entire dataset into
+  "small" (~99%, zero "large" instances in either split). A finer
+  pixel-side-length histogram is far more informative: **67.6% of all
+  ~32K annotated boxes are 8-16px on a side**, and *zero* boxes exceed
+  48px, in a 320x256 frame. This is a stronger, more specific small-object
+  characterization than any of the comparison datasets in Table 1 report,
+  and justifies a dedicated fine-grained scale-stratified evaluation
+  protocol (§4, new item) rather than the coarser COCO buckets originally
+  planned.
+- Not extracted / not used for this pass, by your direction to proceed
+  with what's already in hand rather than wait further: `Test_detecttrack`
+  (unlabeled test videos), `detecttrack.zip` (appears to be a duplicate of
+  `releasev1` based on matching internal folder name -- not confirmed
+  byte-identical), and `pre_releasev2-detection&tracking.zip` (3.24GB,
+  likely a corrected/expanded release given the naming and given it's
+  larger than releasev1+Test combined -- worth extracting in a follow-up
+  pass specifically to check whether it fixes the Test RGB/IR pairing
+  problem before a camera-ready revision).
+
 ## 1. What's actually in hand
 
 - ~45K train / 6.5K val / 13K test RGB-IR **image pairs**, plus **video sequences**
@@ -104,28 +221,31 @@ Explicitly **not** in scope per your call: payload data/task, and no
 leaderboard/team-attributed results from the 2025 challenge anywhere in the paper
 or dataset card.
 
-## 4. Experiment plan (what needs to actually run on real hardware)
+## 4. Experiment plan (status as of 2026-09-14, running on real GPU + real data)
 
-I can't pull the multi-GB source zips into this sandbox (base64 transfer through
-the Drive connector would cost millions of tokens per file), so I've written the
-code for all of the below but **none of it has been executed on the real corpus
-yet** — that has to happen on a machine with the actual data (yours, or Vishnu's).
-Treat the paper's results tables as templates to fill in, not finished numbers.
-
-| # | Experiment | Script | Depends on |
+| # | Experiment | Script | Status |
 |---|---|---|---|
-| E1 | Corpus statistics (class balance, bbox size distribution, env-factor coverage, video durations) | `dataset_tools/stats/` (to add once annotation schema is confirmed) | raw annotations |
-| E2 | Single-modality baselines: YOLO on RGB-only, IR-only | `dataset_tools/baselines/train_single_modality.py` | restructured data |
-| E3 | Fusion baselines: early (channel-concat), mid (feature-level attention fusion), late (decision fusion) | `dataset_tools/baselines/train_fusion.py` + `fusion_models.py` | restructured data |
-| E4 | Tracking: ByteTrack/BoT-SORT on top of E2/E3 detectors; MOTA/IDF1 + approach/recede classification + missed-track-<15-frames rule from the original proposal | `dataset_tools/baselines/track_eval.py` | E2/E3 checkpoints |
-| E5 | Corruption robustness sweep (AVID-C, 7×5) → mean corruption error per modality/fusion variant | `dataset_tools/corruptions/run_corruption_eval.py` | E2/E3 checkpoints |
-| E6 | Missing-modality degradation curve | same eval harness, modality-drop flag | E3 checkpoint |
-| E7 | Alignment-sensitivity study (injected misalignment vs. accuracy) | `dataset_tools/alignment/sensitivity_study.py` | E3 checkpoint |
-| E8 | Frame-level vs. video-level split leakage ablation | `dataset_tools/baselines/split_leakage_ablation.py` | raw video index |
-| E9 | Cross-modal translation baseline report (CycleGAN-Turbo IR→RGB) | already executed once (real log in Drive); package as `dataset_tools/translation/README.md` with the real hyperparameters | — |
+| E1 | Corpus statistics: class balance, video/frame counts | `dataset_tools/hf_release/fast_index.py` | **DONE, real numbers** (§0) |
+| E1b | Fine-grained bbox-size histogram (COCO buckets are uninformative here) | `dataset_tools/hf_release/bbox_histogram.py` | **DONE, real numbers** (§0) |
+| E2 | Single-modality baselines: YOLOv8n on RGB-only, IR-only | `ultralytics` train against `configs/rgb.yaml` / `configs/ir.yaml` | RGB training running; IR queued next |
+| E3-late | Late (decision-level) fusion via Weighted Boxes Fusion combining the independently-trained RGB and IR detectors | `dataset_tools/baselines/late_fusion_wbf.py` (unit-tested) | queued after E2 |
+| E3-early/mid | Early-fusion (channel-concat) and mid-fusion (CBAM dual-stream) reference architectures | `dataset_tools/baselines/fusion_models.py`, `patch_yolo_early_fusion()` | released as reference code, not trained this pass (time-boxed decision -- late fusion gives a real, defensible "fusion beats single modality" result without needing new 4/6-channel training data) |
+| E4 | Tracking metrics: approach/recede classification, missed-track-<15-frames rule | `dataset_tools/baselines/track_eval.py` (unit-tested) | needs a tracker (ByteTrack/BoT-SORT) run on top of E2 detections -- queued if time allows |
+| E5 | AVID-C robustness sweep (6 *photometric* corruptions x 5 severities; camera_instability handled separately in E7, see rationale in the script) using Ultralytics' own `val()` for real mAP50/mAP50-95/precision/recall | `dataset_tools/hf_release/yolo_corruption_eval.py` | queued after E2, runs on a random 400-image validation subsample |
+| E6 | Missing-modality degradation (drop RGB or IR entirely, or corrupt one modality while holding the other clean) | extension of E5's harness | queued |
+| E7 | Real per-pair alignment quantification (sampled) | `dataset_tools/hf_release/real_alignment_sample.py` | **DONE** on 300 real pairs -- see `metadata/real_alignment_sample.json` |
+| E7b | Alignment-sensitivity study (injected misalignment vs. accuracy) -- also where camera_instability-style geometric perturbation belongs, since it tracks the transform explicitly instead of assuming static labels | `dataset_tools/alignment/sensitivity_study.py` (unit-tested end-to-end with a toy model) | queued, needs wiring to the real E2 checkpoint |
+| E8 | Frame-level vs. video-level split-leakage ablation | `dataset_tools/hf_release/real_split_leakage.py` | **DONE on the REAL corpus**: 32,040 frames / 115 videos (train+val combined) -- 87.5% leakage under naive frame-level splitting vs. 0.0% for video-level. Near-identical to the earlier synthetic-corpus estimate (87.8%), a nice cross-validation of that simulation. |
+| E9 | Cross-modal translation baseline report (CycleGAN-Turbo IR→RGB) | already executed once, real log in Drive | **DONE**, real hyperparameters, pull into paper directly |
+| E10 (new) | Tiny-object stratified recall: bucket predictions/misses by the E1b histogram bins (8-16px vs 16-32px vs >32px) rather than COCO's uninformative 3 buckets | to add: a thin wrapper around Ultralytics' per-image prediction output, joined against `bbox_fine_histogram.py`'s bins | planned, real-data dependent |
+| E11 (new) | Fusion-gain metric: Δ(mAP50) of late-fusion vs. max(RGB-only, IR-only) per corruption condition -- directly answers "does fusion actually help, and when" rather than reporting three separate numbers | derived from E2 + E3-late + E5 results, no new code | planned |
+| E12 (new) | Cross-modal complementarity/error analysis: for frames where RGB-only misses the target, what fraction does IR-only catch (and vice versa)? A confusion-style breakdown, not just an aggregate score | derived from E2 per-image predictions | planned |
 
-E9 is the only one with real numbers/logs already in hand (via wandb runs
-referenced in the Drive doc) — pull those into the paper directly.
+Time-boxing note: given real GPU/data access only materialized partway
+through this pass (see §0), E3-early/mid, full tracking (E4), and E10-E12
+are scoped as "do if time allows, else ship as protocol + code" -- consistent
+with the honesty principle from the original plan (§6 of the old plan):
+never present a number that wasn't actually computed.
 
 ## 5. Recommended paper structure (arXiv, NeurIPS D&B / WACV-level rigor)
 

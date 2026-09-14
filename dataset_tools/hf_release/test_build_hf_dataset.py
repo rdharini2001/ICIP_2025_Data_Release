@@ -32,7 +32,11 @@ def _write_mock_raw_zip(raw_root, video_id="video_000", n_frames=3):
         cv2.imwrite(os.path.join(rgb_dir, f"{i:06d}.jpg"), rgb)
         cv2.imwrite(os.path.join(ir_dir, f"{i:06d}.jpg"), ir)
         with open(os.path.join(label_dir, f"{i:06d}.txt"), "w") as f:
-            f.write("0 0.47 0.43 0.06 0.08\n")  # class 0 = drone
+            # class 0 = bird, class 1 = drone (confirmed against real Roboflow
+            # label files -- see SCHEMA.md; this test used to say "class 0 =
+            # drone" before that correction, which this file's own assertion
+            # below would now catch if it regressed).
+            f.write("1 0.47 0.43 0.06 0.08\n")
 
 
 def test_build_dataset_end_to_end():

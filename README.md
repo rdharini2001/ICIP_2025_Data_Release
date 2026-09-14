@@ -28,23 +28,34 @@ Start here, in order:
    step-by-step checklist for turning this prepared repo into a live
    Hugging Face dataset and arXiv preprint.
 
-## Why some things here are "prepared" rather than "done"
+## Status: what's real vs. what's still reference code
 
-This was built in a sandboxed environment with no GPU and no way to pull
-the multi-gigabyte source zips out of Google Drive (doing so through the
-available connector would have cost millions of tokens per file — see
-`PLAN.md` §1). Two consequences, stated plainly rather than hidden:
+This started in a sandboxed environment with no GPU and no way to pull the
+multi-gigabyte source zips out of Google Drive, then moved to a machine
+with the real `releasev1` export and a local GPU. As a result:
 
 - **Everything that only needs NumPy/OpenCV-level logic is written,
-  unit-tested, and passing right now**: the corruption suite, the
-  alignment estimators, the weighted-boxes-fusion combiner, the tracking
-  metrics, and the split-leakage ablation. Run any of their `test_*.py`
-  files directly to see them pass.
-- **Everything that needs the real corpus and/or a GPU (the detector/fusion
-  training code, and every baseline number in the paper) is written and
-  reviewed carefully, but not yet run.** The paper says this explicitly
-  (see its Table 4) rather than presenting placeholder numbers as results.
-  `docs/RELEASE_RUNBOOK.md` is the checklist for closing that gap.
+  unit-tested, and independently confirmed on the real corpus**: the
+  corruption suite, the alignment estimators (including a real 300-pair
+  alignment sample — see `metadata/real_alignment_sample.json` after
+  running the build), the weighted-boxes-fusion combiner, the tracking
+  metrics, and the split-leakage ablation (87.5% vs. 0.0% on the real
+  32,040-frame/115-video index).
+- **Real baselines**: YOLOv8n single-modality (RGB-only, IR-only) trained
+  on the real, deduplicated corpus, combined at inference via late fusion
+  (WBF) for a real fusion number — see the paper's Results section and
+  `PLAN.md` §4 for current status of each experiment.
+- **Real findings from release preparation**: the source export had a
+  100%-of-frames noise-augmentation duplicate we identified and removed;
+  the true class-index mapping is `0=bird, 1=drone`, not the reverse; the
+  Test split's RGB and IR files cannot currently be paired by any
+  available key; and the corpus has an extreme small-object distribution
+  (67.6% of boxes are 8-16px). All of this is written up in `PLAN.md` §0
+  and in the paper.
+- **Still reference code, not yet trained/run**: early- and mid-level
+  fusion architectures, the tracking pipeline, the corruption-robustness
+  sweep, and the alignment-sensitivity study. `docs/RELEASE_RUNBOOK.md`
+  and `PLAN.md` §4 are the checklist for closing that gap.
 
 ## Authors
 
