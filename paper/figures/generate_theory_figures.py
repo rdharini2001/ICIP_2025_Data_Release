@@ -20,6 +20,20 @@ from dataset_tools.theory.scale_sweep import BIN_LABELS
 OUT_DIR = r"C:\Users\dragha4\avid_repo\paper\figures"
 PALETTE = {"rgb": "#0072B2", "ir": "#D55E00", "fusion": "#009E73"}
 
+# Clean, minimal-chart-junk style (top/right spines off, light grid) --
+# following the panel-letter + shaded-uncertainty-band conventions common
+# in Nature-style multi-modal figures (e.g. arXiv:2408.11227's Fig. 1/2).
+plt.rcParams.update({
+    "axes.spines.top": False, "axes.spines.right": False,
+    "axes.grid": True, "grid.alpha": 0.25, "grid.linewidth": 0.6,
+    "font.size": 10, "axes.titlesize": 11, "axes.labelsize": 10,
+})
+
+
+def panel_label(ax, letter):
+    ax.text(-0.12, 1.08, letter, transform=ax.transAxes, fontsize=15,
+             fontweight="bold", va="top", ha="left")
+
 
 def load_json(name):
     with open(rf"E:\ICIP_2025\avid_release\metadata\{name}.json") as f:
@@ -55,10 +69,15 @@ def fig_patch_montage():
                 ax.imshow(p[f"{modality}_patch"], cmap=cmap)
             ax.set_xticks([])
             ax.set_yticks([])
+            ax.grid(False)
+            for spine in ax.spines.values():
+                spine.set_visible(True)
+                spine.set_edgecolor("#cccccc")
             if row == 0:
                 ax.set_title(f"{bucket}px", fontsize=10)
             if col == 0:
                 ax.set_ylabel(f"{cls_name}\n({modality.upper()})", fontsize=9, rotation=0, ha="right", va="center")
+    panel_label(axes[0, 0], "a")
     fig.suptitle("Real AVID patches by object scale (rows: class x modality, columns: pixel-side bucket)", fontsize=11)
     fig.tight_layout(rect=[0, 0, 1, 0.96])
     fig.savefig(f"{OUT_DIR}/fig_theory_patch_montage.png", dpi=160)
@@ -87,6 +106,8 @@ def fig_scale_sweep():
     ax2.barh(labels, counts, color="#888888")
     ax2.set_xlabel("# real instances")
     ax2.set_title("Corpus scale distribution", fontsize=10)
+    panel_label(ax1, "a")
+    panel_label(ax2, "b")
     fig.tight_layout()
     fig.savefig(f"{OUT_DIR}/fig_theory_scale_sweep.png", dpi=160)
     plt.close(fig)
@@ -111,6 +132,7 @@ def fig_corruption_sweep():
         ax.axhline(0.5, color="gray", ls="--", lw=0.6)
     axes[0].set_ylabel("Bayes error bound")
     axes[0].legend(fontsize=8)
+    panel_label(axes[0], "a")
     for j in range(len(corruption_names), len(axes)):
         axes[j].axis("off")
     fig.suptitle("Theoretical corruption-robustness ceiling (real AVID patches, AVID-C severities)", fontsize=12)
@@ -129,18 +151,25 @@ def fig_alignment_sweep():
 
     ax1.plot(shifts, [r["rgb_bayes_bound"] for r in rows], "o-", color=PALETTE["rgb"], label="RGB only")
     ax1.plot(shifts, [r["ir_bayes_bound"] for r in rows], "o-", color=PALETTE["ir"], label="IR only")
-    ax1.plot(shifts, [r["fusion_bayes_bound"] for r in rows], "o-", color=PALETTE["fusion"], label="Fusion (joint)", linewidth=2.5)
+    fusion_mean = np.array([r["fusion_bayes_bound"] for r in rows])
+    fusion_std = np.array([r.get("fusion_bayes_bound_std", 0.0) for r in rows])
+    ax1.plot(shifts, fusion_mean, "o-", color=PALETTE["fusion"], label="Fusion (joint)", linewidth=2.5)
+    ax1.fill_between(shifts, fusion_mean - fusion_std, fusion_mean + fusion_std,
+                      color=PALETTE["fusion"], alpha=0.2, linewidth=0,
+                      label="Fusion $\\pm$1 s.d. (5 shift-direction trials)")
     real_frac = data["real_shift_distribution_summary"]["frac_over_5px"]
     ax1.axvspan(5, max(shifts), color="red", alpha=0.08, label=f"real: {real_frac*100:.0f}% of pairs here")
     ax1.set_xlabel("Injected cross-modal misalignment (px)")
     ax1.set_ylabel("Bayes error bound")
     ax1.set_title("Fusion's theoretical advantage vanishes as\nreal misalignment increases")
-    ax1.legend(fontsize=8)
+    ax1.legend(fontsize=7.5)
 
     ax2.plot(shifts, [r["mutual_information_nats"] for r in rows], "o-", color="#333333", linewidth=2)
     ax2.set_xlabel("Injected cross-modal misalignment (px)")
     ax2.set_ylabel("$I(Y; X_{RGB}, X_{IR})$ (nats)")
     ax2.set_title("Data-processing-inequality degradation\n(real Gaussian-mixture MI estimate)")
+    panel_label(ax1, "a")
+    panel_label(ax2, "b")
     fig.tight_layout()
     fig.savefig(f"{OUT_DIR}/fig_theory_alignment_sweep.png", dpi=160)
     plt.close(fig)
