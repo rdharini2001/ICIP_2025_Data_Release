@@ -87,6 +87,43 @@ def bayes_error_bound_gaussian(features0, features1, prior0=0.5, prior1=0.5):
             "n0": len(features0), "n1": len(features1)}
 
 
+def chernoff_gaussian(mean0, cov0, mean1, cov1, s):
+    """Generalized Chernoff distance between two Gaussians at parameter
+    s in (0,1) (Fukunaga 1990, Ch. 3; Chernoff 1952). s=0.5 recovers the
+    Bhattacharyya distance exactly (up to the prior prefactor)."""
+    cov_s = s * cov1 + (1 - s) * cov0
+    diff = mean1 - mean0
+    inv_cov_s = np.linalg.inv(cov_s)
+
+    term1 = (s * (1 - s) / 2) * diff.T @ inv_cov_s @ diff
+    sign_s, logdet_s = np.linalg.slogdet(cov_s)
+    sign0, logdet0 = np.linalg.slogdet(cov0)
+    sign1, logdet1 = np.linalg.slogdet(cov1)
+    term2 = 0.5 * (logdet_s - (1 - s) * logdet0 - s * logdet1)
+
+    return float(term1 + term2)
+
+
+def optimized_chernoff_bound_gaussian(features0, features1, prior0=0.5, prior1=0.5, n_grid=99):
+    """Bayes error bound P_e <= pi0^s * pi1^(1-s) * exp(-mu(s)), minimized
+    over s in (0,1) on a fine grid. This is the tightest bound in the
+    Chernoff family; the closed-form Bhattacharyya bound
+    (bayes_error_bound_gaussian) is the single point s=0.5 in this same
+    family, so the optimized bound is guaranteed at least as tight."""
+    mean0, cov0 = fit_gaussian(features0)
+    mean1, cov1 = fit_gaussian(features1)
+
+    s_grid = np.linspace(0.01, 0.99, n_grid)
+    best_bound, best_s, best_mu = None, None, None
+    for s in s_grid:
+        mu_s = chernoff_gaussian(mean0, cov0, mean1, cov1, s)
+        bound = float((prior0 ** (1 - s)) * (prior1 ** s) * np.exp(-mu_s))
+        if best_bound is None or bound < best_bound:
+            best_bound, best_s, best_mu = bound, float(s), mu_s
+    return {"bayes_error_bound": best_bound, "optimal_s": best_s,
+            "chernoff_distance": best_mu, "n0": len(features0), "n1": len(features1)}
+
+
 def bayes_error_bound_kde(features0, features1, prior0=0.5, prior1=0.5, n_mc=5000, seed=0):
     """Nonparametric cross-check: fit a KDE to each class, estimate the
     Bhattacharyya coefficient integral sqrt(p0*p1) dx via importance-sampled
@@ -174,6 +211,29 @@ def test_bhattacharyya_bound_shrinks_as_classes_separate():
     assert bounds[-1] < 0.05, bounds  # well-separated classes -> near-zero Bayes error
 
 
+def test_chernoff_at_half_matches_bhattacharyya():
+    rng = np.random.default_rng(3)
+    features0 = rng.normal(0, 1, size=(400, 2))
+    features1 = rng.normal(2.5, 1, size=(400, 2))
+    mean0, cov0 = fit_gaussian(features0)
+    mean1, cov1 = fit_gaussian(features1)
+    mu_half = chernoff_gaussian(mean0, cov0, mean1, cov1, 0.5)
+    b_dist, _ = bhattacharyya_gaussian(mean0, cov0, mean1, cov1)
+    # chernoff_gaussian(s=0.5) should equal the Bhattacharyya distance
+    assert abs(mu_half - b_dist) < 1e-9, (mu_half, b_dist)
+
+
+def test_optimized_chernoff_bound_at_least_as_tight_as_bhattacharyya():
+    rng = np.random.default_rng(4)
+    # asymmetric covariances, where the optimal s is expected to move away
+    # from 0.5 and the optimized bound should be strictly tighter
+    features0 = rng.normal(0, 1, size=(600, 2))
+    features1 = rng.normal(2.0, 3.0, size=(600, 2))
+    gauss = bayes_error_bound_gaussian(features0, features1)
+    chernoff = optimized_chernoff_bound_gaussian(features0, features1)
+    assert chernoff["bayes_error_bound"] <= gauss["bayes_error_bound"] + 1e-9, (gauss, chernoff)
+
+
 def test_kde_bound_agrees_with_gaussian_bound_on_gaussian_data():
     rng = np.random.default_rng(1)
     features0 = rng.normal(0, 1, size=(400, 2))
@@ -200,6 +260,8 @@ def test_mutual_information_increases_with_separation():
 if __name__ == "__main__":
     test_bhattacharyya_zero_for_identical_distributions()
     test_bhattacharyya_bound_shrinks_as_classes_separate()
+    test_chernoff_at_half_matches_bhattacharyya()
+    test_optimized_chernoff_bound_at_least_as_tight_as_bhattacharyya()
     test_kde_bound_agrees_with_gaussian_bound_on_gaussian_data()
     test_mutual_information_increases_with_separation()
     print("All Bayes-bound theory self-tests passed.")
