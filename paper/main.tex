@@ -2,6 +2,8 @@
 
 \usepackage[margin=1in]{geometry}
 \usepackage{times}
+\usepackage{microtype}
+\emergencystretch=3em
 \usepackage{graphicx}
 \usepackage{amsmath,amssymb}
 \usepackage{booktabs}
@@ -14,6 +16,7 @@
 \usepackage{enumitem}
 \usepackage{listings}
 \usepackage{titlesec}
+\usepackage{tabularx}
 
 \titleformat{\section}{\normalfont\Large\bfseries}{\thesection}{1em}{}
 \titleformat{\subsection}{\normalfont\large\bfseries}{\thesubsection}{1em}{}
@@ -233,6 +236,8 @@ each dataset's authors, not a re-measurement by us. ``Drone target''
 distinguishes datasets where a drone is the object being detected/tracked
 from ``drone view'' datasets where the camera is drone-mounted.}
 \label{tab:related-work}
+\footnotesize
+\setlength{\tabcolsep}{4pt}
 \begin{tabular}{lccccc}
 \toprule
 Dataset & RGB+IR paired & Drone target & Video/tracking & Alignment & Scale \\
@@ -503,8 +508,9 @@ frame-level random split puts near-duplicate frames on both sides of the
 split boundary, silently leaking test-set information into training and
 inflating every downstream metric.
 
+\begin{sloppypar}
 To make this concrete rather than hypothetical, we ran a controlled
-ablation (\texttt{dataset\_tools/hf\_release/real\_split\_leakage.py}) on
+ablation (script: \texttt{real\_split\_leakage.py}) on
 the \emph{real} \datasetname{} video/frame index: 32,040 frames across 115
 videos (Train + Validation combined, as if being freshly split). A naive
 frame-level 70/15/15 split left \textbf{87.5\%} of "training" frames within
@@ -515,6 +521,7 @@ before the real video index was available (87.8\% on a synthetic 50-video
 $\times$ 300-frame grid matching the same order of magnitude), which we
 take as a cross-validation that the leakage mechanism -- not an artifact of
 either corpus's specific structure -- is what actually drives the effect.
+\end{sloppypar}
 
 \begin{figure}[h]
 \centering
@@ -708,7 +715,7 @@ magnitude $\delta$ (pixels; combined shift/rotation/scale, as in
 \texttt{sensitivity\_study.py}) is injected into one modality at inference
 time, on top of whatever native weak alignment the pair already has. We
 define two summary statistics, computed by
-\texttt{dataset\_tools/alignment/alignment\_robustness\_score.py} from the
+\texttt{alignment\_robustness\_score.py} from the
 same sweep the sensitivity study already runs (no additional data
 collection):
 \begin{align}
@@ -1026,7 +1033,7 @@ presenting a number that wasn't actually computed.
 \caption{Every experiment planned for this release and its current status.
 See \texttt{PLAN.md} in the released repository for full detail on each.}
 \label{tab:experiment-status}
-\begin{tabular}{llll}
+\begin{tabularx}{\textwidth}{@{}l X X X@{}}
 \toprule
 \# & Experiment & Code status & Result status \\
 \midrule
@@ -1046,7 +1053,7 @@ E10 & Bayes-risk scale sweep (no training) & done, 35,952 patches & \textbf{real
 E11 & Bayes-risk \corruptname{} sweep (no training) & done, 1,500 patches/modality & \textbf{real} (\S\ref{sec:bayes}) \\
 E12 & Bayes Fusion Gain + DPI instantiation (no training) & done, 1,500 patches, 5 trials/level & \textbf{real} (\S\ref{sec:bfg}) \\
 \bottomrule
-\end{tabular}
+\end{tabularx}
 \end{table}
 
 \subsection{Real baseline results}
