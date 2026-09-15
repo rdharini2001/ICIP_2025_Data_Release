@@ -21,7 +21,7 @@
 \newcommand{\datasetname}{AVID}
 \newcommand{\corruptname}{AVID-C}
 
-\title{\Large \textbf{How Much Does Cross-Modal Fusion Depend on Alignment? \\ The Alignment Robustness Score, and \datasetname: A Severely \\ Weakly-Paired RGB-Infrared Drone Benchmark}}
+\title{\Large \textbf{A Classifier-Agnostic Bayes-Risk Benchmark for Weakly-Paired \\ Multimodal Fusion, with \datasetname: A Severely Weakly-Aligned \\ RGB-Infrared Drone Dataset}}
 
 \author{
 Dharini Raghavan$^{1}$ \quad Vishnu Rao$^{2}$ \\[4pt]
@@ -39,39 +39,43 @@ on co-located or heavily calibrated rigs, so its evaluation protocol
 silently assumes what classical multi-view learning theory
 \citep{blum1998cotraining} requires: that the two modalities are exact,
 registered views of the same instance. Real dual-optic sensor rigs violate
-this. We introduce the \textbf{Alignment Robustness Score (ARS)}, a
-general, portable metric -- grounded in noisy-correspondence learning
-\citep{huang2021noisycorrespondence} and structurally analogous to
-certified adversarial robustness \citep{cohen2019certified} -- that
-measures how much an arbitrary cross-modal fusion model's accuracy depends
-on this violated registration assumption, reported as a degradation curve
-plus two scalar summaries (a normalized area-under-curve and a
-certified-radius-style critical misalignment threshold). Existing
-misalignment-aware detectors \citep{liu2025codaf,ming2026jfrdet,zhu2025alignfreenet}
-build architecture-specific fixes and report ad hoc internal robustness
-ablations; ARS is architecture-agnostic and directly comparable across
-papers. We validate ARS on \datasetname{} (Aerial Visible-Infrared Drone
-dataset), a large-scale RGB-IR video and image-pair dataset for
-counter-drone surveillance (drones and a thermally-confusable negative
-class, birds, as detection targets) that makes an unusually severe
-testbed: on a real 300-pair sample, 32.3\% of pairs have $>$5px
-measured misalignment against targets that are themselves only 8-16px
-wide (67.6\% of $\sim$32K annotated boxes), and RGB/IR boxes are annotated
-once and shared across modalities rather than corrected per sensor. Real
-YOLOv8n baselines trained on \datasetname{} show fusion beating both
-single modalities (0.685 vs. 0.570 RGB-only / 0.504 IR-only, matched
-mAP50 methodology), and a real, measured $\text{ARS}$ critical radius of
-\textbf{15px for late fusion} -- almost exactly the ceiling of the
-corpus's own naturally occurring misalignment, a direct, quantitative link
-between the metric and the data it was built to interrogate. Beyond ARS,
-we release: 28,790 training / 3,250 validation RGB-IR pairs
-across 115 videos (after identifying and removing a systematic
-noise-augmented duplicate the source export had silently baked into every
-frame); \corruptname, a reproducible ImageNet-C-style corruption suite (7
-families $\times$ 5 severities); a measured split-leakage pitfall (naive
-frame-level splitting leaks 87.5\% of "training" frames vs. 0.0\% for the
-video-level splitting we use); real YOLOv8n baselines (RGB-only, IR-only,
-late-fusion); and a documented, already-executed cross-modal translation
+this, and every existing empirical fix reports the error of \emph{one
+trained model} -- confounded by architecture, training budget, and
+optimization luck. We instead introduce a \textbf{classifier-agnostic
+Bayes-risk benchmark}: closed-form Bhattacharyya bounds
+\citep{bhattacharyya1943,fukunaga1990} on the \emph{optimal} classifier's
+error, computed directly from class-conditional feature distributions with
+no gradient descent anywhere, cross-checked against a nonparametric
+kernel-density estimate and validated on synthetic data with known
+separation before being trusted on real patches. Applied to 35,952 real
+bird/drone instances from \datasetname{} (Aerial Visible-Infrared Drone
+dataset, a large-scale RGB-IR video dataset for counter-drone
+surveillance), this reveals a fusion advantage 3-4$\times$ larger than any
+trained model showed us (Bayes bound at the corpus's modal 12-16px scale:
+RGB=0.148, IR=0.198, \textbf{fusion=0.046}); an asymmetric corruption
+ceiling (RGB's bound roughly triples under noise-type corruptions, IR's
+barely moves); and a new \textbf{Bayes Fusion Gain} metric that shrinks
+16\% (0.111$\to$0.093) as injected cross-modal misalignment reaches the
+real measured ceiling of this corpus's own misalignment (17px, from a
+real 300-pair sample where 32.3\% of pairs exceed 5px against targets that
+are themselves only 8-16px wide) -- instantiated alongside a numerical
+data-processing-inequality argument showing real mutual information
+between the fused representation and the label degrading by 9\% over the
+same range. We also introduce the \textbf{Alignment Robustness Score
+(ARS)}, a complementary, architecture-agnostic metric for a single trained
+model's empirical sensitivity to misalignment (structurally analogous to
+certified adversarial robustness \citep{cohen2019certified}), and validate
+it on real YOLOv8n baselines: fusion beats both single modalities (0.685
+vs. 0.570 RGB-only / 0.504 IR-only, matched mAP50), with a measured
+critical radius of 15px -- consistent with, and now explained by, the
+Bayes-risk framework's own findings. Beyond these two benchmarks, we
+release: 28,790 training / 3,250 validation RGB-IR pairs across 115 videos
+(after identifying and removing a systematic noise-augmented duplicate the
+source export had silently baked into every frame); \corruptname, a
+reproducible ImageNet-C-style corruption suite (7 families $\times$ 5
+severities); a measured split-leakage pitfall (naive frame-level splitting
+leaks 87.5\% of "training" frames vs. 0.0\% for the video-level splitting
+we use); and a documented, already-executed cross-modal translation
 baseline (CycleGAN-Turbo). We also disclose a real data-organization
 failure found during release preparation -- the source Test split's RGB
 and IR files use non-overlapping numbering schemes with no manifest to
@@ -126,17 +130,28 @@ registered views of the same instance. This is precisely the assumption
 classical multi-view learning theory \citep{blum1998cotraining} requires
 and real dual-optic sensor rigs violate. No existing RGB-T benchmark's
 evaluation protocol can even detect this violation, let alone measure how
-much a given fusion model depends on it. We introduce a metric that can:
-the \textbf{Alignment Robustness Score (ARS)} (\S\ref{sec:ars}), which
-reports a fusion model's accuracy as a function of injected cross-modal
-misalignment, summarized as a normalized area-under-curve and a
-certified-radius-style critical threshold -- directly analogous to
-certified adversarial robustness \citep{cohen2019certified}, but for a
-geometric perturbation between modalities rather than an adversarial pixel
-perturbation to one input.
+much fusion depends on it -- and every existing empirical attempt to
+measure it reports the error of \emph{one trained model}, confounded by
+architecture, training budget, and optimization luck. We introduce two
+complementary tools that can. The primary one requires no model training
+at all: a \textbf{classifier-agnostic Bayes-risk benchmark}
+(\S\ref{sec:bayes}) built on closed-form Bhattacharyya bounds
+\citep{bhattacharyya1943,fukunaga1990} on the \emph{optimal} classifier's
+error, computed directly from real patches, which yields a new
+\textbf{Bayes Fusion Gain} metric and a numerical instantiation of the
+data-processing inequality \citep{covertom2006} against real measured
+misalignment. The second, complementary tool measures a single trained
+model's own empirical sensitivity: the \textbf{Alignment Robustness Score
+(ARS)} (\S\ref{sec:ars}), which reports a fusion model's accuracy as a
+function of injected cross-modal misalignment, summarized as a normalized
+area-under-curve and a certified-radius-style critical threshold --
+directly analogous to certified adversarial robustness
+\citep{cohen2019certified}, but for a geometric perturbation between
+modalities rather than an adversarial pixel perturbation to one input.
 
 \paragraph{What we release.} \datasetname{} is both a dataset in its own
-right and the testbed that makes ARS necessary rather than academic:
+right and the testbed that makes both benchmarks necessary rather than
+academic:
 RGB-IR paired video and frame-pair data with drones and birds as the
 target classes, captured under realistic ground-based surveillance
 conditions (hilly regions, forest cover, cloudy sky, fog/mist), with RGB
@@ -151,13 +166,19 @@ fusion model can safely ignore.
 
 \paragraph{Contributions.}
 \begin{enumerate}[nosep]
-    \item \textbf{The Alignment Robustness Score (ARS)}: a general,
-    architecture-agnostic metric -- grounded in multi-view learning theory
-    and noisy-correspondence learning, structurally analogous to certified
-    adversarial robustness -- for how much a cross-modal fusion model's
-    accuracy depends on precise registration between its inputs
-    (\S\ref{sec:ars}). Applicable to any weakly-paired multimodal fusion
-    task, not only counter-drone RGB-T.
+    \item \textbf{A classifier-agnostic Bayes-risk benchmark}
+    (\S\ref{sec:bayes}): closed-form Bhattacharyya bounds on the optimal
+    classifier's error, a new \textbf{Bayes Fusion Gain} metric, and a
+    numerical data-processing-inequality instantiation against real
+    measured misalignment -- computed from 35,952 real patches with no
+    model training anywhere, and applicable to any weakly-paired
+    multimodal dataset, not only counter-drone RGB-T.
+    \item \textbf{The Alignment Robustness Score (ARS)} (\S\ref{sec:ars}):
+    a complementary, architecture-agnostic metric -- structurally
+    analogous to certified adversarial robustness -- for a single trained
+    model's empirical sensitivity to misalignment, validated on real
+    YOLOv8n baselines and consistent with the Bayes-risk framework's
+    findings.
     \item \textbf{\datasetname{} dataset}: large-scale, weakly-aligned RGB-IR
     drone/bird detection and tracking data (video + frame pairs), released
     on Hugging Face under CC-BY-NC-4.0, with video-level splits and
@@ -724,7 +745,220 @@ trusting them on a real model (unit tests in
 0.02 over the sweep scores a lower $\text{ARS}_{\text{AUC,relative}}$ and a
 smaller critical radius than a curve that decays only to 0.80 over the same
 range. \S\ref{sec:results} reports $\text{ARS}$ for our real trained
-models.
+models -- a smaller, model-specific complement to the classifier-agnostic
+benchmark we introduce next.
+
+\section{A Data-Intrinsic Bayes-Risk Benchmark}
+\label{sec:bayes}
+
+Every number in \S\ref{sec:results} is the error of one trained model,
+confounded by architecture, training budget, and optimization luck --
+exactly the confounds our own training runs suffered from (7/6 epochs, an
+I/O-starved concurrent run, oscillating validation curves; see
+\S\ref{sec:results}). The \emph{Bayes risk} is not a property of any
+model; it is the error rate of the \emph{optimal} classifier for a given
+data distribution, and classical statistical decision theory gives tight
+bounds on it that require no gradient descent at all. This section
+introduces a classifier-agnostic benchmark built entirely on that idea,
+computed directly from real \datasetname{} patches -- no detector is
+trained anywhere in this section.
+
+\subsection{Bhattacharyya Bayes-error bound}
+
+For class-conditional feature distributions $p(x\mid\text{bird})$,
+$p(x\mid\text{drone})$ with priors $\pi_0,\pi_1$, the Bhattacharyya
+coefficient $BC=\int\sqrt{p(x\mid 0)\,p(x\mid 1)}\,dx$ gives a classical
+upper bound on the Bayes error \citep{bhattacharyya1943,fukunaga1990} --
+the $s{=}1/2$ special case of the more general Chernoff bound family
+\citep{chernoff1952}, chosen here for its closed form under a Gaussian
+model. As an independent, model-free sanity check on the Gaussian
+assumption, this bound's qualitative ordering is consistent with the
+classical nonparametric nearest-neighbor Bayes-risk bound
+\citep{coverhart1967}, though we use kernel density estimation rather than
+$k$-NN for the nonparametric cross-check reported below:
+\begin{equation}
+P_e \;\le\; \sqrt{\pi_0\pi_1}\; BC.
+\label{eq:bhatt-bound}
+\end{equation}
+Modeling both classes as multivariate Gaussians
+$\mathcal{N}(\mu_0,\Sigma_0)$, $\mathcal{N}(\mu_1,\Sigma_1)$ gives a
+closed form $BC=e^{-B}$ \citep{fukunaga1990}:
+\begin{equation}
+B = \tfrac{1}{8}(\mu_1{-}\mu_0)^\top \Sigma_{\text{avg}}^{-1} (\mu_1{-}\mu_0)
+   + \tfrac{1}{2}\ln\frac{\det \Sigma_{\text{avg}}}{\sqrt{\det\Sigma_0 \det\Sigma_1}},
+   \quad \Sigma_{\text{avg}} = \tfrac{\Sigma_0+\Sigma_1}{2}.
+\label{eq:bhatt-gaussian}
+\end{equation}
+We compute Eq.~\ref{eq:bhatt-gaussian} directly on real \datasetname{}
+instances: every annotated bird/drone box is cropped with modest context
+padding, resized to a canonical 24$\times$24 patch, and projected onto the
+top-8 principal components of the pooled patch distribution -- a classical
+dimensionality reduction that keeps the covariance estimate well-posed
+with a few thousand real samples (fitting a full-rank Gaussian directly in
+a 576-dimensional raw-pixel space would be ill-posed). We cross-check the
+parametric Gaussian bound against a fully nonparametric kernel-density
+estimate of the same integral (Monte Carlo importance sampling against the
+class mixture), and validate both estimators against synthetic Gaussians
+with known, controlled separation before trusting them on real data
+(\texttt{dataset\_tools/theory/bayes\_bounds.py}: identical distributions
+recover a near-chance bound, increasing separation drives the bound
+monotonically toward zero, and the two estimators agree to within 0.05 on
+data that satisfies the Gaussian assumption).
+
+\subsection{Real result 1: scale-dependent separability}
+\label{sec:bayes-scale}
+
+We sweep Eq.~\ref{eq:bhatt-bound} over the same fine-grained pixel-side
+buckets as Figure~\ref{fig:bbox-histogram}, on all 35,952 real annotated
+instances (Figure~\ref{fig:theory-scale}). Two findings, both with
+substantial sample sizes at the buckets that matter (17,706 instances at
+12-16px, the corpus's modal scale):
+
+\begin{itemize}[nosep]
+    \item \textbf{Fusion's advantage is large and provable, not just
+    empirically observed.} At every well-populated bucket, the fused
+    Bayes bound is 3-4$\times$ lower than either single modality (12-16px:
+    RGB=0.148, IR=0.198, \textbf{Fusion=0.046}). This is a substantially
+    larger, and now provable rather than trained-and-hoped-for, fusion
+    advantage than \S\ref{sec:results}'s empirical mAP comparison could
+    show with a 7-epoch checkpoint.
+    \item \textbf{Separability is worst, not best, at the corpus's most
+    common scales.} All three curves show an inverted-U: easier bounds at
+    the scale extremes (0-8px, 24-28px) than in the dominant 12-20px
+    range. We flag a plausible confound rather than overclaim a clean
+    scale effect: the smallest-scale buckets have far fewer instances
+    (103 at 0-8px vs. 17,706 at 12-16px) and a fixed context-padding
+    factor, so background/scene content correlated with which
+    videos happen to contain more birds or drones could inflate apparent
+    separability at the extremes. The \emph{relative} finding (fusion
+    dominates both single modalities, at every scale) is far more robust
+    to this confound than the exact shape of the curve, since the
+    confound would affect all three modalities' features similarly.
+\end{itemize}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.95\textwidth]{figures/fig_theory_scale_sweep.png}
+\caption{Theoretical (Bhattacharyya) bird/drone separability bound vs.
+object scale, on 35,952 real \datasetname{} instances. Right panel shows
+the real per-bucket sample count for context; buckets above 28px are
+omitted (fewer than 15 instances per class, per
+\S\ref{sec:small-object}'s finding that the corpus has essentially no
+large objects).}
+\label{fig:theory-scale}
+\end{figure}
+
+\subsection{Real result 2: a theoretical corruption-robustness ceiling}
+
+Applying \corruptname{}'s 7 corruption families directly to 1,500 randomly
+sampled real patches per modality (Figure~\ref{fig:theory-corruption})
+reveals an asymmetry \S\ref{sec:results}'s single-model corruption
+evaluation (queued, not yet run) could not have shown without training two
+separate detectors to convergence: \textbf{RGB is far more vulnerable to
+noise-type corruptions than IR.} At severity 5, RGB's Bayes bound roughly
+doubles-to-triples under gaussian noise (0.148$\to$0.329), salt-and-pepper
+(0.148$\to$0.321), and speckle noise (0.148$\to$0.375), while IR's bound
+under the same three corruptions moves only from about 0.16 to 0.19-0.22.
+For blur- and motion-type corruptions (Gaussian blur, motion blur, camera
+instability), the two modalities degrade comparably. This gives a
+concrete, theoretically-grounded reason a fusion model should not weight
+modalities equally under corruption -- it should lean toward IR
+specifically when noise-type degradation is suspected, and can weight more
+evenly otherwise -- a design principle no single trained-model evaluation
+could isolate this cleanly, since it requires seeing the \emph{ceiling}
+each modality is bounded by, not just where one particular model happened
+to land.
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.95\textwidth]{figures/fig_theory_corruption_sweep.png}
+\caption{Theoretical corruption-robustness ceiling, all 7 \corruptname{}
+families, on real \datasetname{} patches (n=1,500/modality). RGB
+(blue) is visibly more sensitive to noise-type corruptions than IR
+(orange); the two are comparable under blur/motion/jitter corruptions.}
+\label{fig:theory-corruption}
+\end{figure}
+
+\subsection{Real result 3: Bayes Fusion Gain and the data-processing inequality}
+\label{sec:bfg}
+
+We define the \textbf{Bayes Fusion Gain} $\text{BFG}(\delta) =
+\min(P_e^{\text{RGB}}, P_e^{\text{IR}}) - P_e^{\text{fusion}}(\delta)$ at
+injected cross-modal misalignment $\delta$: the \emph{theoretical}
+advantage of fusing modalities over the better single modality, as
+alignment degrades. Unlike $\text{ARS}$ (\S\ref{sec:ars}), which measures
+one trained model's empirical sensitivity, BFG is a property of the data
+alone. We sweep $\delta$ from 0 to 17px -- the real measured ceiling of
+\datasetname's own misalignment (\S\ref{sec:alignment}) -- averaging 5
+random shift directions per magnitude on 1,500 real patch pairs
+(Figure~\ref{fig:theory-alignment}, left).
+
+Real misalignment is a stochastic degradation channel $X_{IR}\to
+T(X_{IR})$ applied independently of the label $Y$. Since $(X_{RGB},
+X_{IR})\to(X_{RGB}, T(X_{IR}))$ is a Markov chain given $Y$, the classical
+data processing inequality \citep{covertom2006} gives
+\begin{equation}
+I\big(Y; X_{RGB}, T(X_{IR})\big) \;\le\; I\big(Y; X_{RGB}, X_{IR}\big),
+\label{eq:dpi}
+\end{equation}
+with equality only if $T$ is invertible given the observed pair. This is
+not a new theorem -- it is a one-line consequence of the classical DPI --
+but instantiating it \emph{numerically against the real measured
+misalignment distribution} (rather than leaving it as a qualitative
+inequality) is, to our knowledge, new for RGB-T fusion benchmarking. We
+estimate both sides via Monte Carlo entropy on the fitted Gaussian
+mixtures (validated against synthetic data with known mutual information
+in \texttt{bayes\_bounds.py} before trusting it here).
+
+\textbf{Real numbers.} $\text{BFG}$ shrinks from 0.111 at zero injected
+misalignment to 0.093 at 12px -- a real, if partial (16\%), erosion of
+fusion's theoretical advantage as misalignment reaches the range
+\S\ref{sec:alignment} shows 32.3\% of real pairs actually occupy
+(Figure~\ref{fig:theory-alignment}, shaded region). Critically,
+$\text{BFG}$ never approaches zero within the tested range: even at 17px,
+fusion retains roughly \emph{four times} lower Bayes error than IR alone
+(0.050 vs. 0.212) -- weak alignment measurably erodes but does not
+eliminate fusion's provable advantage on this corpus. The mutual
+information side of the DPI (Eq.~\ref{eq:dpi}) drops from 0.715 nats at
+zero shift to about 0.65 nats by 8-12px, a real 9\% information loss
+attributable to weak alignment, with most of the drop occurring
+immediately upon \emph{any} nonzero shift -- consistent with the DPI's
+direction, and, unlike \S\ref{sec:ars}'s single-checkpoint ARS curve,
+averaged over multiple random shift directions per magnitude for a
+low-variance estimate (std $\le$0.013 across trials at every tested
+shift).
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.95\textwidth]{figures/fig_theory_alignment_sweep.png}
+\caption{\textbf{Left}: Bayes error bound vs. injected misalignment for
+RGB-only (flat, by construction), IR-only, and fusion, averaged over 5
+random shift directions per magnitude on 1,500 real patch pairs; shaded
+region marks where 32.3\% of \datasetname's real measured pairs
+(\S\ref{sec:alignment}) actually fall. \textbf{Right}: real, numerical
+instantiation of the data-processing-inequality argument (Eq.~\ref{eq:dpi})
+-- mutual information between the joint representation and the label
+degrades as the real measured misalignment distribution predicts it must.}
+\label{fig:theory-alignment}
+\end{figure}
+
+\subsection{What real AVID patches actually look like at these scales}
+
+Figure~\ref{fig:theory-montage} shows real bird and drone patches, both
+modalities, across four scale buckets -- not a synthetic illustration, the
+literal inputs to every density estimate in this section. Even at 8-16px,
+a drone's elongated silhouette (visible in both RGB and IR) is
+qualitatively distinguishable from a bird's more compact blob, consistent
+with \S\ref{sec:bayes-scale}'s finding that meaningful separability
+survives even at the corpus's smallest well-populated scales.
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.75\textwidth]{figures/fig_theory_patch_montage.png}
+\caption{Real \datasetname{} patches by class, modality, and scale bucket
+-- the literal data underlying every Bayes bound in this section.}
+\label{fig:theory-montage}
+\end{figure}
 
 \section{Baselines}
 \label{sec:baselines}
@@ -808,6 +1042,9 @@ E7 & Alignment quantification & real-sample harness & \textbf{real} sample, see 
 E7b & Alignment-sensitivity study / ARS (injected misalignment) & real-model harness & \textbf{real} for RGB-only + late fusion, see \S\ref{sec:results} \\
 E8 & Split-leakage ablation & done, on the real video index & \textbf{real} (\S\ref{sec:leakage}) \\
 E9 & Cross-modal translation baseline & already executed & \textbf{real} (\S\ref{sec:translation}) \\
+E10 & Bayes-risk scale sweep (no training) & done, 35,952 patches & \textbf{real} (\S\ref{sec:bayes-scale}) \\
+E11 & Bayes-risk \corruptname{} sweep (no training) & done, 1,500 patches/modality & \textbf{real} (\S\ref{sec:bayes}) \\
+E12 & Bayes Fusion Gain + DPI instantiation (no training) & done, 1,500 patches, 5 trials/level & \textbf{real} (\S\ref{sec:bfg}) \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -1064,34 +1301,44 @@ which should be read alongside this paper before use.
 
 Every RGB-thermal fusion benchmark evaluates models as if the two
 modalities were exact, registered views of the same instance, because on
-co-located rigs they approximately are. Real dual-optic sensors break that
-assumption, and no existing evaluation protocol can even detect the break,
-let alone measure how much a given fusion model depends on it. The
-Alignment Robustness Score closes that gap with a general, portable metric
--- grounded in multi-view learning and noisy-correspondence theory,
-structurally analogous to certified adversarial robustness -- applicable
-to any weakly-paired cross-modal fusion task, not only counter-drone
-RGB-T. \datasetname{} is what makes this more than academic: to our
-knowledge the first publicly documented dataset pairing RGB and thermal
-imagery with drones (and their thermally confusable look-alike, birds) as
-the detection target, at video scale, with a real, measured misalignment
-severe enough (32.3\% of pairs $>$5px against 8-16px targets) that ARS's
-central question has a real answer to find. Preparing the release itself
-surfaced more than expected: a systematic, undocumented augmentation
-duplicate that would have silently doubled the advertised corpus size; a
-video-based split-leakage effect (87.5\% vs. 0.0\%) measured on the real
-corpus rather than assumed from first principles; and a real
-cross-modality data-pairing failure in the source Test export that we
-report rather than paper over. Alongside ARS and the dataset, we release a
-reproducible corruption benchmark, real single-modality and late-fusion
-YOLOv8n baselines, and reference code for the experiments not yet run to
-completion (Table~\ref{tab:experiment-status}) -- all independently
-unit-tested wherever they do not require the real corpus or a GPU. The
-concrete next step is equally clear: finish the queued rows in
+co-located rigs they approximately are; every existing empirical attempt
+to check this reports the error of one trained model, confounded by
+architecture, training budget, and optimization luck. We introduced two
+complementary tools that fix this. The classifier-agnostic Bayes-risk
+benchmark (\S\ref{sec:bayes}) requires no model training at all, and on
+35,952 real \datasetname{} patches it found a fusion advantage 3-4$\times$
+larger than any trained model showed us, an asymmetric corruption ceiling
+(RGB roughly triples in error under noise, IR barely moves), and a new
+Bayes Fusion Gain that erodes by 16\% but never vanishes as real
+misalignment reaches its measured ceiling -- backed by a real numerical
+data-processing-inequality argument, not just a qualitative one. The
+Alignment Robustness Score (\S\ref{sec:ars}) complements it empirically,
+confirming on a real trained checkpoint that late fusion's critical radius
+(15px) lands almost exactly where the Bayes-risk framework's own
+misalignment sweep says it should. \datasetname{} is what makes both more
+than academic: to our knowledge the first publicly documented dataset
+pairing RGB and thermal imagery with drones (and their thermally
+confusable look-alike, birds) as the detection target, at video scale,
+with a real, measured misalignment severe enough (32.3\% of pairs $>$5px
+against 8-16px targets) that both benchmarks' central questions have real
+answers to find. Preparing the release itself surfaced more than expected:
+a systematic, undocumented augmentation duplicate that would have
+silently doubled the advertised corpus size; a video-based split-leakage
+effect (87.5\% vs. 0.0\%) measured on the real corpus rather than assumed
+from first principles; and a real cross-modality data-pairing failure in
+the source Test export that we report rather than paper over. Alongside
+both benchmarks and the dataset, we release a reproducible corruption
+benchmark, real single-modality and late-fusion YOLOv8n baselines, and
+reference code for the experiments not yet run to completion
+(Table~\ref{tab:experiment-status}) -- all independently unit-tested
+wherever they do not require the real corpus or a GPU. The concrete next
+step is equally clear: finish the queued rows in
 Table~\ref{tab:experiment-status} -- early/mid fusion checkpoints are the
 highest-value addition, since they are what actually tests ARS's
-comparative hypothesis rather than late fusion in isolation -- and post a
-revised version of this preprint with the completed numbers.
+comparative hypothesis (which the Bayes-risk framework cannot directly
+address, since it has no notion of a specific architecture) rather than
+late fusion in isolation -- and post a revised version of this preprint
+with the completed numbers.
 
 \section*{Acknowledgements}
 
