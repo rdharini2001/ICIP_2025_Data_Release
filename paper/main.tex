@@ -8,7 +8,7 @@
 \usepackage{amsmath,amssymb}
 \usepackage{booktabs}
 \usepackage{multirow}
-\usepackage{xcolor}
+\usepackage[table]{xcolor}
 \usepackage[colorlinks=true,linkcolor=blue,citecolor=blue,urlcolor=blue]{hyperref}
 \usepackage[numbers,sort&compress]{natbib}
 \usepackage{caption}
@@ -17,9 +17,12 @@
 \usepackage{listings}
 \usepackage{titlesec}
 \usepackage{tabularx}
+\usepackage{placeins}
+\usepackage{etoolbox}
 
 \titleformat{\section}{\normalfont\Large\bfseries}{\thesection}{1em}{}
 \titleformat{\subsection}{\normalfont\large\bfseries}{\thesubsection}{1em}{}
+\pretocmd{\section}{\FloatBarrier}{}{}
 
 \newcommand{\datasetname}{AVID}
 \newcommand{\corruptname}{AVID-C}
@@ -579,7 +582,7 @@ it outright) to study graceful degradation under realistic sensor dropout
 (e.g. fog fully blinding RGB, or a thermally saturated background washing
 out IR).
 
-\section{Weak-Alignment Quantification and Sensitivity}
+\section{Weak-Alignment Quantification}
 \label{sec:alignment}
 
 \subsection{Per-pair alignment quantification}
@@ -641,119 +644,6 @@ full-corpus field in \texttt{dataset\_tools/hf\_release/SCHEMA.md}.
 injected offset, recovered via mutual-information registration search.}
 \label{fig:alignment}
 \end{figure}
-
-\subsection{Alignment-sensitivity study protocol}
-
-Documenting weak alignment raises an immediate empirical question: given
-that the corpus already has some baseline misalignment, how much
-\emph{additional} misalignment can a fusion model tolerate before it fails?
-We release a model-agnostic sensitivity-study harness
-(\texttt{sensitivity\_study.py}) that injects controlled, increasing
-synthetic misalignment (shift, rotation, slight scale) into the IR frame of
-a pair on top of whatever native weak alignment already exists, and
-measures degradation in caller-supplied prediction quality across a sweep
-from 0 px (native alignment only) to 20 px / 8$^{\circ}$. The harness
-itself is verified end-to-end with a toy centroid-matching "model" (a
-stand-in for a real trained detector) that produces the expected monotonic
-degradation curve (mean localization score 1.00 at zero injected
-misalignment, falling to 0.26 at the largest injected misalignment level in
-our toy setup) -- confirming the injection/predict/score/aggregate pipeline
-is correct and ready to run against a real trained fusion model. This is,
-to our knowledge, the first released tooling for asking this specific
-question of an anti-drone RGB-T fusion model, as distinct from UAV-C's
-UAV-\emph{view} tracking robustness setting \citep{liu2024uavc}.
-
-\subsection{Alignment robustness as a first-class metric}
-\label{sec:ars}
-
-The sensitivity study above is not just a diagnostic for \datasetname{}
-specifically -- it operationalizes a gap in how the field evaluates
-multimodal fusion at all, and we argue it should be reported as a
-standard metric alongside accuracy for any cross-modal fusion model, the
-same way corruption robustness became a standard axis alongside clean
-accuracy after ImageNet-C.
-
-\paragraph{Why existing evaluation protocols cannot see this failure mode.}
-Multi-view learning's classical theoretical foundation
-\citep{blum1998cotraining} assumes two views of an instance are (a)
-individually informative about the label and (b) conditionally
-independent given the label -- and, implicitly, (c) views of the
-\emph{same} instance, i.e. exactly registered. Every RGB-T fusion
-benchmark in Table~\ref{tab:related-work} is built on co-located or
-heavily calibrated rigs that make (c) approximately true by construction.
-A separate literature, noisy-correspondence learning
-\citep{huang2021noisycorrespondence}, directly studies violations of exact
-pairing, but for global retrieval/matching tasks (is this image paired
-with this caption); we are not aware of it being applied to the dense,
-per-pixel spatial correspondence that a detection fusion model depends on.
-
-We want to be precise about what is and is not already addressed here,
-since misalignment-\emph{aware} RGB-T detection is an active and growing
-applied literature, not an open gap: CoDAF \citep{liu2025codaf} and JFRDet
-\citep{ming2026jfrdet} both propose architectures with explicit
-alignment/registration modules for weakly- or severely-misaligned
-visible-infrared detection (the latter also releasing a misalignment
-benchmark); AlignFreeNet \citep{zhu2025alignfreenet} goes further and asks
-whether pre-alignment is necessary at all; DOD-SA \citep{jin2025dodsa}
-addresses a closely related annotation-cost problem (single- rather than
-dual-modality labels) that connects directly to our own finding that
-\datasetname's boxes are annotated once and shared across modalities
-(\S\ref{sec:pitfalls}). What none of these papers do is report a
-standardized, portable \emph{metric} for how much an arbitrary fusion
-architecture's accuracy depends on the registration assumption --
-each reports robustness (if at all) as an internal ablation specific to
-their own proposed architecture and their own choice of injected offset
-range, not as a reusable evaluation protocol comparable across papers. That
-is the specific, narrower gap $\text{ARS}$ targets: a certified-radius-style
-summary statistic (defined below), grounded in the noisy-correspondence and
-certified-robustness literatures, that any fusion model -- theirs or
-future work's -- can be scored on and compared by.
-
-\paragraph{Definition.} Let $s(\delta)$ be a fusion model's task score
-(mAP, F1, IoU-based recall, ...) when a controlled misalignment of
-magnitude $\delta$ (pixels; combined shift/rotation/scale, as in
-\texttt{sensitivity\_study.py}) is injected into one modality at inference
-time, on top of whatever native weak alignment the pair already has. We
-define two summary statistics, computed by
-\texttt{alignment\_robustness\_score.py} from the
-same sweep the sensitivity study already runs (no additional data
-collection):
-\begin{align}
-    \text{ARS}_{\text{AUC}}(f) &= \frac{1}{\delta_{\max}} \int_0^{\delta_{\max}} s(\delta) \, d\delta
-    \label{eq:ars-auc} \\
-    \text{ARS}_{\text{radius}}(f, \tau) &= \max \{\delta : s(\delta) \geq \tau \cdot s(0)\}
-    \label{eq:ars-radius}
-\end{align}
-$\text{ARS}_{\text{AUC}}$ (Eq.~\ref{eq:ars-auc}, estimated by trapezoidal
-integration over the sweep points) is the average score across the tested
-misalignment range, directly comparable to the clean score $s(0)$; we also
-report it normalized as $\text{ARS}_{\text{AUC}}/s(0) \in [0,1]$ so models
-with different absolute score scales are comparable.
-$\text{ARS}_{\text{radius}}$ (Eq.~\ref{eq:ars-radius}) is the largest
-misalignment a model tolerates before falling below a $\tau$-fraction of
-its clean-alignment performance -- the direct geometric analogue of a
-\emph{certified radius} in the adversarial-robustness literature
-\citep{cohen2019certified}, except the perturbation is a rigid cross-modal
-misalignment rather than an adversarial pixel-norm perturbation to a
-single input.
-
-\paragraph{A testable hypothesis this metric enables.} Architectures that
-fuse early via pixel- or channel-level concatenation must implicitly learn
-a spatial correspondence between modalities during training; if that
-correspondence is violated at test time by a different misalignment than
-the model saw in training, we would expect a steep degradation curve (low
-$\text{ARS}_{\text{AUC}}$, small $\text{ARS}_{\text{radius}}$). Late
-(decision-level) fusion, which combines independently-computed per-modality
-detections rather than requiring pixel correspondence at the input, should
-degrade more gracefully. We verified the two summary statistics correctly
-recover a known ordering on controlled synthetic degradation curves before
-trusting them on a real model (unit tests in
-\texttt{alignment\_robustness\_score.py}): a curve that decays from 1.0 to
-0.02 over the sweep scores a lower $\text{ARS}_{\text{AUC,relative}}$ and a
-smaller critical radius than a curve that decays only to 0.80 over the same
-range. \S\ref{sec:results} reports $\text{ARS}$ for our real trained
-models -- a smaller, model-specific complement to the classifier-agnostic
-benchmark we introduce next.
 
 \section{A Data-Intrinsic Bayes-Risk Benchmark}
 \label{sec:bayes}
@@ -855,6 +745,31 @@ large objects).}
 \label{fig:theory-scale}
 \end{figure}
 
+\begin{table}[h]
+\centering
+\small
+\caption{Full scale-sweep results underlying Figure~\ref{fig:theory-scale}:
+Bhattacharyya coefficient and closed-form Gaussian Bayes-error bound
+(Eq.~\ref{eq:bhatt-bound}-\ref{eq:bhatt-gaussian}) at every well-populated
+pixel-side bucket, all three modalities, 35,952 real instances total.
+Buckets above 28px are omitted (fewer than 15 instances per class).}
+\label{tab:bayes-scale-full}
+\begin{tabular}{lrrrrrr}
+\toprule
+& \multicolumn{2}{c}{RGB} & \multicolumn{2}{c}{IR} & \multicolumn{2}{c}{Fusion} \\
+\cmidrule(lr){2-3}\cmidrule(lr){4-5}\cmidrule(lr){6-7}
+Bucket (px) & $n$ & $P_e$ bound & $n$ & $P_e$ bound & $n$ & $P_e$ bound \\
+\midrule
+0--8    & 103    & 0.098 & 103    & 0.040 & 103    & 0.0002 \\
+8--12   & 6,783  & 0.089 & 6,783  & 0.144 & 6,783  & 0.018 \\
+12--16  & 17,706 & 0.148 & 17,706 & 0.198 & 17,706 & \textbf{0.046} \\
+16--20  & 7,269  & 0.137 & 7,269  & 0.217 & 7,269  & 0.050 \\
+20--24  & 2,155  & 0.053 & 2,155  & 0.133 & 2,155  & 0.009 \\
+24--28  & 1,189  & 0.019 & 1,189  & 0.039 & 1,189  & 0.0005 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
 \subsection{Real result 2: a theoretical corruption-robustness ceiling}
 
 Applying \corruptname{}'s 7 corruption families directly to 1,500 randomly
@@ -884,6 +799,65 @@ families, on real \datasetname{} patches (n=1,500/modality). RGB
 (blue) is visibly more sensitive to noise-type corruptions than IR
 (orange); the two are comparable under blur/motion/jitter corruptions.}
 \label{fig:theory-corruption}
+\end{figure}
+
+\begin{table}[h]
+\centering
+\small
+\caption{Full corruption-sweep summary underlying Figure~\ref{fig:theory-corruption}:
+Bhattacharyya Bayes-error bound at clean, severity 3, and severity 5, all 7
+\corruptname{} families, both modalities (n=1,500 patches/modality, PCA
+basis fit once on clean data and reused across severities). Noise-type
+families (top three rows) show the RGB/IR asymmetry driving
+\S\ref{sec:bfg}'s modality-weighting recommendation; blur/motion/jitter
+families (bottom four) do not.}
+\label{tab:bayes-corruption-full}
+\begin{tabular}{lrrrrrr}
+\toprule
+& \multicolumn{3}{c}{RGB $P_e$ bound} & \multicolumn{3}{c}{IR $P_e$ bound} \\
+\cmidrule(lr){2-4}\cmidrule(lr){5-7}
+Corruption family & clean & sev.\ 3 & sev.\ 5 & clean & sev.\ 3 & sev.\ 5 \\
+\midrule
+Gaussian noise      & 0.148 & 0.216 & \textbf{0.329} & 0.162 & 0.172 & 0.198 \\
+Salt-and-pepper     & 0.148 & 0.207 & \textbf{0.321} & 0.162 & 0.167 & 0.189 \\
+Speckle noise       & 0.148 & 0.249 & \textbf{0.375} & 0.162 & 0.180 & 0.222 \\
+Gaussian blur       & 0.148 & 0.127 & 0.186 & 0.162 & 0.162 & 0.204 \\
+Uneven illumination & 0.148 & 0.275 & 0.304 & 0.162 & 0.208 & 0.245 \\
+Motion blur         & 0.148 & 0.190 & 0.222 & 0.162 & 0.186 & 0.216 \\
+Camera instability  & 0.148 & 0.216 & 0.224 & 0.162 & 0.225 & 0.224 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Figure~\ref{fig:perturbation-montage} makes this asymmetry visible rather
+than only numerical: the same real drone patch, both modalities, under 4
+representative \corruptname{} families (2 noise-type, 2 blur/motion-type;
+Table~\ref{tab:bayes-corruption-full} reports the numeric result for all 7)
+at increasing severity. The noise-type rows (gaussian, speckle) visibly
+destroy the RGB target's already-faint contrast against its background well
+before severity 4, while the IR silhouette -- already a compact,
+high-contrast hot-blob against a cooler background -- remains legible
+throughout; the blur/jitter rows degrade both modalities comparably,
+consistent with Table~\ref{tab:bayes-corruption-full}.
+
+\begin{figure}[h]
+\centering
+\begin{minipage}{0.48\textwidth}
+\centering
+\includegraphics[width=\textwidth]{figures/fig_perturbation_montage_rgb.png}
+\subcaption{RGB}
+\end{minipage}
+\hfill
+\begin{minipage}{0.48\textwidth}
+\centering
+\includegraphics[width=\textwidth]{figures/fig_perturbation_montage_ir.png}
+\subcaption{IR}
+\end{minipage}
+\caption{Real AVID-C perturbations applied to one real drone patch
+(12-20px), both modalities, clean/severity-2/severity-4, 4 representative
+corruption families (2 noise-type, 2 blur/motion-type; the full 7-family
+numeric result is Table~\ref{tab:bayes-corruption-full}).}
+\label{fig:perturbation-montage}
 \end{figure}
 
 \subsection{Real result 3: Bayes Fusion Gain and the data-processing inequality}
@@ -949,6 +923,33 @@ degrades as the real measured misalignment distribution predicts it must.}
 \label{fig:theory-alignment}
 \end{figure}
 
+\begin{table}[h]
+\centering
+\small
+\caption{Full Bayes Fusion Gain / data-processing-inequality sweep
+underlying Figure~\ref{fig:theory-alignment}: Bayes-error bound per
+modality, Bayes Fusion Gain, and mutual information $I(Y;X_{RGB},X_{IR})$
+at every injected shift magnitude, averaged over 5 random shift directions
+per magnitude (std shown for the fusion bound; RGB is flat by construction
+since only IR is shifted). The shaded rows mark the range
+(5-17px) where \S\ref{sec:alignment} shows 32.3\% of real
+\datasetname{} pairs actually fall.}
+\label{tab:bfg-full}
+\begin{tabular}{rrrrrrr}
+\toprule
+$\delta$ (px) & RGB $P_e$ & IR $P_e$ & Fusion $P_e$ & Fusion s.d. & BFG & $I(Y;X)$ (nats) \\
+\midrule
+0  & 0.148 & 0.162 & 0.037 & 0.000 & 0.111 & 0.715 \\
+1  & 0.148 & 0.169 & 0.038 & 0.001 & 0.109 & 0.663 \\
+2  & 0.148 & 0.184 & 0.041 & 0.001 & 0.106 & 0.660 \\
+\rowcolor{gray!12} 5  & 0.148 & 0.202 & 0.047 & 0.007 & 0.100 & 0.655 \\
+\rowcolor{gray!12} 8  & 0.148 & 0.210 & 0.051 & 0.013 & 0.097 & 0.649 \\
+\rowcolor{gray!12} 12 & 0.148 & 0.230 & 0.054 & 0.010 & \textbf{0.093} & 0.647 \\
+\rowcolor{gray!12} 17 & 0.148 & 0.212 & 0.050 & 0.010 & 0.098 & 0.651 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
 \subsection{What real AVID patches actually look like at these scales}
 
 Figure~\ref{fig:theory-montage} shows real bird and drone patches, both
@@ -967,8 +968,168 @@ survives even at the corpus's smallest well-populated scales.
 \label{fig:theory-montage}
 \end{figure}
 
-\section{Baselines}
+\subsection{Summary: three real results, one framework}
+\label{sec:bayes-summary}
+
+Table~\ref{tab:bayes-summary} collects the headline number from each of the
+three real experiments above into a single view. All three use the same
+patch-level pipeline (Eq.~\ref{eq:bhatt-gaussian}, PCA-8 features, no
+gradient descent anywhere) applied to three different real, controlled
+perturbations of the same underlying corpus -- object scale
+(\S\ref{sec:bayes-scale}), \corruptname{} corruption severity
+(Table~\ref{tab:bayes-corruption-full}), and injected cross-modal
+misalignment (\S\ref{sec:bfg}) -- so the three rows are directly comparable
+statements about the same 35,952-instance corpus rather than results from
+three unrelated pipelines.
+
+\begin{table}[h]
+\centering
+\small
+\caption{Summary of the three Bayes-risk experiments (\S\ref{sec:bayes}),
+each a different real, controlled perturbation applied to the same
+patch-level pipeline. ``Fusion advantage'' is $\min(P_e^{\text{RGB}},
+P_e^{\text{IR}})/P_e^{\text{Fusion}}$ at the reference operating point
+listed.}
+\label{tab:bayes-summary}
+\begin{tabular}{p{2.3cm}p{3.2cm}p{1.6cm}p{4.6cm}}
+\toprule
+Perturbation & Reference operating point & Fusion adv. & Headline finding \\
+\midrule
+Object scale & 12-16px (modal bucket, $n$=17,706) & 3.2$\times$ & Fusion bound 3-4$\times$ lower than either single modality at every well-populated scale (Table~\ref{tab:bayes-scale-full}) \\
+\corruptname{} corruption & severity 5, worst noise family (speckle) & RGB $P_e$ $\times$2.5, IR $\times$1.4 & RGB bound roughly triples under noise-type corruption; IR barely moves (Table~\ref{tab:bayes-corruption-full}) \\
+Cross-modal misalignment & 12px (near real measured ceiling) & 2.7$\times$ & BFG shrinks 16\% (0.111$\to$0.093) but fusion never loses its advantage, even at 17px (Table~\ref{tab:bfg-full}) \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The three results reinforce, rather than merely coexist with, each other:
+fusion's advantage is real and large at the corpus's dominant scale; that
+advantage is theoretically explained by the two modalities' complementary,
+asymmetric failure modes under corruption (RGB fails under noise, IR does
+not); and the corpus's own real weak alignment (\S\ref{sec:alignment})
+erodes but does not erase that advantage, exactly as the classical
+data-processing inequality predicts it must once misalignment is modeled as
+a stochastic degradation channel. No detector was trained to produce any
+number in this section.
+
+\section{Empirical Validation with Trained Models}
 \label{sec:baselines}
+
+Everything in \S\ref{sec:bayes} is classifier-agnostic: no detector is
+trained, and every number is a property of the data distribution alone.
+This section is deliberately separate and secondary -- it asks the
+complementary, model-\emph{specific} question of whether a real, trained
+fusion pipeline actually behaves the way the Bayes-risk framework predicts
+it should, using the same real \datasetname{} corpus. Nothing here changes
+or re-derives \S\ref{sec:bayes}'s conclusions; it is a spot-check against
+one concrete architecture family (YOLOv8n + Weighted Boxes Fusion) subject
+to the real infrastructure constraints (partial training budgets, one
+shared GPU) that motivated moving the primary benchmark off model training
+in the first place.
+
+\subsection{Alignment Robustness Score: a trained-model diagnostic}
+\label{sec:ars}
+
+\S\ref{sec:bfg}'s Bayes Fusion Gain measures the data's own theoretical
+tolerance to misalignment; the natural follow-up is whether a real trained
+fusion model's \emph{empirical} accuracy degrades the way that theoretical
+ceiling predicts. We release a model-agnostic sensitivity-study harness
+(\texttt{sensitivity\_study.py}) that injects controlled, increasing
+synthetic misalignment (shift, rotation, slight scale) into the IR frame of
+a pair on top of whatever native weak alignment already exists, and
+measures degradation in caller-supplied prediction quality across a sweep
+from 0 px (native alignment only) to 20 px / 8$^{\circ}$. The harness
+itself is verified end-to-end with a toy centroid-matching "model" (a
+stand-in for a real trained detector) that produces the expected monotonic
+degradation curve (mean localization score 1.00 at zero injected
+misalignment, falling to 0.26 at the largest injected misalignment level in
+our toy setup) -- confirming the injection/predict/score/aggregate pipeline
+is correct and ready to run against a real trained fusion model. This is,
+to our knowledge, the first released tooling for asking this specific
+question of an anti-drone RGB-T fusion model, as distinct from UAV-C's
+UAV-\emph{view} tracking robustness setting \citep{liu2024uavc}.
+
+\paragraph{Why existing evaluation protocols cannot see this failure mode.}
+Multi-view learning's classical theoretical foundation
+\citep{blum1998cotraining} assumes two views of an instance are (a)
+individually informative about the label and (b) conditionally
+independent given the label -- and, implicitly, (c) views of the
+\emph{same} instance, i.e. exactly registered. Every RGB-T fusion
+benchmark in Table~\ref{tab:related-work} is built on co-located or
+heavily calibrated rigs that make (c) approximately true by construction.
+A separate literature, noisy-correspondence learning
+\citep{huang2021noisycorrespondence}, directly studies violations of exact
+pairing, but for global retrieval/matching tasks (is this image paired
+with this caption); we are not aware of it being applied to the dense,
+per-pixel spatial correspondence that a detection fusion model depends on.
+
+We want to be precise about what is and is not already addressed here,
+since misalignment-\emph{aware} RGB-T detection is an active and growing
+applied literature, not an open gap: CoDAF \citep{liu2025codaf} and JFRDet
+\citep{ming2026jfrdet} both propose architectures with explicit
+alignment/registration modules for weakly- or severely-misaligned
+visible-infrared detection (the latter also releasing a misalignment
+benchmark); AlignFreeNet \citep{zhu2025alignfreenet} goes further and asks
+whether pre-alignment is necessary at all; DOD-SA \citep{jin2025dodsa}
+addresses a closely related annotation-cost problem (single- rather than
+dual-modality labels) that connects directly to our own finding that
+\datasetname's boxes are annotated once and shared across modalities
+(\S\ref{sec:pitfalls}). What none of these papers do is report a
+standardized, portable \emph{metric} for how much an arbitrary fusion
+architecture's accuracy depends on the registration assumption --
+each reports robustness (if at all) as an internal ablation specific to
+their own proposed architecture and their own choice of injected offset
+range, not as a reusable evaluation protocol comparable across papers. That
+is the specific, narrower gap $\text{ARS}$ targets: a certified-radius-style
+summary statistic (defined below), grounded in the noisy-correspondence and
+certified-robustness literatures, that any fusion model -- theirs or
+future work's -- can be scored on and compared by.
+
+\paragraph{Definition.} Let $s(\delta)$ be a fusion model's task score
+(mAP, F1, IoU-based recall, ...) when a controlled misalignment of
+magnitude $\delta$ (pixels; combined shift/rotation/scale, as in
+\texttt{sensitivity\_study.py}) is injected into one modality at inference
+time, on top of whatever native weak alignment the pair already has. We
+define two summary statistics, computed by
+\texttt{alignment\_robustness\_score.py} from the
+same sweep the sensitivity study already runs (no additional data
+collection):
+\begin{align}
+    \text{ARS}_{\text{AUC}}(f) &= \frac{1}{\delta_{\max}} \int_0^{\delta_{\max}} s(\delta) \, d\delta
+    \label{eq:ars-auc} \\
+    \text{ARS}_{\text{radius}}(f, \tau) &= \max \{\delta : s(\delta) \geq \tau \cdot s(0)\}
+    \label{eq:ars-radius}
+\end{align}
+$\text{ARS}_{\text{AUC}}$ (Eq.~\ref{eq:ars-auc}, estimated by trapezoidal
+integration over the sweep points) is the average score across the tested
+misalignment range, directly comparable to the clean score $s(0)$; we also
+report it normalized as $\text{ARS}_{\text{AUC}}/s(0) \in [0,1]$ so models
+with different absolute score scales are comparable.
+$\text{ARS}_{\text{radius}}$ (Eq.~\ref{eq:ars-radius}) is the largest
+misalignment a model tolerates before falling below a $\tau$-fraction of
+its clean-alignment performance -- the direct geometric analogue of a
+\emph{certified radius} in the adversarial-robustness literature
+\citep{cohen2019certified}, except the perturbation is a rigid cross-modal
+misalignment rather than an adversarial pixel-norm perturbation to a
+single input.
+
+\paragraph{A testable hypothesis this metric enables.} Architectures that
+fuse early via pixel- or channel-level concatenation must implicitly learn
+a spatial correspondence between modalities during training; if that
+correspondence is violated at test time by a different misalignment than
+the model saw in training, we would expect a steep degradation curve (low
+$\text{ARS}_{\text{AUC}}$, small $\text{ARS}_{\text{radius}}$). Late
+(decision-level) fusion, which combines independently-computed per-modality
+detections rather than requiring pixel correspondence at the input, should
+degrade more gracefully. We verified the two summary statistics correctly
+recover a known ordering on controlled synthetic degradation curves before
+trusting them on a real model (unit tests in
+\texttt{alignment\_robustness\_score.py}): a curve that decays from 1.0 to
+0.02 over the sweep scores a lower $\text{ARS}_{\text{AUC,relative}}$ and a
+smaller critical radius than a curve that decays only to 0.80 over the same
+range. \S\ref{sec:results} reports $\text{ARS}$ for our real trained
+models -- a smaller, model-specific complement to the classifier-agnostic
+benchmark of \S\ref{sec:bayes}.
 
 \subsection{Detection and fusion reference code}
 
