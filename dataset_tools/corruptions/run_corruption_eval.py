@@ -5,13 +5,14 @@ entirely (Experiment E6, missing-modality robustness), and report a
 per-corruption mean score plus an ImageNet-C-style aggregate "mean
 corruption error/score" summary.
 
-Model-agnostic by design (same pattern as
-dataset_tools/alignment/sensitivity_study.py): pass in `predict_fn(rgb, ir)`
-and `score_fn(prediction, ground_truth)` for whatever model you've trained
-with dataset_tools/baselines/, and this sweeps corruptions around it. The
-toy model/self-test below proves the sweep mechanics (corrupt -> predict ->
-score -> aggregate) are correct without needing the real dataset or a
-trained model in this sandbox.
+Model-agnostic by design: pass in `predict_fn(rgb, ir)` and
+`score_fn(prediction, ground_truth)` for whatever model you've trained
+yourself, and this sweeps corruptions around it. The toy model/self-test
+below proves the sweep mechanics (corrupt -> predict -> score -> aggregate)
+are correct without needing the real dataset or a trained model in this
+sandbox. This paper's own use of AVID-C (see dataset_tools/theory/) is
+entirely classifier-agnostic and does not use this harness; this file is
+released so a future user with a trained detector of their own can.
 """
 
 import numpy as np
@@ -61,9 +62,8 @@ def summarize(results):
 
 
 # ---------------------------------------------------------------------------
-# Self-test with the same toy centroid "detector" used in
-# dataset_tools/alignment/sensitivity_study.py, so this file's mechanics can
-# be verified without the real dataset or a trained model.
+# Self-test with a toy centroid "detector", so this file's mechanics can be
+# verified without the real dataset or a trained model.
 # ---------------------------------------------------------------------------
 
 

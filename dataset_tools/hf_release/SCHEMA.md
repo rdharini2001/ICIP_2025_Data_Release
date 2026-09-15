@@ -1,9 +1,10 @@
 # AVID directory & metadata schema
 
 Target layout for the Hugging Face release (payload data/task excluded
-entirely, per release scope). This is what `build_hf_dataset.py` produces
-from the raw Drive zips, and what `dataset_tools/baselines/dataset.py`
-expects to read.
+entirely, per release scope). This is what `build_avid_v1.py` produces
+from the extracted Roboflow export, and what
+`dataset_tools/theory/patch_extraction.py` reads to build every real
+number in the paper.
 
 ```
 avid/
@@ -72,20 +73,22 @@ actually disagree geometrically.
 | `scenario_tags` | list[str] | as above, video-level union of its frames' tags |
 | `classes_present` | list[str] | as above |
 
-## Notes for whoever runs `build_hf_dataset.py`
+## Notes for whoever runs `build_avid_v1.py`
 
-- The raw Drive zips (`releasev1-detection&tracking.zip`,
-  `pre-releasev2-detection&tracking.zip`, `Test_detection&tracking_with_labels.zip`,
-  `Validation_Videos.zip`, `consolidated_IR_RGB_Pairs.zip`, `detecttrack.zip`)
-  don't share one consistent internal layout (multiple release passes over
-  the challenge timeline) — `build_hf_dataset.py` has a `--raw-layout-hint`
-  flag and per-zip adapter functions rather than assuming a single format;
-  check the actual extracted structure against the adapters before trusting
-  the output, and adjust the adapter for whichever zip(s) you're
-  consolidating from.
-- Run `dataset_tools/alignment/alignment_metrics.py`'s `pair_alignment_quality`
-  over every real pair once extracted, to populate `alignment_shift_px` /
-  `alignment_confidence` — those fields are placeholders (not yet computed on
-  real data) until that pass runs.
+- Operates on the extracted `releasev1` Roboflow export, deduplicating the
+  systematic noise-augmented copy Roboflow baked into every frame (100% of
+  the 28,790 Train and 3,250 Validation frame keys have exactly 2 file
+  variants per modality; smaller JPEG file size reliably identifies the
+  clean original).
+- The Test split's RGB and IR files use non-overlapping numbering schemes
+  with no manifest to resolve them (see the paper's "pitfalls" section);
+  `build_avid_v1.py` does not attempt to force an unverified pairing, and
+  reports Test RGB/IR as separate single-modality pools.
+- `dataset_tools/hf_release/real_alignment_sample.py` (using
+  `dataset_tools/alignment/alignment_metrics.py`'s `pair_alignment_quality`)
+  computes `alignment_shift_px` / `alignment_confidence` on a 300-pair
+  random sample, not exhaustively over all 32,040 pairs (~9.8 CPU-hours at
+  the measured ~1.1s/pair) — extending to the full corpus is a
+  straightforward but not-yet-run batch job.
 - Payload data/labels, if present in any source zip, must **not** be copied
   into this layout — this release is drone/bird detection+tracking only.

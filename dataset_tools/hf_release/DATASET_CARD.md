@@ -124,9 +124,10 @@ splitting — inflating any metric computed on a frame-level split).
 
 **Weak alignment is real, not a bug.** Don't assume RGB and IR boxes are
 pixel-identical; use the shipped `alignment_shift_px` to filter or weight
-pairs, and see the alignment-sensitivity study protocol in
-`dataset_tools/alignment/sensitivity_study.py` before assuming a fusion
-model's failure mode is architectural rather than geometric.
+pairs. See the paper's classifier-agnostic Bayes Fusion Gain analysis
+(`dataset_tools/theory/alignment_sweep.py`) for a quantified account of how
+much this costs a fusion system in theory before assuming a model's
+failure mode is architectural rather than geometric.
 
 **Corruption suite scope.** AVID-C targets the 7 degradation families
 observed in the source surveillance footage; it is not a claim of coverage
