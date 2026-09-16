@@ -1276,4 +1276,54 @@ Technology / Indian Institute of Science / [24]7.ai).
 \bibliographystyle{plainnat}
 \bibliography{references}
 
+\appendix
+\section{Supplementary Figures}
+\label{sec:supplementary}
+
+The theory figures in the main text (Figures~\ref{fig:theory-montage},
+\ref{fig:perturbation-montage}, \ref{fig:alignment-montage}) use the same
+24$\times$24 canonical patches the Bayes bounds are computed from, so they
+necessarily look small and low-detail once enlarged -- that is the real,
+extreme small-object scale this dataset has (\S\ref{sec:small-object}), not
+a rendering artifact of the montage. This appendix supplements them with
+full native-resolution ($320\times256$) versions and additional real
+examples for readers who want to see corpus texture and diversity at full
+detail.
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.95\textwidth]{figures/fig_corruption_grid_rgb_fullframe.png}
+\caption{\corruptname{} corruption suite on one real, full-resolution RGB
+frame (all 7 families, severities 1-5) -- the full-frame counterpart to
+Figure~\ref{fig:perturbation-montage}(a). At severity 4-5, gaussian/
+speckle/salt-and-pepper noise visibly overwhelm the drone's faint
+silhouette against the sky.}
+\label{fig:corruption-fullframe-rgb}
+\end{figure}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.95\textwidth]{figures/fig_corruption_grid_ir_fullframe.png}
+\caption{The same corruption suite, same severities, on the paired IR
+frame -- the full-frame counterpart to Figure~\ref{fig:perturbation-montage}(b).
+The drone's thermal signature (bright blob, top-left) remains visibly
+legible under the same noise-type corruptions that overwhelm RGB in
+Figure~\ref{fig:corruption-fullframe-rgb}, a full-frame, qualitative
+confirmation of the asymmetry quantified in Table~\ref{tab:bayes-corruption-full}.}
+\label{fig:corruption-fullframe-ir}
+\end{figure}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.95\textwidth]{figures/fig_diversity_montage.png}
+\caption{Real \datasetname{} RGB-IR pairs (ground-truth boxes in green)
+sampled from 12 distinct source videos, spanning both classes, a range of
+backgrounds (open fields, cloudy sky, tree lines, rooftops), and single-
+vs. multi-instance frames (up to 5 birds in one frame). No queryable
+per-video scenario metadata (hilly/forest/fog/etc.) exists in this release
+(\S\ref{sec:pitfalls}); the diversity shown here comes from sampling many
+distinct real videos directly.}
+\label{fig:diversity}
+\end{figure}
+
 \end{document}
