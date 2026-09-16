@@ -643,7 +643,21 @@ statistical decision theory gives tight, closed-form bounds on it that
 require no gradient descent at all. This section, and this paper's central
 contribution, introduces a classifier-agnostic benchmark built entirely on
 that idea, computed directly from real \datasetname{} patches -- no
-detector is trained anywhere in this paper.
+detector is trained anywhere in this paper. Figure~\ref{fig:concept}
+summarizes the methodological contrast this section is built on.
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.95\textwidth]{figures/fig_concept_diagram.png}
+\caption{The classical RGB-T evaluation paradigm (top) reports the error
+of one trained model, confounded by architecture, training budget, and
+optimization luck. This paper's classifier-agnostic Bayes-risk benchmark
+(bottom) computes a bound on the \emph{optimal} classifier's error
+directly from data, applied to three real, controlled perturbations of
+the same corpus (object scale, \corruptname{} corruption, and cross-modal
+misalignment).}
+\label{fig:concept}
+\end{figure}
 
 \subsection{Bhattacharyya Bayes-error bound}
 
@@ -733,7 +747,21 @@ Fusion & 0.046 & 0.040 ($s{=}0.37$) & 0.047 \\
 \end{tabular}
 \end{table}
 
-Two things stand out. First, optimizing $s$ tightens the bound by
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.62\textwidth]{figures/fig_chernoff_curve.png}
+\caption{The Chernoff bound $P_e(s)$ (Eq.~\ref{eq:chernoff}) as a function
+of $s$, at the modal 12-16px bucket, for RGB, IR, and fusion. Bhattacharyya
+(open circle, $s{=}0.5$) is a single point on this curve; the true minimum
+(filled star) is strictly lower for all three modalities, since none has
+exactly symmetric class-conditional covariances.}
+\label{fig:chernoff-curve}
+\end{figure}
+
+Figure~\ref{fig:chernoff-curve} makes this concrete: Bhattacharyya's
+$s{=}0.5$ (open circles) sits visibly off the minimum of each curve, and
+the gap between the open circle and the filled star is exactly the
+6-13\% tightening reported below. Two things stand out. First, optimizing $s$ tightens the bound by
 6-13\% relative to the Bhattacharyya default (largest for fusion: 0.046
 $\to$ 0.040), and in every case the optimal $s$ moves toward 0 (away from
 0.5, roughly 0.33-0.43) -- consistent with RGB, IR, and the fused feature
@@ -765,6 +793,9 @@ substantial sample sizes at the buckets that matter (17,706 instances at
     RGB=0.148, IR=0.198, \textbf{Fusion=0.046}). This is a fusion advantage
     stated as a provable ceiling on the best possible classifier, not an
     empirically observed number from one particular trained model.
+    Figure~\ref{fig:feature-space} shows why: the fused feature's
+    class-conditional point clouds are visibly tighter and better
+    separated than either modality's alone.
     \item \textbf{Separability is worst, not best, at the corpus's most
     common scales.} All three curves show an inverted-U: easier bounds at
     the scale extremes (0-8px, 24-28px) than in the dominant 12-20px
@@ -789,6 +820,25 @@ omitted (fewer than 15 instances per class, per
 \S\ref{sec:small-object}'s finding that the corpus has essentially no
 large objects).}
 \label{fig:theory-scale}
+\end{figure}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.95\textwidth]{figures/fig_feature_space.png}
+\caption{\emph{Why} the bound differs so much across modalities: real
+bird/drone patches at the modal 12-16px bucket, projected onto the
+Bhattacharyya discriminant direction $w=\Sigma_{\text{avg}}^{-1}(\mu_1{-}\mu_0)$
+(x-axis; the exact direction the Mahalanobis term of
+Eq.~\ref{eq:bhatt-gaussian} is computed along) and the top orthogonal
+variance direction (y-axis, for visual spread only). Fusion (c) shows
+visibly tighter, more separated clusters than either single modality --
+the geometric picture behind Table~\ref{tab:bayes-scale-full}'s numbers.
+Note this visualizes only the mean-difference term of the Bhattacharyya
+distance; the covariance-mismatch term (Eq.~\ref{eq:bhatt-gaussian}'s
+second term) also contributes to the reported bound but has no single
+2D axis to plot, so apparent visual separation is not exactly
+proportional to the numeric bound.}
+\label{fig:feature-space}
 \end{figure}
 
 \begin{table}[h]
@@ -946,7 +996,9 @@ fusion's theoretical advantage as misalignment reaches the range
 $\text{BFG}$ never approaches zero within the tested range: even at 17px,
 fusion retains roughly \emph{four times} lower Bayes error than IR alone
 (0.050 vs. 0.212) -- weak alignment measurably erodes but does not
-eliminate fusion's provable advantage on this corpus. The mutual
+eliminate fusion's provable advantage on this corpus, even though
+Figure~\ref{fig:alignment-montage} shows the target itself has largely
+left the crop window by the upper end of this range. The mutual
 information side of the DPI (Eq.~\ref{eq:dpi}) drops from 0.715 nats at
 zero shift to about 0.65 nats by 8-12px, a real 9\% information loss
 attributable to weak alignment, with most of the drop occurring
@@ -995,6 +1047,22 @@ $\delta$ (px) & RGB $P_e$ & IR $P_e$ & Fusion $P_e$ & Fusion s.d. & BFG & $I(Y;X
 \bottomrule
 \end{tabular}
 \end{table}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.95\textwidth]{figures/fig_alignment_montage.png}
+\caption{What injected misalignment (Table~\ref{tab:bfg-full}) actually
+looks like on a real target: one real drone patch, RGB fixed, IR shifted
+by the exact rigid transform \texttt{alignment\_sweep.py} applies, at
+magnitudes spanning the real measured range (up to 17px,
+\S\ref{sec:alignment}). At 8px and beyond the target -- only 12-20px wide
+to begin with -- begins to exit the crop window entirely (reflection
+padding renders the vacated region as a mirrored artifact rather than
+empty space); this is a visual, not just numerical, illustration of why a
+target this small loses meaningful cross-modal spatial correspondence
+well within the range of real, naturally occurring misalignment.}
+\label{fig:alignment-montage}
+\end{figure}
 
 \subsection{What real AVID patches actually look like at these scales}
 
