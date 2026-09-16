@@ -1,0 +1,3 @@
+modality,n_pairs,clean_full_frame_mean_sigma,clean_full_frame_median_sigma,clean_sky_region_mean_sigma,clean_sky_region_median_sigma,excluded_noisy_variant_full_frame_mean_sigma,excluded_noisy_variant_full_frame_median_sigma
+RGB,200,0.4051811363104136,0.3018927333186051,0.07417448212438736,0.026599409054566668,0.6943201326370994,0.6140290685824112
+IR,200,0.7448984021381126,0.6383501881213266,0.13038458917973234,0.046780454305725555,0.9735484505470907,0.8672136168879162

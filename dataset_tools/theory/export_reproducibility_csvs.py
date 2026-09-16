@@ -157,6 +157,34 @@ def export_alignment_sample():
               list(data["summary"].keys()), [data["summary"]])
 
 
+def export_noise_floor_check():
+    """-> Sec. 4 ("Is the 'clean' baseline actually clean?"): real intrinsic
+    noise-sigma floor vs. AVID-C's injected severities."""
+    data = load_json("noise_floor_check")
+    rows = []
+    for modality in ["RGB", "IR"]:
+        d = data[modality]
+        rows.append({
+            "modality": modality, "n_pairs": d["n"],
+            "clean_full_frame_mean_sigma": d["clean_full_frame_mean"],
+            "clean_full_frame_median_sigma": d["clean_full_frame_median"],
+            "clean_sky_region_mean_sigma": d["clean_sky_region_mean"],
+            "clean_sky_region_median_sigma": d["clean_sky_region_median"],
+            "excluded_noisy_variant_full_frame_mean_sigma": d["excluded_noisy_variant_full_frame_mean"],
+            "excluded_noisy_variant_full_frame_median_sigma": d["excluded_noisy_variant_full_frame_median"],
+        })
+    write_csv(f"{OUT_DIR}/noise_floor_check.csv",
+              ["modality", "n_pairs", "clean_full_frame_mean_sigma", "clean_full_frame_median_sigma",
+               "clean_sky_region_mean_sigma", "clean_sky_region_median_sigma",
+               "excluded_noisy_variant_full_frame_mean_sigma",
+               "excluded_noisy_variant_full_frame_median_sigma"], rows)
+
+    sev = data["avid_c_gaussian_severity_std"]
+    write_csv(f"{OUT_DIR}/avid_c_severity_std_table.csv",
+              ["severity", "gaussian_noise_std_0_255"],
+              [{"severity": i + 1, "gaussian_noise_std_0_255": s} for i, s in enumerate(sev)])
+
+
 def export_split_leakage():
     """-> Figure 'fig:leakage', Sec. 3.6 (87.5% vs 0.0% claim)."""
     data = load_json("split_leakage_real")
@@ -184,4 +212,5 @@ if __name__ == "__main__":
     export_bbox_histogram()
     export_alignment_sample()
     export_split_leakage()
+    export_noise_floor_check()
     print("done -- all CSVs written to", OUT_DIR)
