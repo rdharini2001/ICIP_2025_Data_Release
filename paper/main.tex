@@ -244,6 +244,8 @@ CST Anti-UAV \citep{xie2025cstantiuav} & -- (IR only) & \checkmark & \checkmark 
 DroneRGBT \citep{peng2020dronergbt} & \checkmark & -- (drone view) & -- & registered & $\sim$3,600 pairs \\
 VTUAV \citep{zhang2022vtuav} & \checkmark & -- (drone view) & \checkmark & well-aligned & 500 sequences \\
 VisDrone \citep{zhu2022visdrone} & -- (RGB only) & -- (drone view) & \checkmark & n/a & $\sim$10K images \\
+MMFW-UAV \citep{liu2025mmfwuav} & -- (3-sensor) & -- (drone view) & -- & one-to-one & 49,147 triplets \\
+UAVNet-MS \citep{luo2026uavnetms} & -- (RGB+MSI) & \checkmark & -- & synchronized & 15,618 cubes \\
 \midrule
 \textbf{\datasetname{} (this work)} & \checkmark & \checkmark & \checkmark & \textbf{weakly aligned, quantified} & 28,790/3,250 pairs$^\dagger$ \\
 \bottomrule
@@ -290,7 +292,24 @@ the camera on the drone rather than pointing at one. They are valuable for
 aerial perception broadly, but structurally answer a different question
 (what does a drone see) from the one \datasetname{} targets (what does a
 ground-based, dual-sensor surveillance system see when it looks at a
-drone).
+drone). MMFW-UAV \citep{liu2025mmfwuav} sits in this same drone-view
+family, pairing zoom, wide-angle, and thermal sensors for air-to-air
+fixed-wing UAV imagery -- multimodal, but the sensor is airborne looking
+at another aircraft, not ground-based looking outward at an adversarial
+drone.
+
+\paragraph{A closely related concurrent dataset.} UAVNet-MS
+\citep{luo2026uavnetms}, released while this paper was in preparation, is
+considerably closer in spirit: it targets ground-based, drone-as-target
+monitoring, explicitly motivated by the same bird/drone confusability
+problem \datasetname{} documents (\S\ref{sec:dataset}), and reports a
+similarly extreme small-object regime (93.7\% of instances $\leq32^2$px).
+The key difference is sensing modality: UAVNet-MS pairs RGB with a 7-band
+multispectral cube rather than thermal, and does not report a weak-alignment
+quantification comparable to \S\ref{sec:alignment} or a classifier-agnostic
+benchmark comparable to \S\ref{sec:bayes}. We view this as independent
+convergent evidence that ground-based, drone-as-target, small-object
+multimodal sensing is an active and growing problem, not a niche one.
 
 \paragraph{Corruption-robustness benchmarking.} Our corruption suite
 follows the severity-graded corruption-family methodology introduced by
@@ -298,9 +317,30 @@ ImageNet-C \citep{hendrycks2019benchmarking}. The closest existing
 robustness benchmark in the drone space, UAV-C \citep{liu2024uavc},
 targets a different problem: it corrupts UAV-\emph{view} tracking
 benchmarks (drone-mounted-camera footage), not anti-UAV RGB-T detection of
-a drone as the target. We are not aware of an existing corruption-robustness
-benchmark for the Anti-UAV-style drone-as-target setting, which is the gap
-\corruptname{} (\S\ref{sec:corruption}) targets.
+a drone as the target. The same corruption-benchmark philosophy has
+recently been extended to a different multi-sensor setting entirely:
+MapBench \citep{hao2024mapbench} corrupts camera and LiDAR inputs to
+stress-test HD-map construction for autonomous driving. We are not aware
+of an existing corruption-robustness benchmark for the Anti-UAV-style
+drone-as-target setting, which is the gap \corruptname{}
+(\S\ref{sec:corruption}) targets.
+
+\paragraph{Data-centric benchmark design.} A growing line of work argues
+that a benchmark should characterize its data-generating conditions and
+difficulty explicitly, rather than reducing a dataset to a single
+downstream accuracy number: DataPerf \citep{mazumder2023dataperf}
+formalizes benchmark tasks around data quality and curation; DataComp
+\citep{gadre2023datacomp} makes dataset construction itself the
+experimental object; WhyShift \citep{liu2023whyshift} argues that
+robustness claims are only interpretable once the \emph{type} of
+distribution shift being studied is stated explicitly; and Mayo et al.
+\citep{mayo2023difficulty} introduce a direct, human-calibrated measure of
+per-image difficulty rather than relying on aggregate recognition scores.
+The classifier-agnostic Bayes-risk benchmark in \S\ref{sec:bayes} follows
+the same principle applied to a different axis: it characterizes what
+scale, corruption, and cross-modal misalignment do to the
+\emph{information available in the data itself}, before any downstream
+model is trained on it.
 
 \section{The \datasetname{} Dataset}
 \label{sec:dataset}

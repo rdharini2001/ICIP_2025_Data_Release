@@ -1,4 +1,4 @@
-\begin{thebibliography}{22}
+\begin{thebibliography}{29}
 \providecommand{\natexlab}[1]{#1}
 \providecommand{\url}[1]{\texttt{#1}}
 \expandafter\ifx\csname urlstyle\endcsname\relax
@@ -42,6 +42,23 @@ Keinosuke Fukunaga.
 \newblock \emph{Introduction to Statistical Pattern Recognition}.
 \newblock Academic Press, 2nd edition, 1990.
 
+\bibitem[Gadre et~al.(2023)Gadre, Ilharco, Fang, Hayase, Smyrnis, Nguyen,
+  Marten, Wortsman, Ghosh, Zhang, Orgad, Entezari, Daras, Pratt, Ramanujan,
+  Bitton, Marathe, Mussmann, Vencu, Cherti, Krishna, Koh, Saukh, Ratner, Song,
+  Hajishirzi, Farhadi, Beaumont, Oh, Dimakis, Jitsev, Carmon, Shankar, and
+  Schmidt]{gadre2023datacomp}
+Samir~Yitzhak Gadre, Gabriel Ilharco, Alex Fang, Jonathan Hayase, Georgios
+  Smyrnis, Thao Nguyen, Ryan Marten, Mitchell Wortsman, Dhruba Ghosh, Jieyu
+  Zhang, Eyal Orgad, Rahim Entezari, Giannis Daras, Sarah Pratt, Vivek
+  Ramanujan, Yonatan Bitton, Kalyani Marathe, Stephen Mussmann, Richard Vencu,
+  Mehdi Cherti, Ranjay Krishna, Pang~Wei Koh, Olga Saukh, Alexander Ratner,
+  Shuran Song, Hannaneh Hajishirzi, Ali Farhadi, Romain Beaumont, Sewoong Oh,
+  Alex Dimakis, Jenia Jitsev, Yair Carmon, Vaishaal Shankar, and Ludwig
+  Schmidt.
+\newblock {DataComp}: In search of the next generation of multimodal datasets.
+\newblock In \emph{Advances in Neural Information Processing Systems (NeurIPS),
+  Datasets and Benchmarks Track}, 2023.
+
 \bibitem[Gebru et~al.(2021)Gebru, Morgenstern, Vecchione, Vaughan, Wallach,
   Daum{\'e}, and Crawford]{gebru2021datasheets}
 Timnit Gebru, Jamie Morgenstern, Briana Vecchione, Jennifer~Wortman Vaughan,
@@ -49,6 +66,14 @@ Timnit Gebru, Jamie Morgenstern, Briana Vecchione, Jennifer~Wortman Vaughan,
 \newblock Datasheets for datasets.
 \newblock \emph{Communications of the ACM}, 64\penalty0 (12):\penalty0 86--92,
   2021.
+
+\bibitem[Hao et~al.(2024)Hao, Wei, Yang, Zhao, Zhang, Zhou, Wang, Li, Kong, and
+  Zhang]{hao2024mapbench}
+Xiaoshuai Hao, Mengchuan Wei, Yifan Yang, Haimei Zhao, Hui Zhang, Yi~Zhou,
+  Qiang Wang, Weiming Li, Lingdong Kong, and Jing Zhang.
+\newblock Is your {HD} map constructor reliable under sensor corruptions?
+\newblock In \emph{Advances in Neural Information Processing Systems (NeurIPS),
+  Datasets and Benchmarks Track}, 2024.
 
 \bibitem[Hendrycks and Dietterich(2019)]{hendrycks2019benchmarking}
 Dan Hendrycks and Thomas Dietterich.
@@ -98,6 +123,13 @@ Nan Jiang, Kuiran Wang, Xiaoke Peng, Xuehui Yu, Qiang Wang, Junliang Xing,
 \newblock Anti-{UAV}: A large-scale benchmark for vision-based {UAV} tracking.
 \newblock \emph{IEEE Transactions on Multimedia}, 25:\penalty0 486--500, 2023.
 
+\bibitem[Liu et~al.(2023)Liu, Wang, Cui, and Namkoong]{liu2023whyshift}
+Jiashuo Liu, Tianyu Wang, Peng Cui, and Hongseok Namkoong.
+\newblock On the need for a language describing distribution shifts:
+  Illustrations on tabular datasets.
+\newblock In \emph{Advances in Neural Information Processing Systems (NeurIPS),
+  Datasets and Benchmarks Track}, 2023.
+
 \bibitem[Liu et~al.(2022)Liu, Fan, Huang, Wu, Liu, Zhong, and
   Luo]{liu2022tardal}
 Jinyuan Liu, Xin Fan, Zhanbo Huang, Guanyao Wu, Risheng Liu, Wei Zhong, and
@@ -112,6 +144,38 @@ Xiaoqiong Liu, Yunhe Feng, Shu Hu, Xiaohui Yuan, and Heng Fan.
 \newblock Benchmarking the robustness of {UAV} tracking against common
   corruptions.
 \newblock \emph{arXiv preprint arXiv:2403.11424}, 2024.
+
+\bibitem[Liu et~al.(2025)Liu, Sun, Xi, Zhang, Dong, Chen, Lu, Fu, and
+  Deng]{liu2025mmfwuav}
+Yang Liu, Zhe Sun, Lei Xi, Lei Zhang, Wei Dong, Chao Chen, Ming Lu, Hao Fu, and
+  Feng Deng.
+\newblock {MMFW-UAV} dataset: Multi-sensor and multi-view fixed-wing {UAV}
+  dataset for air-to-air vision tasks.
+\newblock \emph{Scientific Data}, 12\penalty0 (1):\penalty0 185, 2025.
+
+\bibitem[Luo et~al.(2026)Luo, Chen, Xiao, Wang, Li, Ling, He, Chen, Guo, Li,
+  Li, Wang, Guo, Liu, An, and Chen]{luo2026uavnetms}
+Yihang Luo, Jun Chen, Chao Xiao, Yingqian Wang, Zhaoxu Li, Qiang Ling, Xu~He,
+  Nuo Chen, Gaowei Guo, Hongge Li, Miao Li, Longguang Wang, Yulan Guo, Li~Liu,
+  Wei An, and Zhijie Chen.
+\newblock Towards {UAV} detection in the real world: A new multispectral
+  dataset {UAVNet-MS} and a new method.
+\newblock \emph{arXiv preprint arXiv:2605.20963}, 2026.
+
+\bibitem[Mayo et~al.(2023)Mayo, Cummings, Lin, Gutfreund, Katz, and
+  Barbu]{mayo2023difficulty}
+David Mayo, Jesse Cummings, Xinyu Lin, Dan Gutfreund, Boris Katz, and Andrei
+  Barbu.
+\newblock How hard are computer vision datasets? calibrating dataset difficulty
+  to viewing time.
+\newblock In \emph{Advances in Neural Information Processing Systems (NeurIPS),
+  Datasets and Benchmarks Track}, 2023.
+
+\bibitem[Mazumder et~al.(2023)]{mazumder2023dataperf}
+Mark Mazumder et~al.
+\newblock {DataPerf}: Benchmarks for data-centric {AI} development.
+\newblock In \emph{Advances in Neural Information Processing Systems (NeurIPS),
+  Datasets and Benchmarks Track}, 2023.
 
 \bibitem[Peng et~al.(2020)Peng, Li, and Zhu]{peng2020dronergbt}
 Tao Peng, Qiang Li, and Pengfei Zhu.
