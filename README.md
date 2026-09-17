@@ -1,61 +1,66 @@
-# AVID: Aerial Visible-Infrared Drone Dataset — release prep
+# AVID: Aerial Visible-Infrared Drone Dataset
 
 This repo prepares the release of **AVID**, a large-scale, weakly-aligned
-RGB-Infrared drone/bird detection and tracking dataset, building on data
-originally constructed for the IEEE ICIP 2025 VIP Cup ("Infrared-Visual
+RGB-Infrared drone/bird detection and tracking dataset, and a
+classifier-agnostic Bayes-risk benchmark built on top of it. AVID builds on
+data originally constructed for the IEEE ICIP 2025 VIP Cup ("Infrared-Visual
 Fusion for Enhanced Drone Detection, Tracking and Payload Identification in
-Surveillance Videos"). **Payload data and the payload task are excluded
-from this release entirely** — everything here is the drone/bird
-detection+tracking dataset, a paper about it, and the tooling to publish
+Surveillance Videos"). **Payload data and the payload task are excluded from
+this release entirely** — everything here is the drone/bird
+detection+tracking dataset, the paper about it, and the tooling to publish
 both.
+
+No detector is trained anywhere in this release. Every number reported in
+the paper is a property of the data distribution itself (closed-form
+Bhattacharyya/Chernoff bounds, a nonparametric KDE cross-check, mutual
+information), computed directly on real patches.
 
 Start here, in order:
 
-1. **[`PLAN.md`](PLAN.md)** — what's actually novel about this release,
-   the full list of contributions, and the experiment plan (what's done vs.
-   what still needs to run on real hardware).
-2. **[`paper/main.tex`](paper/main.tex)** (or the compiled
-   [`paper/main.pdf`](paper/main.pdf)) — the arXiv-ready dataset paper.
-   Compiles clean (`pdflatex && bibtex && pdflatex && pdflatex`), no
-   undefined references or citations, as of the last commit.
-3. **[`dataset_tools/`](dataset_tools/)** — all the released code:
-   - `corruptions/` — AVID-C, the reproducible 7×5 corruption benchmark.
-   - `alignment/` — weak-alignment quantification + sensitivity-study harness.
-   - `baselines/` — single-modality/fusion detector reference code, late-fusion
-     (WBF), tracking metrics, and the split-leakage ablation.
-   - `hf_release/` — the Hugging Face dataset card, schema, and build/upload scripts.
-4. **[`docs/RELEASE_RUNBOOK.md`](docs/RELEASE_RUNBOOK.md)** — the exact
+1. **[`paper/main.tex`](paper/main.tex)** (or the compiled
+   [`paper/main.pdf`](paper/main.pdf)) — the arXiv-ready paper. Compiles
+   clean (`pdflatex && bibtex && pdflatex && pdflatex`), no undefined
+   references/citations, as of the last commit.
+2. **[`reproducibility_data/`](reproducibility_data/)** — a plain-CSV
+   export of every number in the paper, with a README mapping each file to
+   the table/figure it reproduces. Regenerate all of them with
+   `python dataset_tools/theory/export_reproducibility_csvs.py`.
+3. **[`dataset_tools/`](dataset_tools/)** — the released code:
+   - `theory/` — the Bayes-risk benchmark itself: patch extraction, the
+     scale/corruption/alignment sweeps, the Chernoff/KDE tightness
+     cross-checks, and the CSV exporter.
+   - `corruptions/` — AVID-C, the reproducible 7×5 corruption benchmark,
+     plus the real-data noise-floor validation for its "clean" baseline.
+   - `alignment/` — the per-pair weak-alignment estimators (phase
+     correlation + mutual-information registration search).
+   - `hf_release/` — corpus statistics, the object-relative misalignment
+     ratio, the split-leakage ablation, and the Hugging Face dataset
+     card/schema/build/upload scripts.
+   - `baselines/` — a single real-data script (`split_leakage_ablation.py`)
+     providing the synthetic cross-check used alongside the real
+     split-leakage measurement; kept separate because `hf_release/`'s real
+     leakage script imports it directly.
+4. **[`docs/RELEASE_RUNBOOK.md`](docs/RELEASE_RUNBOOK.md)** — the
    step-by-step checklist for turning this prepared repo into a live
    Hugging Face dataset and arXiv preprint.
+5. **[`archive/`](archive/)** — historical planning notes (`PLAN.md`,
+   the full session-by-session record of how this release's scope
+   evolved) kept for provenance, not needed to reproduce the paper.
 
-## Status: what's real vs. what's still reference code
+## What's real
 
-This started in a sandboxed environment with no GPU and no way to pull the
-multi-gigabyte source zips out of Google Drive, then moved to a machine
-with the real `releasev1` export and a local GPU. As a result:
-
-- **Everything that only needs NumPy/OpenCV-level logic is written,
-  unit-tested, and independently confirmed on the real corpus**: the
-  corruption suite, the alignment estimators (including a real 300-pair
-  alignment sample — see `metadata/real_alignment_sample.json` after
-  running the build), the weighted-boxes-fusion combiner, the tracking
-  metrics, and the split-leakage ablation (87.5% vs. 0.0% on the real
-  32,040-frame/115-video index).
-- **Real baselines**: YOLOv8n single-modality (RGB-only, IR-only) trained
-  on the real, deduplicated corpus, combined at inference via late fusion
-  (WBF) for a real fusion number — see the paper's Results section and
-  `PLAN.md` §4 for current status of each experiment.
-- **Real findings from release preparation**: the source export had a
-  100%-of-frames noise-augmentation duplicate we identified and removed;
-  the true class-index mapping is `0=bird, 1=drone`, not the reverse; the
-  Test split's RGB and IR files cannot currently be paired by any
-  available key; and the corpus has an extreme small-object distribution
-  (67.6% of boxes are 8-16px). All of this is written up in `PLAN.md` §0
-  and in the paper.
-- **Still reference code, not yet trained/run**: early- and mid-level
-  fusion architectures, the tracking pipeline, the corruption-robustness
-  sweep, and the alignment-sensitivity study. `docs/RELEASE_RUNBOOK.md`
-  and `PLAN.md` §4 are the checklist for closing that gap.
+Every number in the paper is computed directly on the real, deduplicated
+corpus (28,790 train / 3,250 validation RGB-IR pairs, 35,952 annotated
+instances) — there is no untrained-placeholder or synthetic-data result
+presented as final anywhere in the current paper. Real findings from
+release preparation, all disclosed in the paper rather than papered over:
+the source export had a 100%-of-frames noise-augmentation duplicate we
+identified and removed; the true class-index mapping is `0=bird,
+1=drone`, not the reverse; the Test split's RGB and IR files cannot
+currently be paired by any available key; the corpus has an extreme
+small-object distribution (68.1% of boxes are 8-16px); and naive
+frame-level splitting leaks 87.5% of nominally held-out frames (vs. 0.0%
+for the video-level splitting this release uses).
 
 ## Authors
 

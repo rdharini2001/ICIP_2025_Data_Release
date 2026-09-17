@@ -157,6 +157,16 @@ def export_alignment_sample():
               list(data["summary"].keys()), [data["summary"]])
 
 
+def export_object_relative_misalignment():
+    """-> Sec. 5 (object-relative misalignment ratio rho = shift / target size)."""
+    data = load_json("object_relative_misalignment")
+    write_csv(f"{OUT_DIR}/object_relative_misalignment_rows.csv",
+              ["video_id", "frame_idx", "alignment_shift_px", "median_target_side_px", "rho"],
+              data["rows"])
+    write_csv(f"{OUT_DIR}/object_relative_misalignment_summary.csv",
+              list(data["summary"].keys()), [data["summary"]])
+
+
 def export_noise_floor_check():
     """-> Sec. 4 ("Is the 'clean' baseline actually clean?"): real intrinsic
     noise-sigma floor vs. AVID-C's injected severities."""
@@ -212,5 +222,6 @@ if __name__ == "__main__":
     export_bbox_histogram()
     export_alignment_sample()
     export_split_leakage()
+    export_object_relative_misalignment()
     export_noise_floor_check()
     print("done -- all CSVs written to", OUT_DIR)

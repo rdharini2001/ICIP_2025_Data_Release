@@ -1,10 +1,15 @@
 """
-Generates the paper's figures directly from the released, tested code in
-dataset_tools/. Every figure is honestly captioned as either (a) computed
-from real, reproducible code and synthetic numbers documented in PLAN.md, or
-(b) a schematic/illustrative rendering on a synthetic stand-in image because
-no real AVID imagery is available in this environment -- never presented as
-real dataset photos. Run with:
+Generates the paper's remaining schematic/illustrative figures -- the ones
+that are legitimately synthetic by design (fig_alignment_illustration.png
+needs a known ground-truth offset to validate the estimator against, and
+fig_landscape.png is a qualitative dataset-positioning schematic, not a
+data plot). The real-data equivalents of this file's two former functions
+(fig_corruption_severity_grid, fig_split_leakage) have been removed: they
+generated synthetic stand-in images that are now superseded by
+generate_real_figures.py and generate_real_leakage_figure.py, which write
+to the same output filenames using real AVID data -- keeping the old
+synthetic versions here would have silently overwritten the real figures
+on a re-run. Run with:
 
     python paper/figures/generate_figures.py
 """
@@ -16,62 +21,13 @@ import matplotlib
 
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
-import numpy as np
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
-
-from dataset_tools.corruptions.corruptions import CORRUPTIONS, apply_corruption
-from dataset_tools.corruptions.test_corruptions import _synthetic_rgb
-from dataset_tools.baselines.split_leakage_ablation import compare_split_strategies, _synthetic_corpus
 
 OUT_DIR = os.path.dirname(__file__)
 
 # a colorblind-safe qualitative palette (Okabe-Ito)
 PALETTE = ["#0072B2", "#D55E00", "#009E73", "#CC79A7", "#E69F00", "#56B4E9", "#F0E442"]
-
-
-def fig_corruption_severity_grid():
-    img = _synthetic_rgb()
-    names = list(CORRUPTIONS.keys())
-    fig, axes = plt.subplots(len(names), 6, figsize=(9, 1.35 * len(names)))
-    for row, name in enumerate(names):
-        axes[row, 0].imshow(img)
-        axes[row, 0].set_ylabel(name.replace("_", "\n"), fontsize=8, rotation=0, ha="right", va="center")
-        axes[row, 0].set_xticks([])
-        axes[row, 0].set_yticks([])
-        if row == 0:
-            axes[row, 0].set_title("clean", fontsize=9)
-        for sev in range(1, 6):
-            out = apply_corruption(img, name, severity=sev, seed=sev)
-            axes[row, sev].imshow(out)
-            axes[row, sev].set_xticks([])
-            axes[row, sev].set_yticks([])
-            if row == 0:
-                axes[row, sev].set_title(f"severity {sev}", fontsize=9)
-    fig.suptitle(
-        "AVID-C corruption suite, severities 1-5 (synthetic stand-in image; not real AVID data)", fontsize=10
-    )
-    fig.tight_layout(rect=[0, 0, 1, 0.97])
-    fig.savefig(os.path.join(OUT_DIR, "fig_corruption_grid.png"), dpi=160)
-    plt.close(fig)
-
-
-def fig_split_leakage():
-    corpus = _synthetic_corpus(n_videos=50, frames_per_video=300)
-    report = compare_split_strategies(corpus)
-    fl = report["frame_level"]["leak_fraction"] * 100
-    vl = report["video_level"]["leak_fraction"] * 100
-
-    fig, ax = plt.subplots(figsize=(4.2, 3.2))
-    bars = ax.bar(["Frame-level\nsplit (naive)", "Video-level\nsplit (correct)"], [fl, vl], color=[PALETTE[1], PALETTE[2]])
-    for b, v in zip(bars, [fl, vl]):
-        ax.text(b.get_x() + b.get_width() / 2, v + 1.5, f"{v:.1f}%", ha="center", fontsize=10)
-    ax.set_ylabel("Train frames within 3 frames\nof a val/test frame (%)")
-    ax.set_ylim(0, 100)
-    ax.set_title("Split-leakage ablation\n(synthetic 50-video x 300-frame corpus)", fontsize=10)
-    fig.tight_layout()
-    fig.savefig(os.path.join(OUT_DIR, "fig_split_leakage.png"), dpi=160)
-    plt.close(fig)
 
 
 def fig_alignment_illustration():
@@ -145,8 +101,6 @@ def fig_landscape():
 
 
 if __name__ == "__main__":
-    fig_corruption_severity_grid()
-    fig_split_leakage()
     fig_alignment_illustration()
     fig_landscape()
     print("Wrote figures to", OUT_DIR)

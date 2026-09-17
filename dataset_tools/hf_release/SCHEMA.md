@@ -27,7 +27,7 @@ avid/
 
 `split` is one of `train`, `val`, `test`. Splits are defined at the
 **video** level (every frame of a given `video_id` is in exactly one split)
-per PLAN.md Experiment E8 — never re-split at the frame level, it leaks.
+— see the paper's split-leakage ablation — never re-split at the frame level, it leaks.
 
 ## Label format
 

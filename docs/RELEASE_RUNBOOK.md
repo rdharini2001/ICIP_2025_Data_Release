@@ -8,8 +8,8 @@ Hugging Face dataset upload.
 
 ## 0. Before you start
 
-- Rename `AVID` if you don't keep it (appears in `PLAN.md`, `paper/main.tex`
-  as `\datasetname{}`/`\corruptname{}` macros, and
+- Rename `AVID` if you don't keep it (appears in `archive/PLAN.md`,
+  `paper/main.tex` as `\datasetname{}`/`\corruptname{}` macros, and
   `dataset_tools/hf_release/DATASET_CARD.md`).
 - Decide on the arXiv category (`cs.CV`, possibly cross-listed `eess.IV`).
 - Create a Hugging Face account/org and a write-scoped access token.
@@ -19,8 +19,8 @@ Hugging Face dataset upload.
 - Real corpus: `E:\ICIP_2025\avid_release\` (built via
   `dataset_tools/hf_release/build_avid_v1.py` from the extracted
   `releasev1` Roboflow export). 28,790 train / 3,250 val pairs,
-  deduplicated (see `PLAN.md` for why the raw export had 2x that many
-  files).
+  deduplicated (see `archive/PLAN.md` for why the raw export had 2x that
+  many files).
 - Corpus stats: `metadata/corpus_summary.json`,
   `metadata/bbox_fine_histogram.json` (the extreme small-object finding) --
   produced by `dataset_tools/hf_release/corpus_stats.py` and
@@ -37,19 +37,26 @@ Hugging Face dataset upload.
   regenerate locally before rerunning any sweep below); `scale_sweep.py`,
   `corruption_sweep.py`, and `alignment_sweep.py` produce the three real
   results in the paper's Bayes-risk section; `real_cross_checks.py`
-  produces the Chernoff/KDE tightness cross-check. Regenerate all of it:
+  produces the Chernoff/KDE tightness cross-check. Two further real-data
+  checks live outside `theory/` but feed the same reproducibility export:
+  `dataset_tools/corruptions/noise_floor_check.py` (validates AVID-C's
+  "clean" baseline noise floor against its injected severities) and
+  `dataset_tools/hf_release/object_relative_misalignment.py` (the
+  target-size-relative misalignment ratio). Regenerate all of it:
   ```bash
   python -m dataset_tools.theory.patch_extraction
   python -m dataset_tools.theory.scale_sweep
   python -m dataset_tools.theory.corruption_sweep
   python -m dataset_tools.theory.alignment_sweep
   python -m dataset_tools.theory.real_cross_checks
+  python -m dataset_tools.corruptions.noise_floor_check
+  python -m dataset_tools.hf_release.object_relative_misalignment
   python dataset_tools/theory/export_reproducibility_csvs.py
   ```
 - `reproducibility_data/` holds a plain-CSV export of every number in the
   paper (see its `README.md` for the exact table/figure each file maps to).
 - **Still open**: the Test split's RGB/IR files cannot be paired (see
-  `PLAN.md` and `paper/main.tex`'s "pitfalls" section, disclosed as a
+  `archive/PLAN.md` and `paper/main.tex`'s "pitfalls" section, disclosed as a
   limitation rather than worked around). Extracting
   `pre_releasev2-detection&tracking.zip` (not yet done, 3.24GB, likely a
   corrected/expanded release) is the natural next step to check whether it

@@ -101,7 +101,7 @@ challenge's release; verify/re-state the exact annotation protocol
 (single-annotator vs. reviewed, tool used) once you have that documentation
 in hand — flagging this as a gap in the current card rather than guessing.
 
-**Splits.** Video-level, not frame-level (Experiment E8 in `PLAN.md`: on the
+**Splits.** Video-level, not frame-level (see the paper's split-leakage ablation: on the
 real 32,040-frame/115-video corpus, naive frame-level splitting measured
 **87.5%** train-frame leakage into val/test, vs. **0.0%** for video-level
 splitting — inflating any metric computed on a frame-level split).

@@ -25,6 +25,7 @@ which reads from the JSON files under `E:\ICIP_2025\avid_release\metadata\`
 | `real_alignment_sample_summary.csv` | same as above | Summary statistics (mean/median/stdev/fractions) quoted in Sec. 5 |
 | `split_leakage_ablation.csv` | `dataset_tools/hf_release/real_split_leakage.py` | Figure "leakage" (Sec. 3.6): the 87.5% (frame-level) vs. 0.0% (video-level) leakage comparison |
 | `noise_floor_check.csv` | `dataset_tools/corruptions/noise_floor_check.py` | Table "Real intrinsic noise floor" (`tab:noise-floor`), Sec. 4.1 ("Is the 'clean' baseline actually clean?") |
+| `object_relative_misalignment_rows.csv` / `_summary.csv` | `dataset_tools/hf_release/object_relative_misalignment.py` | The object-relative misalignment ratio $\rho$ (`eq:rho`), Sec. 5 |
 | `avid_c_severity_std_table.csv` | `dataset_tools/corruptions/corruptions.py` (the `gaussian_noise` severity table) | Same table/section, for direct comparison against the measured noise floor |
 
 ## Notes on reproducing from scratch

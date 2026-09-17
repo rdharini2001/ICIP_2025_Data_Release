@@ -671,15 +671,21 @@ shift (a real pair has no such ground truth to validate against, which is
 exactly why this synthetic check matters).
 
 On a random sample of 300 real \datasetname{} pairs (mutual-information
-search, $\pm$12px window), the measured shift is genuinely bimodal rather
-than uniformly small: \textbf{46\% of sampled pairs show zero measurable
-offset} at this search resolution, but \textbf{32.3\% exceed 5px} and the
-distribution has a long tail out to 17px (mean 4.66px, median 1.0px,
-$\sigma=6.44$px). This is consistent with our other real finding
-(\S\ref{sec:pitfalls}) that RGB and IR boxes are annotated once and shared
-across modalities rather than corrected per-sensor: a meaningful fraction
-of pairs have alignment error large enough that a shared box is measurably
-wrong in at least one modality, which \S\ref{sec:small-object}'s
+search, $\pm$12px window \emph{per axis}), the measured shift is genuinely
+bimodal rather than uniformly small: \textbf{46\% of sampled pairs show
+zero measurable offset} at this search resolution, but \textbf{32.3\%
+exceed 5px} and the distribution has a long tail out to 17px (mean
+4.66px, median 1.0px, $\sigma=6.44$px). Because the search is bounded at
+$\pm12$px per axis, its largest representable radial magnitude is exactly
+$\sqrt{12^2+12^2}=16.97$px, and several sampled pairs land at this
+boundary; we therefore treat 17px as a \emph{censored} upper end of what
+this estimator can report, not a measured physical maximum -- the true
+misalignment for those pairs could be larger, and a wider search window is
+the natural way to find out. This is consistent with our other real
+finding (\S\ref{sec:pitfalls}) that RGB and IR boxes are annotated once and
+shared across modalities rather than corrected per-sensor: a meaningful
+fraction of pairs have alignment error large enough that a shared box is
+measurably wrong in at least one modality, which \S\ref{sec:small-object}'s
 finding that most targets are 8-16px wide makes directly consequential --
 a 5-17px alignment error is a substantial fraction of, or larger than, the
 target itself. \texttt{alignment\_shift\_px} and \texttt{alignment\_confidence}
@@ -688,6 +694,29 @@ are computed for this released sample and are documented as sample-based
 $\sim$1.1s/pair $\times$ 32,040 pairs $\approx$ 9.8 GPU-independent CPU
 hours) in \texttt{metadata/real\_alignment\_sample.json}; schema for the
 full-corpus field in \texttt{dataset\_tools/hf\_release/SCHEMA.md}.
+
+\paragraph{An object-relative misalignment ratio.} Raw pixel shift is hard
+to interpret without knowing the scale of the object it is supposed to
+describe: 5px means something different for a 100px object than for a
+14px one. We therefore define
+\begin{equation}
+\rho = \frac{d_{\text{align}}}{s_{\text{target}}},
+\label{eq:rho}
+\end{equation}
+where $d_{\text{align}}$ is the estimated per-pair shift and
+$s_{\text{target}}$ is the median geometric-mean box side length of the
+annotated targets in that frame; $\rho > 1$ means the estimated inter-sensor
+shift is larger than the object itself. Joining the 300-pair alignment
+sample against the real label files (264 of 300 pairs had a matchable
+label; 36 did not and are excluded rather than imputed) gives a median
+target side of 14.2px in the sampled frames and: mean $\rho=0.297$, median
+$\rho=0.0$ (many pairs have zero measured shift), and \textbf{16.3\% of
+sampled pairs have $\rho>1$} -- the estimated cross-modal shift exceeds the
+size of the object it is describing. This is, to our knowledge, a more
+interpretable severity statistic than a raw pixel count for a
+small-object-dominated corpus, and we release the full per-pair table
+(\texttt{dataset\_tools/hf\_release/object\_relative\_misalignment.py}) so
+it can be recomputed against any future, less-censored alignment estimate.
 
 \begin{figure}[h]
 \centering
@@ -743,7 +772,13 @@ $k$-NN for the nonparametric cross-check reported below:
 P_e \;\le\; \sqrt{\pi_0\pi_1}\; BC.
 \label{eq:bhatt-bound}
 \end{equation}
-Modeling both classes as multivariate Gaussians
+To be precise about what Eq.~\ref{eq:bhatt-bound} does and does not claim:
+$P_e$ here is the error of the \emph{optimal} classifier under the fitted
+feature distributions, not a prediction of what any specific trained model
+will achieve, and the bound is an \emph{upper} bound -- it does not lower-bound
+achievable error, so a real system could in principle do even better than
+$\widehat{P_e}$ suggests if it exploits structure outside the fixed
+representation described below. Modeling both classes as multivariate Gaussians
 $\mathcal{N}(\mu_0,\Sigma_0)$, $\mathcal{N}(\mu_1,\Sigma_1)$ gives a
 closed form $BC=e^{-B}$ \citep{fukunaga1990}:
 \begin{equation}

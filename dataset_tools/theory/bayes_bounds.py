@@ -5,11 +5,10 @@ class-conditional density estimation.
 WHY THIS EXISTS (see paper section "A Data-Intrinsic Bayes-Risk Benchmark"):
 Every existing evaluation of RGB-T fusion reports the error of one trained
 model. That number is confounded by architecture choice, training budget,
-and optimization luck -- exactly the confounds this project's own YOLO
-training runs suffered from (few epochs, noisy validation curves; see
-PLAN.md). The Bayes risk is a property of the DATA, not of any model: it
-is the error rate of the *optimal* classifier for that data, and classical
-statistical decision theory gives tight, closed-form or cheaply-estimable
+and optimization luck. The Bayes risk is a property of the DATA, not of
+any model: it is the error rate of the *optimal* classifier for that
+data, and classical statistical decision theory gives tight, closed-form
+or cheaply-estimable
 bounds on it that require no gradient descent at all.
 
 Implements two independent estimators so results can be cross-checked
