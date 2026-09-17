@@ -196,7 +196,7 @@ fusion model can safely ignore.
     corpora: naive frame-level splitting on the real corpus leaks 87.5\% of
     "held-out" frames vs. 0.0\% for video-level splitting
     (\S\ref{sec:leakage}).
-    \item \textbf{An extreme small-object characterization}: 67.6\% of
+    \item \textbf{An extreme small-object characterization}: 68.1\% of
     annotated boxes are 8-16px wide, motivating a finer-grained
     scale-stratified evaluation protocol than COCO's buckets, and the
     operating range the Bayes-risk scale sweep is evaluated over
@@ -457,9 +457,9 @@ bucket: 99.0\% small in Train (32,124 of 32,448 boxes), 98.7\% in
 Validation, with \emph{zero} large-bucket instances in either split. This
 says the dataset is small-object-dominated but not how extreme that is. A
 finer pixel-side-length histogram (Figure~\ref{fig:bbox-histogram}) shows a
-sharp, narrow peak: \textbf{67.6\% of all $\sim$32K annotated boxes are
-8--16px} on a (geometric-mean) side in a 320$\times$256 frame, and not one
-box exceeds 48px. We are not aware of another RGB-T or anti-UAV benchmark
+sharp, narrow peak: \textbf{68.1\% of all 35,952 annotated boxes
+(Train+Validation) are 8--16px} on a (geometric-mean) side in a
+320$\times$256 frame, and not one box exceeds 48px. We are not aware of another RGB-T or anti-UAV benchmark
 in Table~\ref{tab:related-work} that reports object-scale statistics this
 fine-grained or this extreme, and we recommend evaluating on
 \datasetname{} with the bucket boundaries in
