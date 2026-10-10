@@ -1,0 +1,260 @@
+{
+  "rgb": [
+    {
+      "bucket": "0-8",
+      "n_bird": 52,
+      "n_drone": 51,
+      "skipped": false,
+      "b_distance": 1.626431431823696,
+      "bhattacharyya_coefficient": 0.1966300112053493,
+      "bayes_error_bound": 0.09831500560267464,
+      "n0": 52,
+      "n1": 51
+    },
+    {
+      "bucket": "8-12",
+      "n_bird": 3923,
+      "n_drone": 2860,
+      "skipped": false,
+      "b_distance": 1.7305323435959974,
+      "bhattacharyya_coefficient": 0.17719005886539146,
+      "bayes_error_bound": 0.08859502943269573,
+      "n0": 3923,
+      "n1": 2860
+    },
+    {
+      "bucket": "12-16",
+      "n_bird": 8790,
+      "n_drone": 8916,
+      "skipped": false,
+      "b_distance": 1.2147345563451168,
+      "bhattacharyya_coefficient": 0.29678878453874824,
+      "bayes_error_bound": 0.14839439226937412,
+      "n0": 8790,
+      "n1": 8916
+    },
+    {
+      "bucket": "16-20",
+      "n_bird": 2176,
+      "n_drone": 5093,
+      "skipped": false,
+      "b_distance": 1.2937708163371149,
+      "bhattacharyya_coefficient": 0.27423474211149723,
+      "bayes_error_bound": 0.13711737105574862,
+      "n0": 2176,
+      "n1": 5093
+    },
+    {
+      "bucket": "20-24",
+      "n_bird": 410,
+      "n_drone": 1745,
+      "skipped": false,
+      "b_distance": 2.243921089862356,
+      "bhattacharyya_coefficient": 0.1060418883452108,
+      "bayes_error_bound": 0.0530209441726054,
+      "n0": 410,
+      "n1": 1745
+    },
+    {
+      "bucket": "24-28",
+      "n_bird": 106,
+      "n_drone": 1083,
+      "skipped": false,
+      "b_distance": 3.252281531331885,
+      "bhattacharyya_coefficient": 0.038685844102324125,
+      "bayes_error_bound": 0.019342922051162063,
+      "n0": 106,
+      "n1": 1083
+    },
+    {
+      "bucket": "28-32",
+      "n_bird": 12,
+      "n_drone": 364,
+      "skipped": true
+    },
+    {
+      "bucket": "32-48",
+      "n_bird": 2,
+      "n_drone": 369,
+      "skipped": true
+    },
+    {
+      "bucket": "48-inf",
+      "n_bird": 0,
+      "n_drone": 0,
+      "skipped": true
+    }
+  ],
+  "ir": [
+    {
+      "bucket": "0-8",
+      "n_bird": 52,
+      "n_drone": 51,
+      "skipped": false,
+      "b_distance": 2.5251226638994475,
+      "bhattacharyya_coefficient": 0.0800484931241623,
+      "bayes_error_bound": 0.04002424656208115,
+      "n0": 52,
+      "n1": 51
+    },
+    {
+      "bucket": "8-12",
+      "n_bird": 3923,
+      "n_drone": 2860,
+      "skipped": false,
+      "b_distance": 1.248493536548127,
+      "bhattacharyya_coefficient": 0.286936731130355,
+      "bayes_error_bound": 0.1434683655651775,
+      "n0": 3923,
+      "n1": 2860
+    },
+    {
+      "bucket": "12-16",
+      "n_bird": 8790,
+      "n_drone": 8916,
+      "skipped": false,
+      "b_distance": 0.9266785406603544,
+      "bhattacharyya_coefficient": 0.3958663832659353,
+      "bayes_error_bound": 0.19793319163296766,
+      "n0": 8790,
+      "n1": 8916
+    },
+    {
+      "bucket": "16-20",
+      "n_bird": 2176,
+      "n_drone": 5093,
+      "skipped": false,
+      "b_distance": 0.8350336164682763,
+      "bhattacharyya_coefficient": 0.43385989635040073,
+      "bayes_error_bound": 0.21692994817520037,
+      "n0": 2176,
+      "n1": 5093
+    },
+    {
+      "bucket": "20-24",
+      "n_bird": 410,
+      "n_drone": 1745,
+      "skipped": false,
+      "b_distance": 1.3254029937514356,
+      "bhattacharyya_coefficient": 0.26569586373812865,
+      "bayes_error_bound": 0.13284793186906432,
+      "n0": 410,
+      "n1": 1745
+    },
+    {
+      "bucket": "24-28",
+      "n_bird": 106,
+      "n_drone": 1083,
+      "skipped": false,
+      "b_distance": 2.553118082317074,
+      "bhattacharyya_coefficient": 0.07783858011695471,
+      "bayes_error_bound": 0.03891929005847736,
+      "n0": 106,
+      "n1": 1083
+    },
+    {
+      "bucket": "28-32",
+      "n_bird": 12,
+      "n_drone": 364,
+      "skipped": true
+    },
+    {
+      "bucket": "32-48",
+      "n_bird": 2,
+      "n_drone": 369,
+      "skipped": true
+    },
+    {
+      "bucket": "48-inf",
+      "n_bird": 0,
+      "n_drone": 0,
+      "skipped": true
+    }
+  ],
+  "fusion": [
+    {
+      "bucket": "0-8",
+      "n_bird": 52,
+      "n_drone": 51,
+      "skipped": false,
+      "b_distance": 8.079288286197471,
+      "bhattacharyya_coefficient": 0.0003098915110172338,
+      "bayes_error_bound": 0.0001549457555086169,
+      "n0": 52,
+      "n1": 51
+    },
+    {
+      "bucket": "8-12",
+      "n_bird": 3923,
+      "n_drone": 2860,
+      "skipped": false,
+      "b_distance": 3.3164687923674934,
+      "bhattacharyya_coefficient": 0.036280720577576246,
+      "bayes_error_bound": 0.018140360288788123,
+      "n0": 3923,
+      "n1": 2860
+    },
+    {
+      "bucket": "12-16",
+      "n_bird": 8790,
+      "n_drone": 8916,
+      "skipped": false,
+      "b_distance": 2.3921693842401965,
+      "bhattacharyya_coefficient": 0.09143111934462511,
+      "bayes_error_bound": 0.045715559672312556,
+      "n0": 8790,
+      "n1": 8916
+    },
+    {
+      "bucket": "16-20",
+      "n_bird": 2176,
+      "n_drone": 5093,
+      "skipped": false,
+      "b_distance": 2.304662653475351,
+      "bhattacharyya_coefficient": 0.09979245961536995,
+      "bayes_error_bound": 0.049896229807684975,
+      "n0": 2176,
+      "n1": 5093
+    },
+    {
+      "bucket": "20-24",
+      "n_bird": 410,
+      "n_drone": 1745,
+      "skipped": false,
+      "b_distance": 4.051173197101502,
+      "bhattacharyya_coefficient": 0.017401946745381328,
+      "bayes_error_bound": 0.008700973372690664,
+      "n0": 410,
+      "n1": 1745
+    },
+    {
+      "bucket": "24-28",
+      "n_bird": 106,
+      "n_drone": 1083,
+      "skipped": false,
+      "b_distance": 6.904706526349653,
+      "bhattacharyya_coefficient": 0.0010030534048053646,
+      "bayes_error_bound": 0.0005015267024026823,
+      "n0": 106,
+      "n1": 1083
+    },
+    {
+      "bucket": "28-32",
+      "n_bird": 12,
+      "n_drone": 364,
+      "skipped": true
+    },
+    {
+      "bucket": "32-48",
+      "n_bird": 2,
+      "n_drone": 369,
+      "skipped": true
+    },
+    {
+      "bucket": "48-inf",
+      "n_bird": 0,
+      "n_drone": 0,
+      "skipped": true
+    }
+  ]
+}

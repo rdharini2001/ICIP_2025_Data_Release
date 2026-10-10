@@ -18,6 +18,13 @@ size_categories:
 pretty_name: "AVID: Aerial Visible-Infrared Drone Dataset"
 ---
 
+> **Superseded as the uploaded dataset card.** [`README_HF.md`](README_HF.md)
+> is what actually gets copied to `README.md` and pushed to the Hugging
+> Face repo (see `assemble_hf_folder.py` / `docs/RELEASE_RUNBOOK.md`). This
+> file is kept as the longer-form internal reference it always was —
+> useful for the fuller prose on known issues and data-creation details
+> below, but not what a visitor to the HF page actually sees.
+
 # AVID: Aerial Visible-Infrared Drone Dataset
 
 > Rename this file's H1 and the `pretty_name` above if you pick a different

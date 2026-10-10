@@ -1,0 +1,27 @@
+{
+  "RGB": {
+    "n": 200,
+    "clean_full_frame_mean": 0.4051811363104136,
+    "clean_full_frame_median": 0.3018927333186051,
+    "clean_sky_region_mean": 0.07417448212438736,
+    "clean_sky_region_median": 0.026599409054566668,
+    "excluded_noisy_variant_full_frame_mean": 0.6943201326370994,
+    "excluded_noisy_variant_full_frame_median": 0.6140290685824112
+  },
+  "IR": {
+    "n": 200,
+    "clean_full_frame_mean": 0.7448984021381126,
+    "clean_full_frame_median": 0.6383501881213266,
+    "clean_sky_region_mean": 0.13038458917973234,
+    "clean_sky_region_median": 0.046780454305725555,
+    "excluded_noisy_variant_full_frame_mean": 0.9735484505470907,
+    "excluded_noisy_variant_full_frame_median": 0.8672136168879162
+  },
+  "avid_c_gaussian_severity_std": [
+    5,
+    10,
+    18,
+    28,
+    40
+  ]
+}

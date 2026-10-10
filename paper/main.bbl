@@ -1,119 +1,65 @@
-\begin{thebibliography}{29}
+\begin{thebibliography}{24}
 \providecommand{\natexlab}[1]{#1}
 \providecommand{\url}[1]{\texttt{#1}}
 \expandafter\ifx\csname urlstyle\endcsname\relax
   \providecommand{\doi}[1]{doi: #1}\else
   \providecommand{\doi}{doi: \begingroup \urlstyle{rm}\Url}\fi
 
-\bibitem[Bhattacharyya(1943)]{bhattacharyya1943}
-Anil Bhattacharyya.
-\newblock On a measure of divergence between two statistical populations
-  defined by their probability distributions.
-\newblock \emph{Bulletin of the Calcutta Mathematical Society}, 35:\penalty0
-  99--109, 1943.
-
-\bibitem[Blum and Mitchell(1998)]{blum1998cotraining}
-Avrim Blum and Tom Mitchell.
-\newblock Combining labeled and unlabeled data with co-training.
-\newblock In \emph{Proceedings of the Eleventh Annual Conference on
-  Computational Learning Theory (COLT)}, pages 92--100, 1998.
-\newblock \doi{10.1145/279943.279962}.
-
-\bibitem[Chernoff(1952)]{chernoff1952}
-Herman Chernoff.
-\newblock A measure of asymptotic efficiency for tests of a hypothesis based on
-  the sum of observations.
-\newblock \emph{The Annals of Mathematical Statistics}, 23\penalty0
-  (4):\penalty0 493--507, 1952.
-
-\bibitem[Cover and Hart(1967)]{coverhart1967}
-Thomas~M. Cover and Peter~E. Hart.
-\newblock Nearest neighbor pattern classification.
-\newblock \emph{IEEE Transactions on Information Theory}, 13\penalty0
-  (1):\penalty0 21--27, 1967.
-
-\bibitem[Cover and Thomas(2006)]{covertom2006}
-Thomas~M. Cover and Joy~A. Thomas.
-\newblock \emph{Elements of Information Theory}.
-\newblock Wiley-Interscience, 2nd edition, 2006.
-
-\bibitem[Fukunaga(1990)]{fukunaga1990}
-Keinosuke Fukunaga.
-\newblock \emph{Introduction to Statistical Pattern Recognition}.
-\newblock Academic Press, 2nd edition, 1990.
-
-\bibitem[Gadre et~al.(2023)Gadre, Ilharco, Fang, Hayase, Smyrnis, Nguyen,
-  Marten, Wortsman, Ghosh, Zhang, Orgad, Entezari, Daras, Pratt, Ramanujan,
-  Bitton, Marathe, Mussmann, Vencu, Cherti, Krishna, Koh, Saukh, Ratner, Song,
-  Hajishirzi, Farhadi, Beaumont, Oh, Dimakis, Jitsev, Carmon, Shankar, and
-  Schmidt]{gadre2023datacomp}
-Samir~Yitzhak Gadre, Gabriel Ilharco, Alex Fang, Jonathan Hayase, Georgios
-  Smyrnis, Thao Nguyen, Ryan Marten, Mitchell Wortsman, Dhruba Ghosh, Jieyu
-  Zhang, Eyal Orgad, Rahim Entezari, Giannis Daras, Sarah Pratt, Vivek
-  Ramanujan, Yonatan Bitton, Kalyani Marathe, Stephen Mussmann, Richard Vencu,
-  Mehdi Cherti, Ranjay Krishna, Pang~Wei Koh, Olga Saukh, Alexander Ratner,
-  Shuran Song, Hannaneh Hajishirzi, Ali Farhadi, Romain Beaumont, Sewoong Oh,
-  Alex Dimakis, Jenia Jitsev, Yair Carmon, Vaishaal Shankar, and Ludwig
-  Schmidt.
-\newblock {DataComp}: In search of the next generation of multimodal datasets.
-\newblock In \emph{Advances in Neural Information Processing Systems (NeurIPS),
-  Datasets and Benchmarks Track}, 2023.
-
-\bibitem[Gebru et~al.(2021)Gebru, Morgenstern, Vecchione, Vaughan, Wallach,
-  Daum{\'e}, and Crawford]{gebru2021datasheets}
-Timnit Gebru, Jamie Morgenstern, Briana Vecchione, Jennifer~Wortman Vaughan,
-  Hanna Wallach, III Daum{\'e}, Hal, and Kate Crawford.
-\newblock Datasheets for datasets.
-\newblock \emph{Communications of the ACM}, 64\penalty0 (12):\penalty0 86--92,
-  2021.
-
-\bibitem[Hao et~al.(2024)Hao, Wei, Yang, Zhao, Zhang, Zhou, Wang, Li, Kong, and
-  Zhang]{hao2024mapbench}
-Xiaoshuai Hao, Mengchuan Wei, Yifan Yang, Haimei Zhao, Hui Zhang, Yi~Zhou,
-  Qiang Wang, Weiming Li, Lingdong Kong, and Jing Zhang.
-\newblock Is your {HD} map constructor reliable under sensor corruptions?
-\newblock In \emph{Advances in Neural Information Processing Systems (NeurIPS),
-  Datasets and Benchmarks Track}, 2024.
-
-\bibitem[Hendrycks and Dietterich(2019)]{hendrycks2019benchmarking}
-Dan Hendrycks and Thomas Dietterich.
-\newblock Benchmarking neural network robustness to common corruptions and
-  perturbations.
-\newblock In \emph{International Conference on Learning Representations
-  (ICLR)}, 2019.
-
-\bibitem[Huang et~al.(2023{\natexlab{a}})Huang, Li, Blasch,
-  et~al.]{huang20233rdantiuav}
-Bo~Huang, Jianan Li, Erik Blasch, et~al.
-\newblock The 3rd anti-{UAV} workshop and challenge: Methods and results.
-\newblock \emph{arXiv preprint arXiv:2305.07290}, 2023{\natexlab{a}}.
-
-\bibitem[Huang et~al.(2023{\natexlab{b}})Huang, Li, Chen, Wang, Zhao, and
-  Xu]{huang2023antiuav410}
-Bo~Huang, Jianan Li, Junjie Chen, Gang Wang, Jian Zhao, and Tingfa Xu.
-\newblock Anti-{UAV}410: A thermal infrared benchmark and customized scheme for
-  tracking drones in the wild.
-\newblock \emph{IEEE Transactions on Pattern Analysis and Machine
-  Intelligence}, 2023{\natexlab{b}}.
-\newblock \doi{10.1109/TPAMI.2023.3335338}.
+\bibitem[{IEEE Signal Processing Society}(2025)]{ieeevipcup2025}
+{IEEE Signal Processing Society}.
+\newblock {VIP Cup 2025 at ICIP 2025: Infrared-Visual Fusion for Enhanced Drone
+  Detection, Tracking and Payload Identification in Surveillance Videos}.
+\newblock
+  \url{https://signalprocessingsociety.org/community-involvement/vip-cup-2025-icip-2025},
+  2025.
+\newblock Accessed September 2026.
 
 \bibitem[Hwang et~al.(2015)Hwang, Park, Kim, Choi, and Kweon]{hwang2015kaist}
 Soonmin Hwang, Jaesik Park, Namil Kim, Yukyung Choi, and In~So Kweon.
 \newblock Multispectral pedestrian detection: Benchmark dataset and baselines.
-\newblock In \emph{Proceedings of the IEEE Conference on Computer Vision and
-  Pattern Recognition (CVPR)}, pages 1037--1045, 2015.
-
-\bibitem[Immerk{\ae}r(1996)]{immerkaer1996}
-John Immerk{\ae}r.
-\newblock Fast noise variance estimation.
-\newblock \emph{Computer Vision and Image Understanding}, 64\penalty0
-  (2):\penalty0 300--302, 1996.
+\newblock In \emph{IEEE Conference on Computer Vision and Pattern Recognition
+  (CVPR)}, pages 1037--1045, 2015.
 
 \bibitem[Jia et~al.(2021)Jia, Zhu, Li, Tang, and Zhou]{jia2021llvip}
 Xinyu Jia, Chuang Zhu, Minzhen Li, Wenqi Tang, and Wenli Zhou.
 \newblock {LLVIP}: A visible-infrared paired dataset for low-light vision.
-\newblock In \emph{Proceedings of the IEEE/CVF International Conference on
-  Computer Vision Workshops (ICCVW)}, pages 3489--3497, 2021.
+\newblock In \emph{IEEE/CVF International Conference on Computer Vision
+  Workshops (ICCVW)}, pages 3489--3497, 2021.
+
+\bibitem[Liu et~al.(2022)Liu, Fan, Huang, Wu, Liu, Zhong, and
+  Luo]{liu2022tardal}
+Jinyuan Liu, Xin Fan, Zhanbo Huang, Guanyao Wu, Risheng Liu, Wei Zhong, and
+  Zhongxuan Luo.
+\newblock Target-aware dual adversarial learning and a multi-scenario
+  multi-modality benchmark to fuse infrared and visible for object detection.
+\newblock In \emph{IEEE/CVF Conference on Computer Vision and Pattern
+  Recognition (CVPR)}, 2022.
+
+\bibitem[{Teledyne FLIR}(2018)]{flir2018adas}
+{Teledyne FLIR}.
+\newblock {FLIR} thermal dataset for algorithm training.
+\newblock \url{https://oem.flir.com/solutions/automotive/adas-dataset-form/},
+  2018.
+
+\bibitem[Zhu et~al.(2022)Zhu, Wen, Du, Bian, Fan, Hu, and
+  Ling]{zhu2022visdrone}
+Pengfei Zhu, Longyin Wen, Dawei Du, Xiao Bian, Heng Fan, Qinghua Hu, and Haibin
+  Ling.
+\newblock Detection and tracking meet drones challenge.
+\newblock \emph{IEEE Transactions on Pattern Analysis and Machine
+  Intelligence}, 44\penalty0 (11):\penalty0 7380--7399, 2022.
+
+\bibitem[Peng et~al.(2020)Peng, Li, and Zhu]{peng2020dronergbt}
+Tao Peng, Qiang Li, and Pengfei Zhu.
+\newblock {RGB-T} crowd counting from drone: A benchmark and {MMCCN} network.
+\newblock In \emph{Asian Conference on Computer Vision (ACCV)}, 2020.
+
+\bibitem[Zhang et~al.(2022)Zhang, Zhao, Wang, Lu, and Ruan]{zhang2022vtuav}
+Pengyu Zhang, Jie Zhao, Dong Wang, Huchuan Lu, and Xiang Ruan.
+\newblock Visible-thermal {UAV} tracking: A large-scale benchmark and new
+  baseline.
+\newblock In \emph{IEEE/CVF Conference on Computer Vision and Pattern
+  Recognition (CVPR)}, 2022.
 
 \bibitem[Jiang et~al.(2023)Jiang, Wang, Peng, Yu, Wang, Xing, Li, Guo, Ye,
   Jiao, Zhao, and Han]{jiang2023antiuav}
@@ -123,35 +69,26 @@ Nan Jiang, Kuiran Wang, Xiaoke Peng, Xuehui Yu, Qiang Wang, Junliang Xing,
 \newblock Anti-{UAV}: A large-scale benchmark for vision-based {UAV} tracking.
 \newblock \emph{IEEE Transactions on Multimedia}, 25:\penalty0 486--500, 2023.
 
-\bibitem[Liu et~al.(2023)Liu, Wang, Cui, and Namkoong]{liu2023whyshift}
-Jiashuo Liu, Tianyu Wang, Peng Cui, and Hongseok Namkoong.
-\newblock On the need for a language describing distribution shifts:
-  Illustrations on tabular datasets.
-\newblock In \emph{Advances in Neural Information Processing Systems (NeurIPS),
-  Datasets and Benchmarks Track}, 2023.
-
-\bibitem[Liu et~al.(2022)Liu, Fan, Huang, Wu, Liu, Zhong, and
-  Luo]{liu2022tardal}
-Jinyuan Liu, Xin Fan, Zhanbo Huang, Guanyao Wu, Risheng Liu, Wei Zhong, and
-  Zhongxuan Luo.
-\newblock Target-aware dual adversarial learning and a multi-scenario
-  multi-modality benchmark to fuse infrared and visible for object detection.
-\newblock In \emph{Proceedings of the IEEE/CVF Conference on Computer Vision
-  and Pattern Recognition (CVPR)}, 2022.
-
-\bibitem[Liu et~al.(2024)Liu, Feng, Hu, Yuan, and Fan]{liu2024uavc}
-Xiaoqiong Liu, Yunhe Feng, Shu Hu, Xiaohui Yuan, and Heng Fan.
-\newblock Benchmarking the robustness of {UAV} tracking against common
-  corruptions.
-\newblock \emph{arXiv preprint arXiv:2403.11424}, 2024.
+\bibitem[Zhao and collaborators(2026)]{antiuavrepo}
+Jian Zhao and collaborators.
+\newblock Anti-{UAV} official repository and dataset releases.
+\newblock \url{https://github.com/ZhaoJ9014/Anti-UAV}, 2026.
+\newblock Accessed September 2026.
 
 \bibitem[Liu et~al.(2025)Liu, Sun, Xi, Zhang, Dong, Chen, Lu, Fu, and
   Deng]{liu2025mmfwuav}
-Yang Liu, Zhe Sun, Lei Xi, Lei Zhang, Wei Dong, Chao Chen, Ming Lu, Hao Fu, and
-  Feng Deng.
-\newblock {MMFW-UAV} dataset: Multi-sensor and multi-view fixed-wing {UAV}
+Yang Liu, Zhihao Sun, Lele Xi, Lele Zhang, Wei Dong, Chen Chen, Maobin Lu,
+  Hailing Fu, and Fang Deng.
+\newblock {MMFW-UAV} dataset: multi-sensor and multi-view fixed-wing {UAV}
   dataset for air-to-air vision tasks.
-\newblock \emph{Scientific Data}, 12\penalty0 (1):\penalty0 185, 2025.
+\newblock \emph{Scientific Data}, 12:\penalty0 185, 2025.
+\newblock \doi{10.1038/s41597-025-04482-2}.
+
+\bibitem[Xu et~al.(2025)Xu, Gu, Zhu, Wu, and Kittler]{xu2025mmuav}
+Tianyang Xu, Jinjie Gu, Xuefeng Zhu, Xiaojun Wu, and Josef Kittler.
+\newblock A tri-modal dataset and a baseline system for tracking unmanned
+  aerial vehicles.
+\newblock \emph{arXiv preprint arXiv:2511.18344}, 2025.
 
 \bibitem[Luo et~al.(2026)Luo, Chen, Xiao, Wang, Li, Ling, He, Chen, Guo, Li,
   Li, Wang, Guo, Liu, An, and Chen]{luo2026uavnetms}
@@ -162,62 +99,91 @@ Yihang Luo, Jun Chen, Chao Xiao, Yingqian Wang, Zhaoxu Li, Qiang Ling, Xu~He,
   dataset {UAVNet-MS} and a new method.
 \newblock \emph{arXiv preprint arXiv:2605.20963}, 2026.
 
+\bibitem[Huang et~al.(2026)Huang, Hu, Zou, Chi, Li, Gao, Yang, Wu, and
+  Chen]{huang2026uavcb}
+Shenghui Huang, Menghao Hu, Longkun Zou, Hongyu Chi, Zekai Li, Feng Gao, Fan
+  Yang, Qingyao Wu, and Ke~Chen.
+\newblock {UAV-CB}: A complex-background {RGB-T} dataset and local frequency
+  bridge network for {UAV} detection.
+\newblock In \emph{IEEE/CVF Conference on Computer Vision and Pattern
+  Recognition (CVPR)}, pages 40468--40478, 2026.
+
+\bibitem[Hendrycks and Dietterich(2019)]{hendrycks2019benchmarking}
+Dan Hendrycks and Thomas Dietterich.
+\newblock Benchmarking neural network robustness to common corruptions and
+  perturbations.
+\newblock In \emph{International Conference on Learning Representations
+  (ICLR)}, 2019.
+
+\bibitem[Liu et~al.(2024)Liu, Feng, Hu, Yuan, and Fan]{liu2024uavc}
+Xiaoqiong Liu, Yunhe Feng, Shu Hu, Xiaohui Yuan, and Heng Fan.
+\newblock Benchmarking the robustness of {UAV} tracking against common
+  corruptions.
+\newblock In \emph{IEEE International Conference on Multimedia Information
+  Processing and Retrieval (MIPR)}, 2024.
+\newblock \doi{10.1109/MIPR62202.2024.00079}.
+
+\bibitem[Hao et~al.(2024)Hao, Wei, Yang, Zhao, Zhang, Zhou, Wang, Li, Kong, and
+  Zhang]{hao2024mapbench}
+Xiaoshuai Hao, Mengchuan Wei, Yifan Yang, Haimei Zhao, Hui Zhang, Yi~Zhou,
+  Qiang Wang, Weiming Li, Lingdong Kong, and Jing Zhang.
+\newblock Is your {HD} map constructor reliable under sensor corruptions?
+\newblock In \emph{Advances in Neural Information Processing Systems},
+  volume~37, 2024.
+
+\bibitem[Mazumder et~al.(2023)Mazumder, Banbury, Yao, Karlas, Rojas, Diamos,
+  Diamos, He, Parrish, Kirk, et~al.]{mazumder2023dataperf}
+Mark Mazumder, Colby Banbury, Xiaozhe Yao, Bojan Karlas, William~Gaviria Rojas,
+  Sudnya Diamos, Greg Diamos, Lynn He, Alicia Parrish, Hannah~Rose Kirk, et~al.
+\newblock {DataPerf}: Benchmarks for data-centric {AI} development.
+\newblock In \emph{Advances in Neural Information Processing Systems},
+  volume~36, 2023.
+
+\bibitem[Gadre et~al.(2023)Gadre, Ilharco, Fang, Hayase, Smyrnis, Nguyen,
+  Marten, Wortsman, Ghosh, Zhang, et~al.]{gadre2023datacomp}
+Samir~Yitzhak Gadre, Gabriel Ilharco, Alex Fang, Jonathan Hayase, Georgios
+  Smyrnis, Thao Nguyen, Ryan Marten, Mitchell Wortsman, Dhruba Ghosh, Jieyu
+  Zhang, et~al.
+\newblock {DataComp}: In search of the next generation of multimodal datasets.
+\newblock In \emph{Advances in Neural Information Processing Systems},
+  volume~36, 2023.
+
+\bibitem[Liu et~al.(2023)Liu, Wang, Cui, and Namkoong]{liu2023whyshift}
+Jiashuo Liu, Tianyu Wang, Peng Cui, and Hongseok Namkoong.
+\newblock On the need for a language describing distribution shifts:
+  Illustrations on tabular datasets.
+\newblock In \emph{Advances in Neural Information Processing Systems},
+  volume~36, 2023.
+
 \bibitem[Mayo et~al.(2023)Mayo, Cummings, Lin, Gutfreund, Katz, and
   Barbu]{mayo2023difficulty}
 David Mayo, Jesse Cummings, Xinyu Lin, Dan Gutfreund, Boris Katz, and Andrei
   Barbu.
 \newblock How hard are computer vision datasets? calibrating dataset difficulty
   to viewing time.
-\newblock In \emph{Advances in Neural Information Processing Systems (NeurIPS),
-  Datasets and Benchmarks Track}, 2023.
+\newblock In \emph{Advances in Neural Information Processing Systems},
+  volume~36, 2023.
 
-\bibitem[Mazumder et~al.(2023)]{mazumder2023dataperf}
-Mark Mazumder et~al.
-\newblock {DataPerf}: Benchmarks for data-centric {AI} development.
-\newblock In \emph{Advances in Neural Information Processing Systems (NeurIPS),
-  Datasets and Benchmarks Track}, 2023.
+\bibitem[Lin et~al.(2014)Lin, Maire, Belongie, Hays, Perona, Ramanan,
+  Doll{\'a}r, and Zitnick]{lin2014coco}
+Tsung-Yi Lin, Michael Maire, Serge Belongie, James Hays, Pietro Perona, Deva
+  Ramanan, Piotr Doll{\'a}r, and C.~Lawrence Zitnick.
+\newblock Microsoft {COCO}: Common objects in context.
+\newblock In \emph{European Conference on Computer Vision (ECCV)}, 2014.
 
-\bibitem[Peng et~al.(2020)Peng, Li, and Zhu]{peng2020dronergbt}
-Tao Peng, Qiang Li, and Pengfei Zhu.
-\newblock {RGB-T} crowd counting from drone: A benchmark and {MMCCN} network.
-\newblock In \emph{Proceedings of the Asian Conference on Computer Vision
-  (ACCV)}, 2020.
+\bibitem[Immerk{\ae}r(1996)]{immerkaer1996}
+John Immerk{\ae}r.
+\newblock Fast noise variance estimation.
+\newblock \emph{Computer Vision and Image Understanding}, 64\penalty0
+  (2):\penalty0 300--302, 1996.
+\newblock \doi{10.1006/cviu.1996.0060}.
 
-\bibitem[{Teledyne FLIR}(2018)]{flir2018adas}
-{Teledyne FLIR}.
-\newblock {FREE} teledyne {FLIR} thermal dataset for algorithm training ({ADAS}
-  dataset v2).
-\newblock \url{https://oem.flir.com/solutions/automotive/adas-dataset-form/},
-  2018.
-
-\bibitem[Xie et~al.(2025)Xie, Zhang, Wang, Liu, Lu, Chen, and
-  Hu]{xie2025cstantiuav}
-Bin Xie, Congxuan Zhang, Fagan Wang, Peng Liu, Feng Lu, Zhen Chen, and Weiming
-  Hu.
-\newblock {CST} anti-{UAV}: A thermal infrared benchmark for tiny {UAV}
-  tracking in complex scenes.
-\newblock In \emph{Proceedings of the IEEE/CVF International Conference on
-  Computer Vision Workshops (ICCVW)}, 2025.
-
-\bibitem[Xu et~al.(2020)Xu, Ma, Le, Jiang, and Guo]{xu2020fusiondn}
-Han Xu, Jiayi Ma, Zhuliang Le, Junjun Jiang, and Xiaojie Guo.
-\newblock {FusionDN}: A unified densely connected network for image fusion.
-\newblock In \emph{Proceedings of the AAAI Conference on Artificial
-  Intelligence}, 2020.
-
-\bibitem[Zhang et~al.(2022)Zhang, Zhao, Wang, Lu, and Ruan]{zhang2022vtuav}
-Pengyu Zhang, Jie Zhao, Dong Wang, Huchuan Lu, and Xiang Ruan.
-\newblock Visible-thermal {UAV} tracking: A large-scale benchmark and new
-  baseline.
-\newblock In \emph{Proceedings of the IEEE/CVF Conference on Computer Vision
-  and Pattern Recognition (CVPR)}, 2022.
-
-\bibitem[Zhu et~al.(2022)Zhu, Wen, Du, Bian, Fan, Hu, and
-  Ling]{zhu2022visdrone}
-Pengfei Zhu, Longyin Wen, Dawei Du, Xiao Bian, Heng Fan, Qinghua Hu, and Haibin
-  Ling.
-\newblock Detection and tracking meet drones challenge.
-\newblock \emph{IEEE Transactions on Pattern Analysis and Machine
-  Intelligence}, 44\penalty0 (11):\penalty0 7380--7399, 2022.
+\bibitem[Gebru et~al.(2021)Gebru, Morgenstern, Vecchione, Vaughan, Wallach,
+  Daum{\'e}, and Crawford]{gebru2021datasheets}
+Timnit Gebru, Jamie Morgenstern, Briana Vecchione, Jennifer~Wortman Vaughan,
+  Hanna Wallach, III Daum{\'e}, Hal, and Kate Crawford.
+\newblock Datasheets for datasets.
+\newblock \emph{Communications of the ACM}, 64\penalty0 (12):\penalty0 86--92,
+  2021.
 
 \end{thebibliography}

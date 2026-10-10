@@ -1,0 +1,510 @@
+{
+  "rgb": {
+    "clean": {
+      "b_distance": 1.2194639204213507,
+      "bhattacharyya_coefficient": 0.2953884762169017,
+      "bayes_error_bound": 0.14769423810845084,
+      "n0": 648,
+      "n1": 852
+    },
+    "gaussian_noise_s1": {
+      "b_distance": 1.165623071180225,
+      "bhattacharyya_coefficient": 0.3117283725458507,
+      "bayes_error_bound": 0.15586418627292534,
+      "n0": 648,
+      "n1": 852
+    },
+    "gaussian_noise_s2": {
+      "b_distance": 1.0513398541048153,
+      "bhattacharyya_coefficient": 0.34946919754704286,
+      "bayes_error_bound": 0.17473459877352143,
+      "n0": 648,
+      "n1": 852
+    },
+    "gaussian_noise_s3": {
+      "b_distance": 0.8380666017985035,
+      "bhattacharyya_coefficient": 0.43254599917204134,
+      "bayes_error_bound": 0.21627299958602067,
+      "n0": 648,
+      "n1": 852
+    },
+    "gaussian_noise_s4": {
+      "b_distance": 0.6104211992676735,
+      "bhattacharyya_coefficient": 0.5431220582772087,
+      "bayes_error_bound": 0.27156102913860436,
+      "n0": 648,
+      "n1": 852
+    },
+    "gaussian_noise_s5": {
+      "b_distance": 0.4178181837352706,
+      "bhattacharyya_coefficient": 0.6584819402684886,
+      "bayes_error_bound": 0.3292409701342443,
+      "n0": 648,
+      "n1": 852
+    },
+    "speckle_noise_s1": {
+      "b_distance": 1.1364284750753617,
+      "bhattacharyya_coefficient": 0.32096330562681585,
+      "bayes_error_bound": 0.16048165281340793,
+      "n0": 648,
+      "n1": 852
+    },
+    "speckle_noise_s2": {
+      "b_distance": 0.9698355132615136,
+      "bhattacharyya_coefficient": 0.3791453973644471,
+      "bayes_error_bound": 0.18957269868222354,
+      "n0": 648,
+      "n1": 852
+    },
+    "speckle_noise_s3": {
+      "b_distance": 0.6991516217334679,
+      "bhattacharyya_coefficient": 0.49700677472873767,
+      "bayes_error_bound": 0.24850338736436883,
+      "n0": 648,
+      "n1": 852
+    },
+    "speckle_noise_s4": {
+      "b_distance": 0.45697520014962584,
+      "bhattacharyya_coefficient": 0.6331960430351681,
+      "bayes_error_bound": 0.31659802151758404,
+      "n0": 648,
+      "n1": 852
+    },
+    "speckle_noise_s5": {
+      "b_distance": 0.28720944038348983,
+      "bhattacharyya_coefficient": 0.750354557832319,
+      "bayes_error_bound": 0.3751772789161595,
+      "n0": 648,
+      "n1": 852
+    },
+    "salt_and_pepper_s1": {
+      "b_distance": 1.1297422787959823,
+      "bhattacharyya_coefficient": 0.3231165196709273,
+      "bayes_error_bound": 0.16155825983546365,
+      "n0": 648,
+      "n1": 852
+    },
+    "salt_and_pepper_s2": {
+      "b_distance": 1.0316818768970735,
+      "bhattacharyya_coefficient": 0.35640702346167275,
+      "bayes_error_bound": 0.17820351173083637,
+      "n0": 648,
+      "n1": 852
+    },
+    "salt_and_pepper_s3": {
+      "b_distance": 0.8828673109097686,
+      "bhattacharyya_coefficient": 0.4135953035482669,
+      "bayes_error_bound": 0.20679765177413345,
+      "n0": 648,
+      "n1": 852
+    },
+    "salt_and_pepper_s4": {
+      "b_distance": 0.648093299574481,
+      "bhattacharyya_coefficient": 0.5230421112195263,
+      "bayes_error_bound": 0.26152105560976313,
+      "n0": 648,
+      "n1": 852
+    },
+    "salt_and_pepper_s5": {
+      "b_distance": 0.4428748464723453,
+      "bhattacharyya_coefficient": 0.6421875740988974,
+      "bayes_error_bound": 0.3210937870494487,
+      "n0": 648,
+      "n1": 852
+    },
+    "gaussian_blur_s1": {
+      "b_distance": 1.2285502654238951,
+      "bhattacharyya_coefficient": 0.292716631645639,
+      "bayes_error_bound": 0.1463583158228195,
+      "n0": 648,
+      "n1": 852
+    },
+    "gaussian_blur_s2": {
+      "b_distance": 1.265082219092785,
+      "bhattacharyya_coefficient": 0.2822160916355861,
+      "bayes_error_bound": 0.14110804581779304,
+      "n0": 648,
+      "n1": 852
+    },
+    "gaussian_blur_s3": {
+      "b_distance": 1.3734013790730784,
+      "bhattacharyya_coefficient": 0.25324411372301064,
+      "bayes_error_bound": 0.12662205686150532,
+      "n0": 648,
+      "n1": 852
+    },
+    "gaussian_blur_s4": {
+      "b_distance": 1.3278315595814545,
+      "bhattacharyya_coefficient": 0.2650513867364459,
+      "bayes_error_bound": 0.13252569336822295,
+      "n0": 648,
+      "n1": 852
+    },
+    "gaussian_blur_s5": {
+      "b_distance": 0.991332525953133,
+      "bhattacharyya_coefficient": 0.3710818851817073,
+      "bayes_error_bound": 0.18554094259085366,
+      "n0": 648,
+      "n1": 852
+    },
+    "uneven_illumination_s1": {
+      "b_distance": 0.7947604714915283,
+      "bhattacharyya_coefficient": 0.45168941445777117,
+      "bayes_error_bound": 0.22584470722888558,
+      "n0": 648,
+      "n1": 852
+    },
+    "uneven_illumination_s2": {
+      "b_distance": 0.6780014735089196,
+      "bhattacharyya_coefficient": 0.5076304922615235,
+      "bayes_error_bound": 0.25381524613076173,
+      "n0": 648,
+      "n1": 852
+    },
+    "uneven_illumination_s3": {
+      "b_distance": 0.5989158839325377,
+      "bhattacharyya_coefficient": 0.5494069342345609,
+      "bayes_error_bound": 0.27470346711728044,
+      "n0": 648,
+      "n1": 852
+    },
+    "uneven_illumination_s4": {
+      "b_distance": 0.5434758037813824,
+      "bhattacharyya_coefficient": 0.5807262498724509,
+      "bayes_error_bound": 0.29036312493622546,
+      "n0": 648,
+      "n1": 852
+    },
+    "uneven_illumination_s5": {
+      "b_distance": 0.497668262865222,
+      "bhattacharyya_coefficient": 0.60794657991059,
+      "bayes_error_bound": 0.303973289955295,
+      "n0": 648,
+      "n1": 852
+    },
+    "motion_blur_s1": {
+      "b_distance": 1.2163392869454643,
+      "bhattacharyya_coefficient": 0.2963129004293784,
+      "bayes_error_bound": 0.1481564502146892,
+      "n0": 648,
+      "n1": 852
+    },
+    "motion_blur_s2": {
+      "b_distance": 1.101812095345035,
+      "bhattacharyya_coefficient": 0.3322684357494937,
+      "bayes_error_bound": 0.16613421787474686,
+      "n0": 648,
+      "n1": 852
+    },
+    "motion_blur_s3": {
+      "b_distance": 0.9678729737101055,
+      "bhattacharyya_coefficient": 0.37989021583129956,
+      "bayes_error_bound": 0.18994510791564978,
+      "n0": 648,
+      "n1": 852
+    },
+    "motion_blur_s4": {
+      "b_distance": 0.8591303074111867,
+      "bhattacharyya_coefficient": 0.4235302633235468,
+      "bayes_error_bound": 0.2117651316617734,
+      "n0": 648,
+      "n1": 852
+    },
+    "motion_blur_s5": {
+      "b_distance": 0.8115709895118874,
+      "bhattacharyya_coefficient": 0.44415974753591436,
+      "bayes_error_bound": 0.22207987376795718,
+      "n0": 648,
+      "n1": 852
+    },
+    "camera_instability_s1": {
+      "b_distance": 1.1326336965922854,
+      "bhattacharyya_coefficient": 0.3221836041898376,
+      "bayes_error_bound": 0.1610918020949188,
+      "n0": 648,
+      "n1": 852
+    },
+    "camera_instability_s2": {
+      "b_distance": 0.952738654540457,
+      "bhattacharyya_coefficient": 0.38568332239462483,
+      "bayes_error_bound": 0.19284166119731241,
+      "n0": 648,
+      "n1": 852
+    },
+    "camera_instability_s3": {
+      "b_distance": 0.8417127622703651,
+      "bhattacharyya_coefficient": 0.4309717387946601,
+      "bayes_error_bound": 0.21548586939733005,
+      "n0": 648,
+      "n1": 852
+    },
+    "camera_instability_s4": {
+      "b_distance": 0.8432470388084462,
+      "bhattacharyya_coefficient": 0.43031101596263316,
+      "bayes_error_bound": 0.21515550798131658,
+      "n0": 648,
+      "n1": 852
+    },
+    "camera_instability_s5": {
+      "b_distance": 0.8025467120847544,
+      "bhattacharyya_coefficient": 0.44818610849407625,
+      "bayes_error_bound": 0.22409305424703813,
+      "n0": 648,
+      "n1": 852
+    }
+  },
+  "ir": {
+    "clean": {
+      "b_distance": 1.125051318976925,
+      "bhattacharyya_coefficient": 0.3246358069533699,
+      "bayes_error_bound": 0.16231790347668495,
+      "n0": 648,
+      "n1": 852
+    },
+    "gaussian_noise_s1": {
+      "b_distance": 1.118019317697022,
+      "bhattacharyya_coefficient": 0.32692669167535343,
+      "bayes_error_bound": 0.16346334583767672,
+      "n0": 648,
+      "n1": 852
+    },
+    "gaussian_noise_s2": {
+      "b_distance": 1.103292877496533,
+      "bhattacharyya_coefficient": 0.3317767826857085,
+      "bayes_error_bound": 0.16588839134285424,
+      "n0": 648,
+      "n1": 852
+    },
+    "gaussian_noise_s3": {
+      "b_distance": 1.0665663785920905,
+      "bhattacharyya_coefficient": 0.3441883031168105,
+      "bayes_error_bound": 0.17209415155840524,
+      "n0": 648,
+      "n1": 852
+    },
+    "gaussian_noise_s4": {
+      "b_distance": 1.006200250325118,
+      "bhattacharyya_coefficient": 0.36560555316873367,
+      "bayes_error_bound": 0.18280277658436683,
+      "n0": 648,
+      "n1": 852
+    },
+    "gaussian_noise_s5": {
+      "b_distance": 0.9250955217018053,
+      "bhattacharyya_coefficient": 0.3964935435280207,
+      "bayes_error_bound": 0.19824677176401034,
+      "n0": 648,
+      "n1": 852
+    },
+    "speckle_noise_s1": {
+      "b_distance": 1.1076708460300337,
+      "bhattacharyya_coefficient": 0.33032744925394353,
+      "bayes_error_bound": 0.16516372462697176,
+      "n0": 648,
+      "n1": 852
+    },
+    "speckle_noise_s2": {
+      "b_distance": 1.078888875841256,
+      "bhattacharyya_coefficient": 0.33997306814713946,
+      "bayes_error_bound": 0.16998653407356973,
+      "n0": 648,
+      "n1": 852
+    },
+    "speckle_noise_s3": {
+      "b_distance": 1.019746041173344,
+      "bhattacharyya_coefficient": 0.3606865280702679,
+      "bayes_error_bound": 0.18034326403513395,
+      "n0": 648,
+      "n1": 852
+    },
+    "speckle_noise_s4": {
+      "b_distance": 0.9308081309668734,
+      "bhattacharyya_coefficient": 0.3942349881021687,
+      "bayes_error_bound": 0.19711749405108436,
+      "n0": 648,
+      "n1": 852
+    },
+    "speckle_noise_s5": {
+      "b_distance": 0.8140677553223779,
+      "bhattacharyya_coefficient": 0.4430521679226987,
+      "bayes_error_bound": 0.22152608396134935,
+      "n0": 648,
+      "n1": 852
+    },
+    "salt_and_pepper_s1": {
+      "b_distance": 1.1147735719600322,
+      "bhattacharyya_coefficient": 0.3279895365201517,
+      "bayes_error_bound": 0.16399476826007586,
+      "n0": 648,
+      "n1": 852
+    },
+    "salt_and_pepper_s2": {
+      "b_distance": 1.1064786001595988,
+      "bhattacharyya_coefficient": 0.3307215156565496,
+      "bayes_error_bound": 0.1653607578282748,
+      "n0": 648,
+      "n1": 852
+    },
+    "salt_and_pepper_s3": {
+      "b_distance": 1.0947374098475922,
+      "bhattacharyya_coefficient": 0.3346274652898455,
+      "bayes_error_bound": 0.16731373264492275,
+      "n0": 648,
+      "n1": 852
+    },
+    "salt_and_pepper_s4": {
+      "b_distance": 1.0496066621904225,
+      "bhattacharyya_coefficient": 0.35007541993267394,
+      "bayes_error_bound": 0.17503770996633697,
+      "n0": 648,
+      "n1": 852
+    },
+    "salt_and_pepper_s5": {
+      "b_distance": 0.9731625681450262,
+      "bhattacharyya_coefficient": 0.3778860559292885,
+      "bayes_error_bound": 0.18894302796464424,
+      "n0": 648,
+      "n1": 852
+    },
+    "gaussian_blur_s1": {
+      "b_distance": 1.128524565513647,
+      "bhattacharyya_coefficient": 0.3235102226086714,
+      "bayes_error_bound": 0.1617551113043357,
+      "n0": 648,
+      "n1": 852
+    },
+    "gaussian_blur_s2": {
+      "b_distance": 1.1362090157210425,
+      "bhattacharyya_coefficient": 0.3210337517563772,
+      "bayes_error_bound": 0.1605168758781886,
+      "n0": 648,
+      "n1": 852
+    },
+    "gaussian_blur_s3": {
+      "b_distance": 1.1280413088686192,
+      "bhattacharyya_coefficient": 0.3236665988553684,
+      "bayes_error_bound": 0.1618332994276842,
+      "n0": 648,
+      "n1": 852
+    },
+    "gaussian_blur_s4": {
+      "b_distance": 1.038051931930568,
+      "bhattacharyya_coefficient": 0.3541439068492305,
+      "bayes_error_bound": 0.17707195342461526,
+      "n0": 648,
+      "n1": 852
+    },
+    "gaussian_blur_s5": {
+      "b_distance": 0.8958305984786066,
+      "bhattacharyya_coefficient": 0.4082683506999858,
+      "bayes_error_bound": 0.2041341753499929,
+      "n0": 648,
+      "n1": 852
+    },
+    "uneven_illumination_s1": {
+      "b_distance": 1.0749382719960148,
+      "bhattacharyya_coefficient": 0.3413188235804378,
+      "bayes_error_bound": 0.1706594117902189,
+      "n0": 648,
+      "n1": 852
+    },
+    "uneven_illumination_s2": {
+      "b_distance": 0.9865916565108253,
+      "bhattacharyya_coefficient": 0.3728453127387933,
+      "bayes_error_bound": 0.18642265636939664,
+      "n0": 648,
+      "n1": 852
+    },
+    "uneven_illumination_s3": {
+      "b_distance": 0.8790243410840557,
+      "bhattacharyya_coefficient": 0.4151877958098319,
+      "bayes_error_bound": 0.20759389790491595,
+      "n0": 648,
+      "n1": 852
+    },
+    "uneven_illumination_s4": {
+      "b_distance": 0.7988624774501563,
+      "bhattacharyya_coefficient": 0.4498403767627656,
+      "bayes_error_bound": 0.2249201883813828,
+      "n0": 648,
+      "n1": 852
+    },
+    "uneven_illumination_s5": {
+      "b_distance": 0.7151097417743559,
+      "bhattacharyya_coefficient": 0.4891384299316075,
+      "bayes_error_bound": 0.24456921496580375,
+      "n0": 648,
+      "n1": 852
+    },
+    "motion_blur_s1": {
+      "b_distance": 1.125258790287118,
+      "bhattacharyya_coefficient": 0.3245684613235503,
+      "bayes_error_bound": 0.16228423066177514,
+      "n0": 648,
+      "n1": 852
+    },
+    "motion_blur_s2": {
+      "b_distance": 1.074141253901616,
+      "bhattacharyya_coefficient": 0.341590969296914,
+      "bayes_error_bound": 0.170795484648457,
+      "n0": 648,
+      "n1": 852
+    },
+    "motion_blur_s3": {
+      "b_distance": 0.9898351703730655,
+      "bhattacharyya_coefficient": 0.37163794291732927,
+      "bayes_error_bound": 0.18581897145866463,
+      "n0": 648,
+      "n1": 852
+    },
+    "motion_blur_s4": {
+      "b_distance": 0.8985973771855553,
+      "bhattacharyya_coefficient": 0.4071403237406272,
+      "bayes_error_bound": 0.2035701618703136,
+      "n0": 648,
+      "n1": 852
+    },
+    "motion_blur_s5": {
+      "b_distance": 0.8418166056843,
+      "bhattacharyya_coefficient": 0.43092698754159586,
+      "bayes_error_bound": 0.21546349377079793,
+      "n0": 648,
+      "n1": 852
+    },
+    "camera_instability_s1": {
+      "b_distance": 1.0711885234748042,
+      "bhattacharyya_coefficient": 0.3426010859126125,
+      "bayes_error_bound": 0.17130054295630626,
+      "n0": 648,
+      "n1": 852
+    },
+    "camera_instability_s2": {
+      "b_distance": 0.912088515878548,
+      "bhattacharyya_coefficient": 0.40168442307432123,
+      "bayes_error_bound": 0.20084221153716061,
+      "n0": 648,
+      "n1": 852
+    },
+    "camera_instability_s3": {
+      "b_distance": 0.8006608911822364,
+      "bhattacharyya_coefficient": 0.44903210467361254,
+      "bayes_error_bound": 0.22451605233680627,
+      "n0": 648,
+      "n1": 852
+    },
+    "camera_instability_s4": {
+      "b_distance": 0.7843580943004932,
+      "bhattacharyya_coefficient": 0.45641258161243126,
+      "bayes_error_bound": 0.22820629080621563,
+      "n0": 648,
+      "n1": 852
+    },
+    "camera_instability_s5": {
+      "b_distance": 0.803129801972133,
+      "bhattacharyya_coefficient": 0.44792485188199616,
+      "bayes_error_bound": 0.22396242594099808,
+      "n0": 648,
+      "n1": 852
+    }
+  }
+}

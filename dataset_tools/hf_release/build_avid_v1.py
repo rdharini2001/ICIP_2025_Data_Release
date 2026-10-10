@@ -29,15 +29,21 @@ SPLIT_MAP = {"Train": "train", "Validation": "val"}
 
 
 def index_modality(images_dir):
-    """Returns dict: (video_id, frame_idx) -> list of (filename, filesize), sorted by size ascending."""
+    """Returns dict: (video_id, frame_idx) -> list of (filename, filesize), sorted by size ascending.
+    Uses os.scandir() rather than os.listdir()+os.path.getsize() -- the latter issues a
+    separate stat() syscall per file and is drastically slower under Windows Defender
+    real-time scanning at this corpus's scale (tens of thousands of files per directory);
+    scandir's DirEntry caches stat info from the directory enumeration itself."""
     by_key = {}
-    for fname in os.listdir(images_dir):
-        m = FNAME_RE.match(fname)
-        if not m:
-            continue
-        key = (f"{m.group('cls')}_{m.group('video')}", int(m.group("frame")))
-        size = os.path.getsize(os.path.join(images_dir, fname))
-        by_key.setdefault(key, []).append((fname, size))
+    with os.scandir(images_dir) as it:
+        for entry in it:
+            fname = entry.name
+            m = FNAME_RE.match(fname)
+            if not m:
+                continue
+            key = (f"{m.group('cls')}_{m.group('video')}", int(m.group("frame")))
+            size = entry.stat().st_size
+            by_key.setdefault(key, []).append((fname, size))
     for key in by_key:
         by_key[key].sort(key=lambda x: x[1])
     return by_key
@@ -55,7 +61,7 @@ def build_split(raw_split_dir, split_name, out_root, alignment_sample_rate=1.0, 
     ir_index = index_modality(ir_images_dir)
     rgb_index = index_modality(rgb_images_dir)
     keys = sorted(set(ir_index) & set(rgb_index))
-    print(f"[{split_name}] {len(keys)} paired keys (IR-only keys: {len(set(ir_index)-set(rgb_index))}, RGB-only: {len(set(rgb_index)-set(ir_index))})")
+    print(f"[{split_name}] {len(keys)} paired keys (IR-only keys: {len(set(ir_index)-set(rgb_index))}, RGB-only: {len(set(rgb_index)-set(ir_index))})", flush=True)
 
     pairs_path = os.path.join(out_root, "metadata", f"pairs_{split_name}.jsonl")
     os.makedirs(os.path.dirname(pairs_path), exist_ok=True)
@@ -118,16 +124,16 @@ def build_split(raw_split_dir, split_name, out_root, alignment_sample_rate=1.0, 
             video_seen[video_id]["n_frames"] += 1
             video_seen[video_id]["classes_present"].update(classes_present)
 
-            if i % 2000 == 0:
+            if i % 500 == 0:
                 elapsed = time.time() - t0
-                print(f"[{split_name}] {i}/{len(keys)} ({elapsed:.0f}s elapsed, {n_aligned} aligned)")
+                print(f"[{split_name}] {i}/{len(keys)} ({elapsed:.0f}s elapsed, {n_aligned} aligned)", flush=True)
 
     videos_path = os.path.join(out_root, "metadata", f"videos_{split_name}.jsonl")
     with open(videos_path, "w") as vf:
         for video_id, info in video_seen.items():
             vf.write(json.dumps({"video_id": video_id, "split": split_name, "n_frames": info["n_frames"], "classes_present": sorted(info["classes_present"])}) + "\n")
 
-    print(f"[{split_name}] DONE: {len(keys)} pairs, {len(video_seen)} videos, {n_aligned} alignment-scored")
+    print(f"[{split_name}] DONE: {len(keys)} pairs, {len(video_seen)} videos, {n_aligned} alignment-scored", flush=True)
     return {"n_pairs": len(keys), "n_videos": len(video_seen), "n_aligned": n_aligned}
 
 

@@ -1,0 +1,80 @@
+{
+  "sweep": [
+    {
+      "injected_shift_px": 0.0,
+      "rgb_bayes_bound": 0.14769423567775347,
+      "ir_bayes_bound": 0.16231791566260972,
+      "fusion_bayes_bound": 0.03697937068571616,
+      "fusion_bayes_bound_std": 0.0,
+      "bayes_fusion_gain": 0.11071486499203731,
+      "mutual_information_nats": 0.7146512800067146,
+      "n_trials": 1
+    },
+    {
+      "injected_shift_px": 1.0,
+      "rgb_bayes_bound": 0.14769423567775347,
+      "ir_bayes_bound": 0.16919738569049775,
+      "fusion_bayes_bound": 0.03831770986312959,
+      "fusion_bayes_bound_std": 0.0007132270013365059,
+      "bayes_fusion_gain": 0.10937652581462388,
+      "mutual_information_nats": 0.6628228586411085,
+      "n_trials": 5
+    },
+    {
+      "injected_shift_px": 2.0,
+      "rgb_bayes_bound": 0.14769423567775347,
+      "ir_bayes_bound": 0.18383691170497812,
+      "fusion_bayes_bound": 0.04137679033424313,
+      "fusion_bayes_bound_std": 0.0011771875038721373,
+      "bayes_fusion_gain": 0.10631744534351034,
+      "mutual_information_nats": 0.6602054174409029,
+      "n_trials": 5
+    },
+    {
+      "injected_shift_px": 5.0,
+      "rgb_bayes_bound": 0.14769423567775347,
+      "ir_bayes_bound": 0.20231027047475778,
+      "fusion_bayes_bound": 0.047242413646624126,
+      "fusion_bayes_bound_std": 0.007136434001382318,
+      "bayes_fusion_gain": 0.10045182203112935,
+      "mutual_information_nats": 0.6546286953321293,
+      "n_trials": 5
+    },
+    {
+      "injected_shift_px": 8.0,
+      "rgb_bayes_bound": 0.14769423567775347,
+      "ir_bayes_bound": 0.2096050890025504,
+      "fusion_bayes_bound": 0.05070099621541115,
+      "fusion_bayes_bound_std": 0.012822665548256163,
+      "bayes_fusion_gain": 0.09699323946234231,
+      "mutual_information_nats": 0.6489981965289531,
+      "n_trials": 5
+    },
+    {
+      "injected_shift_px": 12.0,
+      "rgb_bayes_bound": 0.14769423567775347,
+      "ir_bayes_bound": 0.22960107469513885,
+      "fusion_bayes_bound": 0.0542013511310717,
+      "fusion_bayes_bound_std": 0.010259726821505836,
+      "bayes_fusion_gain": 0.09349288454668178,
+      "mutual_information_nats": 0.6467031037273567,
+      "n_trials": 5
+    },
+    {
+      "injected_shift_px": 17.0,
+      "rgb_bayes_bound": 0.14769423567775347,
+      "ir_bayes_bound": 0.21179409254349912,
+      "fusion_bayes_bound": 0.049702346808936836,
+      "fusion_bayes_bound_std": 0.009608216005916173,
+      "bayes_fusion_gain": 0.09799188886881663,
+      "mutual_information_nats": 0.6509414883588482,
+      "n_trials": 5
+    }
+  ],
+  "real_shift_distribution_summary": {
+    "n": 300,
+    "mean": 4.655405681139726,
+    "median": 1.0,
+    "frac_over_5px": 0.3233333333333333
+  }
+}

@@ -29,7 +29,7 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--local-dir", required=True, help="path built by build_hf_dataset.py")
     parser.add_argument("--repo-id", required=True, help="e.g. your-username/avid")
-    parser.add_argument("--dataset-card", default=os.path.join(os.path.dirname(__file__), "DATASET_CARD.md"))
+    parser.add_argument("--dataset-card", default=os.path.join(os.path.dirname(__file__), "README_HF.md"))
     parser.add_argument("--token", default=None, help="defaults to the token from `huggingface-cli login`")
     parser.add_argument("--private", action="store_true", help="create/push as a private repo")
     parser.add_argument(

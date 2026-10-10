@@ -1,0 +1,23 @@
+{
+  "rgb": {
+    "bhattacharyya_bound": 0.14839439226937412,
+    "chernoff_bound": 0.13141021176448717,
+    "chernoff_optimal_s": 0.33,
+    "kde_bound": 0.1649957907221611,
+    "kde_n_sample": 4000
+  },
+  "ir": {
+    "bhattacharyya_bound": 0.19793319163296766,
+    "chernoff_bound": 0.19440949079913228,
+    "chernoff_optimal_s": 0.43,
+    "kde_bound": 0.17737229373420318,
+    "kde_n_sample": 4000
+  },
+  "fusion": {
+    "bhattacharyya_bound": 0.045715559672312556,
+    "chernoff_bound": 0.039554334339242186,
+    "chernoff_optimal_s": 0.37,
+    "kde_bound": 0.0472181758306084,
+    "kde_n_sample": 4000
+  }
+}
