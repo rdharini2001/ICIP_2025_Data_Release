@@ -3,7 +3,7 @@
 <div align="center">
 
 ![visitors](https://visitor-badge.laobi.icu/badge?page_id=rdharini2001/ICIP_2025_Data_Release&left_color=%2363C7E6&right_color=%23CEE75F)
-[![GitHub stars](https://img.shields.io/github/stars/rdharini2001/ICIP_2025_Data_Release.svg?style=social)](https://github.com/rdharini2001/ICIP_2025_Data_Release/stargazers)
+[![GitHub stars](https://img.shields.io/github/stars/rdharini2001/ICIP_2025_Data_Release.svg?style=social)](https://github.com/rdharini2001/ICIP_2025_Data_Release)
 [![License: CC BY-NC 4.0](https://img.shields.io/badge/Dataset%20License-CC%20BY--NC%204.0-lightgrey.svg)](LICENSE)
 
 </div>
