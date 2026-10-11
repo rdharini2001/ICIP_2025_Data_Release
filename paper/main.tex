@@ -22,6 +22,13 @@
 \usepackage{makecell}
 \usepackage{threeparttable}
 \usepackage{etoolbox}
+\usepackage{fontawesome5}
+
+\definecolor{linkblue}{HTML}{2C6CB0}
+\definecolor{linkgold}{HTML}{C68B16}
+
+\newcommand{\codeurl}{https://github.com/rdharini2001/ICIP_2025_Data_Release}
+\newcommand{\dataurl}{https://huggingface.co/datasets/Dharini24/AVID}
 
 \graphicspath{{figures/}}
 \captionsetup{font=small,labelfont=bf}
@@ -63,7 +70,15 @@ Dharini Raghavan$^{1}$ \quad Vishnu Rao$^{2}$\\[3pt]
 
 \begin{document}
 \maketitle
-\vspace{-1.0em}
+
+\vspace{-0.7em}
+\begin{center}
+\small
+{\color{linkblue}\faGithub}\;\href{\codeurl}{Code}
+\qquad
+{\color{linkgold}\faSmileBeam}\;\href{\dataurl}{Hugging Face}
+\end{center}
+\vspace{-0.3em}
 
 \begin{abstract}
 RGB and infrared sensing are naturally complementary for aerial surveillance, but their value is harder to assess when targets are very small, the two views are only weakly aligned, and each modality responds differently to image degradation. We introduce \dataset{}, a paired RGB--infrared dataset and benchmark for tiny aerial targets that makes these factors explicit. The dataset contains 32,040 paired frames from 115 short surveillance videos with 35,952 annotated bird and drone instances. The target scale is unusually small: 68.1\% of all instances have a geometric-mean side length between 8 and 16 pixels in a $320\times256$ frame, and 99.0\% fall within the COCO ``small'' category.
