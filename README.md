@@ -10,7 +10,7 @@
 
 <p align="center"><a href="https://rdharini2001.github.io/ICIP_2025_Data_Release/"><img src="docs/assets/panorama.webp" width="1000" alt="AVID RGB and infrared research atlas"/></a></p>
 
-<p align="center"><a href="https://rdharini2001.github.io/ICIP_2025_Data_Release/"><b>Research website ↗</b></a> · <a href="paper/main.pdf"><b>Paper PDF ↗</b></a> · <a href="paper/main.tex"><b>LaTeX source ↗</b></a> · <a href="https://huggingface.co/datasets/Dharini24/AVID"><b>Hugging Face dataset ↗</b></a></p>
+<p align="center"><a href="website/index.html"><b>Research website ↗</b></a> · <a href="paper/main.pdf"><b>Paper PDF ↗</b></a> · <a href="paper/main.tex"><b>LaTeX source ↗</b></a> · <a href="https://huggingface.co/datasets/Dharini24/AVID"><b>Hugging Face dataset ↗</b></a></p>
 
 *Ground-based counter-drone surveillance needs to tell a 12-pixel drone apart from a 12-pixel bird, using two cameras that are not pixel-registered. Most RGB-thermal benchmarks assume co-located, calibrated rigs and never have to answer that question. We ask:* **what does a real, weakly-aligned, extreme-small-object RGB-IR corpus actually look like, and how much does weak alignment cost a fusion system — provably, not just empirically?**
 
