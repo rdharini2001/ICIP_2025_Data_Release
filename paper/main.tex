@@ -29,6 +29,7 @@
 
 \newcommand{\codeurl}{https://github.com/rdharini2001/ICIP_2025_Data_Release}
 \newcommand{\dataurl}{https://huggingface.co/datasets/Dharini24/AVID}
+\newcommand{\siteurl}{https://rdharini2001.github.io/ICIP_2025_Data_Release/}
 
 \graphicspath{{figures/}}
 \captionsetup{font=small,labelfont=bf}
@@ -76,7 +77,7 @@ Dharini Raghavan$^{1}$ \quad Vishnu Rao$^{2}$\\[3pt]
 \small
 {\color{linkblue}\faGithub}\;\href{\codeurl}{Code}
 \qquad
-{\color{linkgold}\faSmileBeam}\;\href{\dataurl}{Hugging Face}
+{\color{linkgold}\faSmileBeam}\;\href{\dataurl}{Hugging Face}\qquad \href{\siteurl}{Research website}
 \end{center}
 \vspace{-0.3em}
 
@@ -87,18 +88,18 @@ We also study the geometric agreement between the paired sensors. On a sample of
 $\rhomis=d_{\mathrm{align}}/s_{\mathrm{target}}$
 and the corresponding alignment burden curve
 $\burden(\tau)=\Pr(\rhomis>\tau)$.
-In the measured sample, 33.0\% of pairs exceed one quarter of a target side, 29.7\% exceed one half, and 16.7\% exceed one full target side, giving a unit-scale burden of 0.304.
+Among 264 pairs matched to target annotations, 27.3\% exceed one quarter of a target side, 26.1\% exceed one half, and 16.3\% exceed a full target side, giving a unit-scale burden of 0.265.
 
 To study sensor degradation, we introduce \corrupt{}, a $7\times5$ perturbation benchmark covering Gaussian, speckle, and salt-and-pepper noise, Gaussian and motion blur, uneven illumination, and camera instability. The perturbations can be applied separately to RGB and infrared imagery, allowing modality-specific sensitivity to be examined directly. We further characterize how target scale, corruption, and cross-modal shift change the overlap between bird and drone distributions using Bhattacharyya and Chernoff error bounds, a kernel-density cross-check, a fusion-gap measure, and mutual-information sensitivity.
 
-Together, \dataset{} and \corrupt{} provide a benchmark in which target scale, cross-modal alignment, and sensor degradation are measured explicitly rather than being absorbed into a single aggregate task score. We hope this makes the dataset useful not only for comparing methods, but also for understanding when and why multimodal sensing helps in the tiny-target regime.
+Together, \dataset{} and \corrupt{} provide a benchmark in which target scale, cross-modal alignment, and sensor degradation are measured explicitly rather than being absorbed into a single aggregate task score. These measurements support method comparisons and help explain when multimodal sensing is useful for tiny aerial targets.
 \end{abstract}
 
 \section{Introduction}
 
 RGB and thermal cameras provide complementary views of the same scene. Visible imagery preserves color, texture, and fine spatial structure, while thermal imagery captures differences in emitted radiation and can remain informative when visible contrast is weak. This complementarity is particularly useful for long-range aerial surveillance, where drones may occupy only a small number of pixels and can be difficult to distinguish from birds or background structure. The IEEE ICIP 2025 Video and Image Processing Cup considered this setting through a challenge on infrared--visual drone surveillance \citep{ieeevipcup2025}. The data collected for that effort form the basis of the dataset studied here.
 
-A paired RGB--infrared dataset, however, is not fully characterized by the number of image pairs it contains. For distant targets, the scale of the object, the geometric agreement between the two sensors, and the quality of each sensor observation can all influence how much useful information is available. These factors become especially important when the target is very small. A displacement of five pixels is minor for a large object, but it can correspond to nearly half the width of a small drone. Similarly, blur or noise that appears mild at the scale of the full image can remove a large fraction of the visual structure within a target that is only 8 or 12 pixels across. The effect can also differ between RGB and thermal imagery because the two sensors respond to different physical signals.
+The number of paired images alone does not fully characterize an RGB--infrared dataset. For distant targets, the scale of the object, the geometric agreement between the two sensors, and the quality of each sensor observation can all influence how much useful information is available. These factors become especially important when the target is very small. A displacement of five pixels is minor for a large object, but it can correspond to nearly half the width of a small drone. Similarly, blur or noise that appears mild at the scale of the full image can remove a large fraction of the visual structure within a target that is only 8 or 12 pixels across. The effect can also differ between RGB and thermal imagery because the two sensors respond to different physical signals.
 
 We introduce \dataset{}, a paired RGB--infrared dataset and benchmark for tiny aerial targets that makes these properties visible rather than treating them as hidden details of the data. The paired release contains 32,040 RGB--IR frame pairs from 115 short surveillance videos and 35,952 annotated bird and drone instances. The dataset occupies an unusually small-object regime: 24,489 instances, or 68.1\% of the corpus, have a geometric-mean box side between 8 and 16 pixels in a $320\times256$ frame, and 99.0\% of all annotated instances fall within the COCO ``small'' category. Birds account for 15,471 instances and drones for 20,481.
 
@@ -129,7 +130,7 @@ which gives the fraction of frame pairs whose estimated displacement exceeds a f
 \label{eq:burdenscore}
 \end{equation}
 
-We use $T=1$ when summarizing displacement up to one target side. On a sample of 300 paired frames, the median estimated RGB--infrared shift is 1 pixel, while 32.3\% of the pairs exceed 5 pixels. When the displacement is expressed relative to target size, 33.0\% of the pairs exceed one quarter of a target side, 29.7\% exceed one half, and 16.7\% exceed one full target side. The corresponding unit-scale burden is $\widehat{\mathcal B}_1=0.304$. The alignment search is bounded at $\pm12$ pixels along each image axis, so the upper end of the measured distribution is censored and should not be interpreted as a physical limit on the sensor offset.
+We use $T=1$ when summarizing displacement up to one target side. On a sample of 300 paired frames, the median estimated RGB--infrared shift is 1 pixel, while 32.3\% of the pairs exceed 5 pixels. Object annotations are available for 264 of those pairs. In this annotated subset, 27.3\% exceed one quarter of a target side, 26.1\% exceed one half, and 16.3\% exceed a full target side. The unit-scale burden is $\widehat{\mathcal B}_1=0.265$. The alignment search is bounded at $\pm12$ pixels along each image axis, so the upper end of the measured distribution is censored and should not be interpreted as a physical limit on the sensor offset.
 
 We complement the dataset with \corrupt{}, a perturbation benchmark designed for the native $320\times256$ imagery. It contains seven perturbation families---Gaussian noise, speckle noise, salt-and-pepper noise, Gaussian blur, uneven illumination, motion blur, and camera instability---with five severity levels for each family. The perturbations can be applied to RGB, infrared, or both modalities. This allows the benchmark to distinguish between degradation of the visible stream, degradation of the thermal stream, and changes that affect both observations.
 
@@ -343,15 +344,15 @@ Pairs near this boundary may have larger true offsets. We therefore treat the up
 
 Pixel displacement alone, however, does not capture the difficulty of the alignment problem. A five-pixel offset has very different consequences for a 10-pixel target and a 50-pixel target. We therefore relate the estimated displacement to the target scale in the same frame using the object-relative ratio defined in Eq.~\ref{eq:rho}.
 
-Across the 300 sampled frames, the median target side is 14.07 pixels. The median object-relative displacement is $\rho=0.061$, while the mean is 0.339. The upper part of the distribution is more informative than either average. In particular, 33.0\% of the sampled pairs have $\rho>0.25$, 29.7\% have $\rho>0.5$, and 16.7\% have $\rho>1$. In other words, for approximately one sixth of the sampled pairs, the estimated cross-modal displacement is larger than the median target side in that frame.
+For 264 of the 300 sampled frames, matching target annotations allow us to normalize the shift by the median target side. In this subset, the median target side is 14.18 pixels, the median object-relative shift is $\rho=0$, and its mean is 0.297. The upper tail is more informative than either average: 27.3\% of pairs have $\rho>0.25$, 26.1\% have $\rho>0.5$, and 16.3\% have $\rho>1$. In other words, for approximately one sixth of the sampled pairs, the estimated cross-modal displacement is larger than the median target side in that frame.
 
 Figure~\ref{fig:datasetstats}c shows the corresponding alignment burden curve from Eq.~\ref{eq:burden}. Rather than reducing alignment to a single threshold, the curve reports the fraction of pairs whose estimated displacement exceeds any chosen fraction of the target size. The unit-scale burden defined in Eq.~\ref{eq:burdenscore} is
 
 \begin{equation}
-\widehat{\mathcal B}_1=0.304.
+\widehat{\mathcal B}_1=0.265.
 \end{equation}
 
-This value can be interpreted as an average displacement of 30.4\% of a target side after ratios above one are clipped at one. Together, the burden curve and its scalar summary describe alignment in units that are directly related to the objects being observed.
+This value can be interpreted as an average displacement of 26.5\% of a target side after ratios above one are clipped at one. Together, the burden curve and its scalar summary describe alignment in units that are directly related to the objects being observed.
 
 \begin{figure}[t]
     \centering
@@ -359,7 +360,7 @@ This value can be interpreted as an average displacement of 30.4\% of a target s
     \caption{\textbf{Target scale and weak RGB--infrared alignment in \dataset{}.}
     \textbf{a}, Distribution of geometric-mean target side length across the paired Train and Validation data. The shaded 8--16 pixel range contains 68.1\% of all annotated instances.
     \textbf{b}, Estimated global RGB--infrared translation magnitude for 300 paired frames. The search is limited to $\pm12$ pixels along each image axis, so values near the upper end of the distribution are censored by the search range.
-    \textbf{c}, Object-relative alignment burden curve $\widehat A(\tau)=\Pr(\rho>\tau)$. In the measured sample, 33.0\%, 29.7\%, and 16.7\% of pairs exceed one quarter, one half, and one full target side, respectively. The area under the curve up to $\tau=1$ gives a unit-scale burden of $\widehat{\mathcal B}_1=0.304$.}
+    \textbf{c}, Object-relative alignment burden curve $\widehat A(\tau)=\Pr(\rho>\tau)$. In the 264 annotation-matched pairs, 27.3\%, 26.1\%, and 16.3\% exceed one quarter, one half, and one full target side, respectively. The area under the curve up to $\tau=1$ gives a unit-scale burden of $\widehat{\mathcal B}_1=0.265$.}
     \label{fig:datasetstats}
 \end{figure}
 
@@ -812,7 +813,7 @@ We introduced \dataset{}, a paired RGB--infrared dataset and benchmark for tiny 
 
 A central observation of the dataset is that alignment should be interpreted relative to target size. The object-relative ratio
 $\rho=d_{\mathrm{align}}/s_{\mathrm{target}}$
-expresses displacement in units of the object being observed, while the alignment burden curve describes how often a chosen fraction of the target side is exceeded. In the 300-pair alignment sample, 16.7\% of pairs have an estimated displacement larger than one median target side, and the unit-scale burden is 0.304.
+expresses displacement in units of the object being observed, while the alignment burden curve describes how often a chosen fraction of the target side is exceeded. Among the 264 annotated pairs matched to the 300-pair sample, 16.3\% have an estimated displacement larger than one median target side, and the unit-scale burden is 0.265.
 
 \corrupt{} extends this view to sensor degradation through seven perturbation families and five severity levels. The results show that RGB and infrared do not respond uniformly to the same degradation and that the relative behavior depends strongly on the perturbation family. The fixed-representation analysis further shows that paired RGB--infrared information can provide greater bird--drone separation at the dominant 12--16 pixel scale, while the representation controls make clear that the magnitude of this effect depends on the feature space in which it is measured.
 
@@ -965,7 +966,7 @@ This identity gives the score a direct interpretation: it is the average displac
 
 \begin{table}[h]
 \centering
-\caption{\textbf{Alignment statistics for the 300-pair sample.}
+\caption{\textbf{Alignment statistics for the 300 measured shifts and 264 annotation-matched pairs.}
 The maximum representable radial shift is determined by the $\pm12$-pixel search range and should not be interpreted as a physical maximum of the sensor offset.}
 \label{tab:alignsummary}
 \small
@@ -973,7 +974,9 @@ The maximum representable radial shift is determined by the $\pm12$-pixel search
 \toprule
 Quantity & Value \\
 \midrule
-Number of frame pairs & 300 \\
+Number of measured shifts & 300 \\ 
+Pairs with matched annotations & 264 \\ 
+Pairs without matched annotations & 36 \\
 Mean estimated shift & 4.66 px \\
 Median estimated shift & 1.00 px \\
 Standard deviation & 6.44 px \\
@@ -981,11 +984,11 @@ Fraction at 0 px & 46.0\% \\
 Fraction $>2$ px & 36.0\% \\
 Fraction $>5$ px & 32.3\% \\
 Maximum representable radial shift & 16.97 px \\
-Median target side & 14.07 px \\
-$\widehat A(0.25)$ & 0.330 \\
-$\widehat A(0.50)$ & 0.297 \\
-$\widehat A(1.00)$ & 0.167 \\
-$\widehat{\mathcal B}_{1}$ & 0.304 \\
+Median target side (264 pairs) & 14.18 px \\
+$\widehat A(0.25)$ & 0.273 \\
+$\widehat A(0.50)$ & 0.261 \\
+$\widehat A(1.00)$ & 0.163 \\
+$\widehat{\mathcal B}_{1}$ & 0.265 \\
 \bottomrule
 \end{tabular}
 \end{table}

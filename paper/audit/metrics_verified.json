@@ -1,0 +1,15 @@
+{
+  "paired_frames": 32040,
+  "videos": 115,
+  "instances": 35952,
+  "n_pixel_shifts": 300,
+  "fraction_shift_gt_5": 0.3233333333333333,
+  "n_annotated_relative": 264,
+  "missing_label_join": 36,
+  "fraction_rho_gt_025": 0.2727272727272727,
+  "fraction_rho_gt_05": 0.26136363636363635,
+  "fraction_rho_gt_1": 0.16287878787878787,
+  "burden_unit": 0.26475664666507853,
+  "median_rho": 0.0,
+  "median_target_side_px": 14.177052068277995
+}

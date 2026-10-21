@@ -6,12 +6,11 @@
 [![GitHub stars](https://img.shields.io/github/stars/rdharini2001/ICIP_2025_Data_Release.svg?style=social)](https://github.com/rdharini2001/ICIP_2025_Data_Release/stargazers)
 [![License: CC BY-NC 4.0](https://img.shields.io/badge/Dataset%20License-CC%20BY--NC%204.0-lightgrey.svg)](LICENSE)
 
-
 </div>
 
-<p align="center">
-  <img src="paper/figures/fig_hf_teaser.png" width="850"/>
-</p>
+<p align="center"><a href="https://rdharini2001.github.io/ICIP_2025_Data_Release/"><img src="docs/assets/panorama.webp" width="1000" alt="AVID RGB and infrared research atlas"/></a></p>
+
+<p align="center"><a href="https://rdharini2001.github.io/ICIP_2025_Data_Release/"><b>Research website ↗</b></a> · <a href="paper/main.pdf"><b>Paper PDF ↗</b></a> · <a href="paper/main.tex"><b>LaTeX source ↗</b></a> · <a href="https://huggingface.co/datasets/Dharini24/AVID"><b>Hugging Face dataset ↗</b></a></p>
 
 *Ground-based counter-drone surveillance needs to tell a 12-pixel drone apart from a 12-pixel bird, using two cameras that are not pixel-registered. Most RGB-thermal benchmarks assume co-located, calibrated rigs and never have to answer that question. We ask:* **what does a real, weakly-aligned, extreme-small-object RGB-IR corpus actually look like, and how much does weak alignment cost a fusion system — provably, not just empirically?**
 
@@ -47,7 +46,7 @@ hf download Dharini24/AVID --repo-type dataset --local-dir .
 | bird / drone instances | 14,113 / 18,335 | 1,358 / 2,146 | **15,471 / 20,481** |
 
 - **Extreme small-object regime**: 68.1% of all 35,952 boxes are 8–16px (geometric-mean side) in a 320×256 frame; zero boxes exceed 48px.
-- **Weakly aligned, quantified, not assumed**: RGB and IR come from physically separate optics. On a real 300-pair sample, 32.3% of pairs exceed 5px of measured shift — and an object-relative ratio ρ = shift/target-size shows 16.3% of pairs have shift *larger than the target itself*.
+- **Weakly aligned, quantified, not assumed**: RGB and IR come from physically separate optics. On a real 300-pair sample, 32.3% of pairs exceed 5px of measured shift — and an object-relative ratio ρ = shift/target-size shows 16.3% of the 264 annotation-matched pairs have shift *larger than the target itself*.
 - **AVID-C**: 7 corruption families (Gaussian/speckle/salt-and-pepper noise, Gaussian blur, uneven illumination, motion blur, camera instability) × 5 severities, released as deterministic, seeded code — not fixed pre-rendered files.
 
 Full dataset card, known issues, and licensing terms: [Hugging Face dataset page](https://huggingface.co/datasets/Dharini24/AVID).
@@ -112,6 +111,10 @@ Every number in the paper is computed directly on the real, deduplicated corpus 
 - Naive frame-level splitting leaks 87.5% of nominally held-out frames (vs. 0.0% for the video-level splitting this release uses).
 
 </details>
+
+## Interactive research website
+
+The `docs/` directory contains the AVID research atlas: synchronized RGB/IR recordings, downloadable paired GIFs, interactive object-relative alignment burden, seven-family AVID-C severity plots, fusion sensitivity, and access to the paper. No backend is required. The numerical reconciliations are explained in [the provenance audit](docs/METRIC_PROVENANCE.md). See [publishing instructions](docs/PUBLISH.md) for GitHub Pages.
 
 ## Citation
 
