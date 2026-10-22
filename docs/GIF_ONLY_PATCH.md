@@ -1,0 +1,1 @@
+Replace docs/index.html, docs/assets/site.js, docs/assets/site.css, and add the six paired GIF files in docs/media/. The old MP4, WebM, JPG poster files are no longer referenced and may be removed optionally.

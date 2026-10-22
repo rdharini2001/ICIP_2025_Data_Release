@@ -9,3 +9,14 @@
 .transport button:focus-visible,.segmented button:focus-visible{outline:2px solid #9ce9d9;outline-offset:3px}
 .transport button{cursor:pointer}
 @media(max-width:650px){.playback-notice{padding:0 13px 13px}}
+
+
+/* GIF gallery patch: replace embedded video with paired animated excerpts */
+.gif-toolbar{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;margin-bottom:22px}
+.gifs{grid-template-columns:repeat(3,1fr)}
+.gif-card{display:block}
+.gif-card small{display:block;color:#91a9b2;font-size:12px;line-height:1.6;margin-top:8px}
+.gif-card[hidden]{display:none!important}
+.samples-note{margin:22px 0 0;color:#9db2be;font-size:12px;line-height:1.8;border-top:1px solid var(--line);padding-top:16px}
+@media(max-width:900px){.gifs{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:650px){.gif-toolbar{align-items:flex-start}.samples-note{margin-top:16px}}
