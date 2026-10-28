@@ -1,9 +1,57 @@
-\begin{thebibliography}{24}
+\begin{thebibliography}{30}
 \providecommand{\natexlab}[1]{#1}
 \providecommand{\url}[1]{\texttt{#1}}
 \expandafter\ifx\csname urlstyle\endcsname\relax
   \providecommand{\doi}[1]{doi: #1}\else
   \providecommand{\doi}{doi: \begingroup \urlstyle{rm}\Url}\fi
+
+\bibitem[Selvi et~al.(2022)Selvi, Pavithraa, Dharini, and
+  Chaitra]{selvi2022deep}
+S.~Sethu Selvi, S.~Pavithraa, R.~Dharini, and E.~Chaitra.
+\newblock A deep learning approach to classify drones and birds.
+\newblock In \emph{2022 IEEE 2nd Mysore Sub Section International Conference
+  (MysuruCon)}, 2022.
+\newblock \doi{10.1109/MysuruCon55714.2022.9972589}.
+\newblock URL \url{https://ieeexplore.ieee.org/abstract/document/9972589}.
+
+\bibitem[Raghavan and Selvi(2023)]{10193217}
+Dharini Raghavan and S~Sethu Selvi.
+\newblock {Setnet}: A sparse ensemble network for drone localization and zero
+  shot drone tracking in real time surveillance videos.
+\newblock In \emph{2023 IEEE International Conference on Acoustics, Speech, and
+  Signal Processing Workshops (ICASSPW)}, pages 1--5, 2023.
+\newblock \doi{10.1109/ICASSPW59220.2023.10193217}.
+
+\bibitem[Raghavan et~al.(2023)Raghavan, Selvi, S, Rao, and A~V]{10328384}
+Dharini Raghavan, S~Sethu Selvi, Raghuram S, Vishnu~R Rao, and Srinidhi A~V.
+\newblock {IR-Setnet}: Sparsity aware ensemble network for infrared imaging
+  based drone localization and tracking in distorted surveillance videos.
+\newblock In \emph{2023 IEEE International Conference on Image Processing
+  Challenges and Workshops (ICIPCW)}, pages 3600--3604, 2023.
+\newblock \doi{10.1109/ICIPC59416.2023.10328384}.
+
+\bibitem[Selvi et~al.(2026)Selvi, Rao, Raghavan, and Singh]{11700652}
+S~Sethu Selvi, Vishnu~R Rao, Dharini Raghavan, and Shefali Singh.
+\newblock {Modalfusenet} architecture for drone localization.
+\newblock In \emph{2026 IEEE International Conference on Electronics, Computing
+  and Communication Technologies (CONECCT)}, pages 1--6, 2026.
+\newblock \doi{10.1109/CONECCT68978.2026.11700652}.
+
+\bibitem[Svanstr{\"o}m et~al.(2021)Svanstr{\"o}m, Alonso-Fernandez, and
+  Englund]{svanstrom2021multisensor}
+Fredrik Svanstr{\"o}m, Fernando Alonso-Fernandez, and Cristofer Englund.
+\newblock A dataset for multi-sensor drone detection.
+\newblock \emph{Data in Brief}, 39:\penalty0 107521, 2021.
+\newblock \doi{10.1016/j.dib.2021.107521}.
+
+\bibitem[{DroneDetectionThesis}(2020)]{svanstrom2020repository}
+{DroneDetectionThesis}.
+\newblock Drone-detection-dataset: Infrared, visible and audio data for drone
+  detection.
+\newblock
+  \url{https://github.com/DroneDetectionThesis/Drone-detection-dataset}, 2020.
+\newblock Original source repository, CC0 1.0 Universal license; accessed
+  October 2026.
 
 \bibitem[{IEEE Signal Processing Society}(2025)]{ieeevipcup2025}
 {IEEE Signal Processing Society}.
@@ -12,7 +60,7 @@
 \newblock
   \url{https://signalprocessingsociety.org/community-involvement/vip-cup-2025-icip-2025},
   2025.
-\newblock Accessed September 2026.
+\newblock Accessed October 2026.
 
 \bibitem[Hwang et~al.(2015)Hwang, Park, Kim, Choi, and Kweon]{hwang2015kaist}
 Soonmin Hwang, Jaesik Park, Namil Kim, Yukyung Choi, and In~So Kweon.
@@ -24,7 +72,8 @@ Soonmin Hwang, Jaesik Park, Namil Kim, Yukyung Choi, and In~So Kweon.
 Xinyu Jia, Chuang Zhu, Minzhen Li, Wenqi Tang, and Wenli Zhou.
 \newblock {LLVIP}: A visible-infrared paired dataset for low-light vision.
 \newblock In \emph{IEEE/CVF International Conference on Computer Vision
-  Workshops (ICCVW)}, pages 3489--3497, 2021.
+  Workshops (ICCVW)}, pages 3496--3504, 2021.
+\newblock \doi{10.1109/ICCVW54120.2021.00389}.
 
 \bibitem[Liu et~al.(2022)Liu, Fan, Huang, Wu, Liu, Zhong, and
   Luo]{liu2022tardal}
@@ -33,7 +82,7 @@ Jinyuan Liu, Xin Fan, Zhanbo Huang, Guanyao Wu, Risheng Liu, Wei Zhong, and
 \newblock Target-aware dual adversarial learning and a multi-scenario
   multi-modality benchmark to fuse infrared and visible for object detection.
 \newblock In \emph{IEEE/CVF Conference on Computer Vision and Pattern
-  Recognition (CVPR)}, 2022.
+  Recognition (CVPR)}, pages 5802--5811, 2022.
 
 \bibitem[{Teledyne FLIR}(2018)]{flir2018adas}
 {Teledyne FLIR}.
@@ -50,7 +99,7 @@ Pengfei Zhu, Longyin Wen, Dawei Du, Xiao Bian, Heng Fan, Qinghua Hu, and Haibin
   Intelligence}, 44\penalty0 (11):\penalty0 7380--7399, 2022.
 
 \bibitem[Peng et~al.(2020)Peng, Li, and Zhu]{peng2020dronergbt}
-Tao Peng, Qiang Li, and Pengfei Zhu.
+Tao Peng, Qing Li, and Pengfei Zhu.
 \newblock {RGB-T} crowd counting from drone: A benchmark and {MMCCN} network.
 \newblock In \emph{Asian Conference on Computer Vision (ACCV)}, 2020.
 
@@ -59,7 +108,7 @@ Pengyu Zhang, Jie Zhao, Dong Wang, Huchuan Lu, and Xiang Ruan.
 \newblock Visible-thermal {UAV} tracking: A large-scale benchmark and new
   baseline.
 \newblock In \emph{IEEE/CVF Conference on Computer Vision and Pattern
-  Recognition (CVPR)}, 2022.
+  Recognition (CVPR)}, pages 8886--8895, 2022.
 
 \bibitem[Jiang et~al.(2023)Jiang, Wang, Peng, Yu, Wang, Xing, Li, Guo, Ye,
   Jiao, Zhao, and Han]{jiang2023antiuav}
@@ -68,18 +117,19 @@ Nan Jiang, Kuiran Wang, Xiaoke Peng, Xuehui Yu, Qiang Wang, Junliang Xing,
   Han.
 \newblock Anti-{UAV}: A large-scale benchmark for vision-based {UAV} tracking.
 \newblock \emph{IEEE Transactions on Multimedia}, 25:\penalty0 486--500, 2023.
+\newblock \doi{10.1109/TMM.2021.3128047}.
 
-\bibitem[Zhao and collaborators(2026)]{antiuavrepo}
-Jian Zhao and collaborators.
-\newblock Anti-{UAV} official repository and dataset releases.
+\bibitem[{Anti-UAV Project}(2026)]{antiuavrepo}
+{Anti-UAV Project}.
+\newblock {Anti-UAV} official repository and dataset releases.
 \newblock \url{https://github.com/ZhaoJ9014/Anti-UAV}, 2026.
-\newblock Accessed September 2026.
+\newblock Project repository; accessed October 2026.
 
 \bibitem[Liu et~al.(2025)Liu, Sun, Xi, Zhang, Dong, Chen, Lu, Fu, and
   Deng]{liu2025mmfwuav}
 Yang Liu, Zhihao Sun, Lele Xi, Lele Zhang, Wei Dong, Chen Chen, Maobin Lu,
   Hailing Fu, and Fang Deng.
-\newblock {MMFW-UAV} dataset: multi-sensor and multi-view fixed-wing {UAV}
+\newblock {MMFW-UAV} dataset: Multi-sensor and multi-view fixed-wing {UAV}
   dataset for air-to-air vision tasks.
 \newblock \emph{Scientific Data}, 12:\penalty0 185, 2025.
 \newblock \doi{10.1038/s41597-025-04482-2}.
@@ -181,7 +231,7 @@ John Immerk{\ae}r.
 \bibitem[Gebru et~al.(2021)Gebru, Morgenstern, Vecchione, Vaughan, Wallach,
   Daum{\'e}, and Crawford]{gebru2021datasheets}
 Timnit Gebru, Jamie Morgenstern, Briana Vecchione, Jennifer~Wortman Vaughan,
-  Hanna Wallach, III Daum{\'e}, Hal, and Kate Crawford.
+  Hanna Wallach, Hal Daum{\'e}, and Kate Crawford.
 \newblock Datasheets for datasets.
 \newblock \emph{Communications of the ACM}, 64\penalty0 (12):\penalty0 86--92,
   2021.

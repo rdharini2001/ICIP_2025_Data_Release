@@ -1,0 +1,13 @@
+{
+  "checks": 59,
+  "status": "PASS",
+  "selected": {
+    "Total pairs": 32040,
+    "Total instances": 35952,
+    "8-16px": 24489,
+    "N real shifts": 300,
+    "N matched": 264,
+    "B1 of 264": 0.2647566466650785,
+    "Fusion gap retention shift12": 0.8444474421154364
+  }
+}

@@ -1,0 +1,2 @@
+n_sampled,mean_shift_px,median_shift_px,stdev_shift_px,max_shift_px,min_shift_px,frac_zero_shift,frac_over_2px,frac_over_5px
+300,4.655405681139726,1.0,6.4437777882719836,16.97056274847714,0.0,0.46,0.36,0.3233333333333333

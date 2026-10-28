@@ -1,192 +1,81 @@
 ---
 license: cc-by-nc-4.0
-task_categories:
-  - object-detection
-  - video-classification
-tags:
-  - drone-detection
-  - anti-uav
-  - rgb-thermal
-  - multimodal
-  - infrared
-  - object-tracking
-  - robustness
-  - corruption-benchmark
-  - surveillance
+pretty_name: AVID
 size_categories:
-  - 10K<n<100K
-pretty_name: "AVID: Aerial Visible-Infrared Drone Dataset"
+- 10K<n<100K
+task_categories:
+- object-detection
+tags:
+- aerial-surveillance
+- drone-detection
+- infrared
+- thermal
+- rgb-infrared
+- small-object-detection
+- weak-alignment
+- corruption-benchmark
 ---
 
-> **Superseded as the uploaded dataset card.** [`README_HF.md`](README_HF.md)
-> is what actually gets copied to `README.md` and pushed to the Hugging
-> Face repo (see `assemble_hf_folder.py` / `docs/RELEASE_RUNBOOK.md`). This
-> file is kept as the longer-form internal reference it always was —
-> useful for the fuller prose on known issues and data-creation details
-> below, but not what a visitor to the HF page actually sees.
+# AVID: A Weakly Aligned RGB-Infrared Dataset and Perturbation Benchmark for Tiny Aerial Targets
 
-# AVID: Aerial Visible-Infrared Drone Dataset
+**Dharini Raghavan\***, **Vishnu Rao\***, **Sethu Selvi S**  
+\* The first two authors contributed equally and share first authorship.
 
-> Rename this file's H1 and the `pretty_name` above if you pick a different
-> dataset name before release — used as a placeholder that's easy to
-> find-and-replace. This file is written to double as the arXiv paper's
-> dataset-description source of truth; keep the two in sync if you edit one.
+**Paper:** [Final preprint PDF](https://github.com/rdharini2001/ICIP_2025_Data_Release/blob/claude/rgb-ir-drone-dataset-ppc03f/paper/main.pdf) · [Source LaTeX](https://github.com/rdharini2001/ICIP_2025_Data_Release/blob/claude/rgb-ir-drone-dataset-ppc03f/paper/main.tex) · [Code and reproducibility CSVs](https://github.com/rdharini2001/ICIP_2025_Data_Release) · [Research website](https://rdharini2001.github.io/ICIP_2025_Data_Release/)
 
-## Dataset Description
+**Publication status:** arXiv submission and a paper DOI are **pending**. Please use the temporary three-author citation below until identifiers have been assigned. No arXiv ID or paper DOI is claimed here.
 
-AVID is a large-scale, **weakly-aligned** RGB-Infrared (thermal) video and
-image-pair dataset in which **drones and birds are the target objects being
-detected and tracked** — as opposed to drone-*view* datasets (VisDrone,
-DroneRGBT, VTUAV) where a drone-mounted camera looks down at other things.
-It originates from the dataset built for the IEEE ICIP 2025 VIP Cup,
-"Infrared-Visual Fusion for Enhanced Drone Detection, Tracking and Payload
-Identification in Surveillance Videos." **This release covers the
-detection + tracking data only; the payload-identification subset and task
-are explicitly excluded.**
+## Dataset overview
 
-- **Modality:** paired RGB and thermal/IR, both as extracted frame pairs and
-  as source video (24 fps measured, 10.4-13.7s clips measured, 320×256).
-- **Classes:** `bird` (label id 0), `drone` (label id 1) — a fine-grained,
-  thermally-confusable negative class most drone-detection datasets don't
-  include.
-- **Scale (real, measured, deduplicated):** 28,790 train pairs across 102
-  videos; 3,250 validation pairs across 13 videos; Test reported separately
-  per modality (6,500 IR frames / 3,250 RGB frames, 13 IR videos / 12 RGB
-  videos) because Test's RGB and IR files cannot currently be matched into
-  pairs — see "Known issues" below. Note the asymmetry: Test RGB went
-  through the same export pipeline as Train/Validation (2 file variants per
-  frame, deduplicated to 3,250), but Test IR did not (6,500 raw,
-  sequentially-numbered frames, no duplicate to remove) — a further sign
-  the two modalities' Test data came from different processing passes.
-  Train/Validation's raw source export contained exactly 2x their listed
-  counts: every frame had a systematic Roboflow noise-augmentation
-  duplicate, which we identified and removed (kept the
-  smaller-filesize, clean variant) rather than silently double the
-  advertised scale.
-- **Extreme small-object distribution:** 67.6% of all ~32K annotated boxes
-  are 8-16px wide in a 320x256 frame; zero boxes exceed 48px in either
-  split. Standard COCO small/medium/large buckets are not informative here
-  (>99% "small"); see `dataset_tools/hf_release/bbox_histogram.py` for the
-  fine-grained bucketing we recommend using instead.
-- **Alignment:** RGB and IR are captured from physically offset optics
-  (different FOVs, boresight-aligned at best) — **weakly aligned, not
-  pixel-registered**, unlike LLVIP/M3FD/KAIST, and the two modalities'
-  boxes are annotated once and shared (not independently corrected per
-  modality). On a real 300-pair sample, measured shift is bimodal: 46% at
-  zero measurable offset, but 32.3% exceed 5px (up to 17px; mean 4.66px,
-  median 1.0px, $\sigma=6.44$px) — large relative to the 8-16px targets
-  themselves. See `dataset_tools/alignment/` and
-  `metadata/real_alignment_sample.json`.
-- **Built-in corruption suite (AVID-C):** speckle noise, salt-and-pepper
-  noise, Gaussian blur, uneven illumination, motion blur, camera
-  instability/jitter, and additive white Gaussian noise, each at 5
-  reproducible severities via `dataset_tools/corruptions/` (extends the 30
-  originally fixed-severity distorted videos from the source challenge into
-  a general, regenerate-on-demand robustness benchmark).
-- **Scenario coverage:** hilly regions, thick forest cover, cloudy sky,
-  fog/mist; single- and multi-instance frames; swarms; targets far from the
-  camera's field of view.
+AVID contains **32,040 corresponding RGB-infrared frame pairs** from **115** ground-based surveillance videos, with **35,952** existing bird/drone bounding-box annotations. It was prepared from the bird-drone data previously curated for the IEEE ICIP 2025 Video and Image Processing Cup, using original footage from the **Drone Detection Dataset** collected by Svanström, Alonso-Fernandez, and Englund.
 
-## Dataset Structure
+The RGB and infrared streams correspond to the same scene, but the cameras are **not necessarily pixel-aligned**. The original videos and existing annotations were not newly captured or labeled for this paper.
 
-See `dataset_tools/hf_release/SCHEMA.md` for the exact directory layout and
-the full field list for `metadata/pairs.jsonl` and `metadata/videos.jsonl`.
-Splits are defined at the video level — every frame of a given clip is in
-exactly one of `train`/`val`/`test` (see "Known pitfall" below).
+| Quantity | Train | Validation | Total |
+|---|---:|---:|---:|
+| RGB-IR pairs | 28,790 | 3,250 | 32,040 |
+| Videos | 102 | 13 | 115 |
+| Bird instances | 14,113 | 1,358 | 15,471 |
+| Drone instances | 18,335 | 2,146 | 20,481 |
+| All instances | 32,448 | 3,504 | 35,952 |
 
-## Dataset Creation
+Frames are **320 × 256 pixels**; **68.1%** of annotated boxes have geometric-mean sides of 8–16 pixels and **99.0%** are COCO-small. Classes are `0=bird`, `1=drone` in the provided YOLO-style labels.
 
-**Source.** Captured for the IEEE ICIP 2025 VIP Cup by the organizing team
-(Ramaiah Institute of Technology, in partnership with IISc and industry
-collaborators) as paired RGB and thermal surveillance footage of drones and
-birds under varied environmental conditions, with a subset synthetically
-degraded under the 7 corruption families described above at fixed, graded
-severities as part of the original challenge design.
+### Download
 
-**Annotation.** Bounding boxes for `drone`/`bird`, provided per the source
-challenge's release; verify/re-state the exact annotation protocol
-(single-annotator vs. reviewed, tool used) once you have that documentation
-in hand — flagging this as a gap in the current card rather than guessing.
-
-**Splits.** Video-level, not frame-level (see the paper's split-leakage ablation: on the
-real 32,040-frame/115-video corpus, naive frame-level splitting measured
-**87.5%** train-frame leakage into val/test, vs. **0.0%** for video-level
-splitting — inflating any metric computed on a frame-level split).
-
-## Known Issues
-
-- **Test-split RGB/IR pairing is unresolved.** The Test export's RGB files
-  use a `V_` prefix with independent numbering (`V_BIRD_00564_*`) while IR
-  files use a different scheme (`IR_BIRD_068142_*`); this mismatch persists
-  at the raw video level (13 IR videos vs. 12 RGB videos, no shared IDs, no
-  manifest). Treat Test as single-modality-only evaluation data until a
-  corrected export resolves this.
-- **Alignment metadata is sample-based, not exhaustive.** Computing
-  `alignment_shift_px` for all 32,040 pairs would cost ~9.8 CPU-hours at
-  ~1.1s/pair; the released `metadata/real_alignment_sample.json` covers a
-  random 300-pair sample. Extending to the full corpus is a straightforward
-  but not-yet-run batch job (`dataset_tools/hf_release/real_alignment_sample.py`).
-
-## Considerations for Using the Data
-
-**Weak alignment is real, not a bug.** Don't assume RGB and IR boxes are
-pixel-identical; use the shipped `alignment_shift_px` to filter or weight
-pairs. See the paper's classifier-agnostic Bayes Fusion Gain analysis
-(`dataset_tools/theory/alignment_sweep.py`) for a quantified account of how
-much this costs a fusion system in theory before assuming a model's
-failure mode is architectural rather than geometric.
-
-**Corruption suite scope.** AVID-C targets the 7 degradation families
-observed in the source surveillance footage; it is not a claim of coverage
-over all possible real-world corruptions (adversarial perturbations,
-sensor-specific artifacts like thermal blooming or rolling-shutter beyond
-the modeled jitter, compression artifacts, etc. are out of scope).
-
-**Bird/drone confusability.** The two classes are deliberately confusable in
-thermal at range — this is a feature for benchmarking fine-grained
-discrimination, not a labeling-noise concern, but expect lower per-class
-accuracy at long range than aggregate mAP suggests; use scale-stratified
-evaluation (bucket by bounding-box pixel area) rather than a single
-aggregate number.
-
-**Ethics / dual use.** This is a counter-drone security dataset. Content is
-aerial imagery of drones and birds against sky/terrain backgrounds — no
-people, faces, or other personally identifiable information are within the
-frame by construction of the capture setup. That said, drone-detection
-technology has dual-use potential (legitimate airspace security vs.
-surveillance overreach); this release is licensed CC-BY-NC-4.0
-(non-commercial, research-use framing) specifically to discourage direct
-commercial productization without a separate license conversation with the
-dataset owners.
-
-**What's excluded.** Payload-identification images/labels and task are not
-part of this release. No challenge-leaderboard or team-attributed results
-are included in this card or the accompanying paper, by the dataset owners'
-choice.
-
-## Licensing and Citation
-
-Licensed under **CC-BY-NC-4.0**. See `LICENSE`.
-
-If you use this dataset, please cite:
-
-```bibtex
-@misc{avid2025,
-  title  = {AVID: A Large-Scale Weakly-Aligned RGB-Infrared Drone and Bird
-            Detection, Tracking, and Corruption-Robustness Benchmark},
-  author = {Raghavan, Dharini and Rao, Vishnu},
-  year   = {2025},
-  note   = {arXiv preprint},
-}
+```bash
+python -m pip install --upgrade "huggingface_hub[cli]"
+hf download Dharini24/AVID --repo-type dataset --local-dir ./AVID
 ```
 
-(Update with the final arXiv ID once posted — see `docs/RELEASE_RUNBOOK.md`.)
+The current paired release covers **Train and Validation only**. The source Test exports are excluded because reliable RGB-infrared frame correspondence could not be established from the available records.
 
-## Acknowledgements
+## AVID-C and alignment
 
-Built on top of the dataset construction effort for the IEEE ICIP 2025 VIP
-Cup, "Infrared-Visual Fusion for Enhanced Drone Detection, Tracking and
-Payload Identification in Surveillance Videos," organized by S. Sethu Selvi,
-Raghuram S, Sitaram Ramachandrula, Vishnu Rao, Dharini Raghavan, Shefali
-Singh, Sangeeta Kar, and Suman Jangid (Ramaiah Institute of Technology /
-IISc / [24]7.ai).
+AVID-C applies **seven types of simulated image degradation** at **five severity levels** to RGB, infrared, or both modalities. The released implementation and parameters reproduce the transformations without publishing separate corrupted copies of the images.
+
+Global RGB-infrared translations were estimated on **300 sampled pairs** (median shift 1 px; 32.3% exceed 5 px). Target-relative alignment analysis uses the **264 pairs with matched annotations**, of which 16.3% exceed one median target side. The unit-scale alignment burden for the 264 pairs is **0.265**. These are estimated global translations, **not** ground-truth pixel correspondence for all frames.
+
+The paper studies Bhattacharyya and Chernoff upper bounds and a KDE comparison using a fixed PCA representation. These values represent fitted class separation, **not detector error rates**. Evaluation on other cameras, environments and models is needed for deployment claims.
+
+## Source attribution and licensing
+
+The original **Drone Detection Dataset** was collected and publicly shared by **Fredrik Svanström, Fernando Alonso-Fernandez and Cristofer Englund**. Source repository: https://github.com/DroneDetectionThesis/Drone-detection-dataset. Please cite Svanström et al., *A Dataset for Multi-Sensor Drone Detection*, Data in Brief 39 (2021), 107521, https://doi.org/10.1016/j.dib.2021.107521.
+
+**License clarification:** the source imagery was released under **CC0 1.0 Universal**. The AVID dataset-package listing uses **CC BY-NC 4.0**, which does not change the original CC0 status of the underlying source media. Code in the GitHub repository uses **MIT**.
+
+## Responsible use and limitations
+
+The dataset supports research on tiny-target detection, weak alignment and image degradation. It does not provide person-identification or personal-attribute labels. UAV surveillance can have privacy and dual-use implications. The label review history is incomplete, alignment was measured on a sample, and simulated degradation does not cover every real-world failure mode. These limitations are described in the paper.
+
+## Temporary citation (update after arXiv/DOI assignment)
+
+```bibtex
+@misc{raghavan2026avid,
+  title = {AVID: A Weakly Aligned RGB-Infrared Dataset and Perturbation Benchmark for Tiny Aerial Targets},
+  author = {Raghavan, Dharini and Rao, Vishnu and S, Sethu Selvi},
+  year = {2026},
+  note = {Manuscript and dataset release; arXiv ID and DOI pending},
+  url = {https://github.com/rdharini2001/ICIP_2025_Data_Release}
+}
+```

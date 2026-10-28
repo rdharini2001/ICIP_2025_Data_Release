@@ -139,7 +139,7 @@ bbox = pd.read_csv(DATA/'bbox_scale_histogram.csv')
 order=['0-4px','4-8px','8-12px','12-16px','16-20px','20-24px','24-28px','28-32px','32-48px']
 b = bbox[bbox.bucket_px.isin(order)].pivot(index='bucket_px',columns='split',values='count').fillna(0).reindex(order)
 combined=b.sum(axis=1)
-rel = pd.read_csv(DATA/'alignment_relative_ratio_300pairs.csv')
+rel = pd.read_csv(DATA/'real_alignment_sample_300pairs.csv')
 burden = pd.read_csv(DATA/'alignment_burden_curve.csv')
 
 fig, axs = plt.subplots(1,3,figsize=(11.1,3.15),gridspec_kw={'width_ratios':[1.2,1.0,1.05]})
@@ -161,17 +161,18 @@ ax.text(.97,.72,'search: +/-12 px per axis',transform=ax.transAxes,ha='right',fo
 panel_label(ax,'b'); light_grid(ax)
 
 ax=axs[2]
-ax.plot(burden.threshold_tau, burden.alignment_burden_A_tau,color=GREEN,lw=1.9)
-ax.fill_between(burden.threshold_tau,0,burden.alignment_burden_A_tau,color=GREEN,alpha=.09)
-for t,val in [(0.25,.33),(0.5,.2966667),(1.0,.1666667)]:
-    ax.scatter([t],[val],s=20,color=DEEP,zorder=4)
-    ax.axvline(t,color=LIGHTGRAY,lw=.7,ls='--')
-ax.set_xlim(0,1.5); ax.set_ylim(0,0.52)
-ax.set_xlabel(r'normalized threshold $\tau$'); ax.set_ylabel(r'alignment burden $\hat{A}(\tau)$')
-ax.text(.97,.94,r'$\hat A(0.25)=0.330$'+'\n'+r'$\hat A(0.50)=0.297$'+'\n'+r'$\hat A(1)=0.167$',
-        transform=ax.transAxes,ha='right',va='top',fontsize=7.3,color=DEEP)
-ax.text(.97,.58,r'unit-scale burden $\hat{B}_1=0.304$',transform=ax.transAxes,
-        ha='right',fontsize=7.2,color=GREEN)
+thresholds=[0.25, 0.50, 1.00]
+matched=pd.read_csv(DATA/'object_relative_misalignment_rows.csv')
+r=matched['rho'].values
+values=[100*np.mean(r>t) for t in thresholds]
+ax.bar(np.arange(3), values, color=BLUE, width=.64, zorder=3)
+ax.set_xticks(range(3)); ax.set_xticklabels(['0.25','0.50','1.00'])
+ax.set_ylim(0, 35)
+ax.set_xlabel('target sides'); ax.set_ylabel('pairs exceeding threshold (%)')
+for i,v in enumerate(values): ax.text(i,v+0.75,f'{v:.1f}%',ha='center',fontsize=7.3,color=NAVY)
+unit=np.minimum(r,1).mean()
+ax.text(.97,.94,f'{len(r)} matched pairs\nBurden score: {unit:.3f}',
+        transform=ax.transAxes,ha='right',va='top',fontsize=7.2,color=DEEP)
 panel_label(ax,'c'); light_grid(ax)
 fig.tight_layout(w_pad=1.6)
 save(fig,'fig_dataset_statistics')

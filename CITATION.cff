@@ -1,0 +1,14 @@
+cff-version: 1.2.0
+message: "Please cite this AVID manuscript/dataset and the original Svanström et al. Drone Detection Dataset. Add the final arXiv ID or DOI when available."
+title: "AVID: A Weakly Aligned RGB-Infrared Dataset and Perturbation Benchmark for Tiny Aerial Targets"
+authors:
+  - family-names: Raghavan
+    given-names: Dharini
+  - family-names: Rao
+    given-names: Vishnu
+  - family-names: S
+    given-names: Sethu Selvi
+version: "pre-arxiv"
+date-released: 2026-10-28
+url: "https://github.com/rdharini2001/ICIP_2025_Data_Release"
+abstract: "AVID provides paired real RGB-infrared surveillance images of tiny bird and drone targets and the simulated AVID-C perturbation benchmark."

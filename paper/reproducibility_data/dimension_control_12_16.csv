@@ -1,0 +1,7 @@
+representation,total_dimension,bound,notes
+RGB PCA,8,0.1483943923,8 components from RGB
+IR PCA,8,0.1979331916,8 components from IR
+RGB+IR balanced,8,0.13960,4 RGB + 4 IR components
+RGB duplicated,16,0.127163,8 RGB components duplicated
+IR duplicated,16,0.191285,8 IR components duplicated
+RGB+IR released probe,16,0.0457155597,8 RGB + 8 IR components

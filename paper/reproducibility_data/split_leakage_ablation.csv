@@ -1,0 +1,3 @@
+split_method,n_frames,n_videos,leaked_train_frames,total_train_frames,leak_fraction
+frame_level,32040,115,19631,22428,0.8752898163010523
+video_level,32040,115,0,21840,0.0

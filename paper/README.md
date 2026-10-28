@@ -1,14 +1,14 @@
-# AVID arXiv paper package
+# AVID manuscript: final pre-arXiv source package
 
-This directory is the submission-ready source package for:
+**AVID: A Weakly Aligned RGB-Infrared Dataset and Perturbation Benchmark for Tiny Aerial Targets**
 
-**AVID: A Weakly Aligned RGB--Infrared Dataset and Perturbation Benchmark for Tiny Aerial Targets**
+Authors: **Dharini Raghavan\***, **Vishnu Rao\***, **Sethu Selvi S**.  \* Equal contributions by the first two authors.
 
-The manuscript is intentionally organized as a dataset and benchmark paper. It does not use task-training results to establish the contribution. The paper focuses on the paired corpus, target scale, weak cross-modal alignment, the AVID-C perturbation suite, and reproducible data-intrinsic diagnostics.
+This directory contains the final 28-page manuscript supplied for the release audit, including all figure assets and its 30-entry bibliography. It is a preprint prepared for arXiv submission; no arXiv identifier, published DOI, or acceptance is claimed here.
 
 ## Build
 
-Standard TeX Live / Overleaf:
+Run from `paper/` using a standard TeX Live installation:
 
 ```bash
 pdflatex main.tex
@@ -17,38 +17,14 @@ pdflatex main.tex
 pdflatex main.tex
 ```
 
-`main.bbl` is included so arXiv can also compile the package without rerunning BibTeX.
+`main.bbl` is also included. The compiled text was checked against the supplied final PDF; all citations and cross-references resolved.
 
-## Main files
+## Reproduce figures and values
 
-- `main.tex` - complete manuscript and appendices
-- `references.bib` - bibliography
-- `main.bbl` - generated bibliography
-- `main.pdf` - verified compiled paper
-- `figures/` - vector main plots, raster inspection copies, representative real pairs, and full-frame AVID-C grids
-- `reproducibility_data/` - machine-readable values behind the reported quantitative results
-- `metadata/` - release metadata snapshots used by the paper
-- `analysis/make_paper_artifacts.py` - regenerates the plotted paper figures from the included tables and prepared raster sources
-- `analysis/avid_c.py` - exact seven-family, five-severity AVID-C transform implementation
+The numerical CSVs in `reproducibility_data/` match the files at the repository root. Run `python analysis/make_paper_artifacts.py` from this folder to regenerate the quantitative figures and montages, using the bundled CSVs and prepared example-image sources.
 
-## Alignment quantities
+**Important alignment distinction:** the raw estimated shift distribution uses **300** sampled RGB-infrared frame pairs. The object-relative ratio, burden curve, and burden score require matching target annotations and use **264** pairs. Their correct unit-scale burden is **0.2647566**, rounded to **0.265**. An earlier all-300 diagnostic is explicitly archived and is not used in the paper.
 
-The package uses the all-300-pair Train+Validation join for the scale-aware alignment analysis. The central definitions are:
+Bound values are for a fixed PCA/density representation and are not detector results. The full 32,040-pair image dataset is on Hugging Face, not embedded in the arXiv source package.
 
-- object-relative alignment ratio: `rho = d_align / s_target`
-- alignment burden curve: `A(tau) = Pr(rho > tau)`
-- truncated burden score: `B_T = E[min(rho,T)] / T`
-
-For `T=1`, the released sample gives `B_1 = 0.303575...`.
-
-## Important interpretation notes
-
-- The NMI translation search is limited to +/-12 pixels per axis. The upper displacement tail is therefore search-censored.
-- The separability analysis is conditioned on the released low-dimensional representation. The package includes dimension controls and does not present the fusion-gap magnitude as a representation-independent Bayes risk.
-- The source Test RGB and infrared exports are not included in the paired benchmark because authoritative correspondence is unresolved.
-- The full annotation/adjudication workflow is not documented in the source materials available for this release, so the paper does not invent it.
-- The full image corpus is not embedded in the arXiv source archive because of size. Release tooling and metadata are maintained at `https://github.com/rdharini2001/ICIP_2025_Data_Release`.
-
-## Figure style
-
-The quantitative figures were regenerated with the visual language requested for the paper: a white background, dark navy primary series, medium blue and muted cyan secondary series, warm gold for infrared comparisons, green for scale-aware alignment summaries, sparse red annotation boxes, lowercase panel labels, and compact multi-panel composition.
+See `../VERIFICATION_REPORT.md`, `../reproducibility_data/README.md`, and `../DATA_PROVENANCE_AND_LICENSING.md`.

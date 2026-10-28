@@ -1,0 +1,3 @@
+split,n_pairs,n_videos,bird_instances,drone_instances,bbox_small,bbox_medium,bbox_large
+train,28790,102,14113,18335,32124,324,0
+val,3250,13,1358,2146,3457,47,0

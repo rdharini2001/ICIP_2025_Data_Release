@@ -1,0 +1,2 @@
+n_pairs,median_target_side_px,mean_target_side_px,median_relative_misalignment_ratio,mean_relative_misalignment_ratio,fraction_ratio_gt_0.25,fraction_ratio_gt_0.50,fraction_ratio_gt_1.00,fraction_shift_gt_5px
+300,14.071247279470288,15.321070308821566,0.0607071403586137,0.3385071943354575,0.33,0.2966666666666667,0.1666666666666666,0.3233333333333333
