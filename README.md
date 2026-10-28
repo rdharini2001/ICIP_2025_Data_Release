@@ -7,10 +7,6 @@
 **Dharini Raghavan\*** (Georgia Institute of Technology), **Vishnu Rao\*** (ARTPARK, Indian Institute of Science), and **Sethu Selvi S** (Ramaiah Institute of Technology).  
 \* Dharini Raghavan and Vishnu Rao contributed equally and share first authorship.
 
-**AVID** contains real ground-based surveillance imagery in which birds and drones occupy only a few pixels. **AVID-C** uses simulated perturbations to study changes in image quality. The paired observations are *not* guaranteed to be pixel-aligned.
-
-This repository accompanies the final **pre-arXiv** paper. No arXiv ID, paper DOI, or conference acceptance is claimed in this package; citation identifiers will be added after publication.
-
 ## Dataset
 
 | | Train | Validation | Total |
@@ -37,10 +33,7 @@ hf download Dharini24/AVID --repo-type dataset --local-dir ./AVID
 - **Fitted class separation:** for targets with geometric-mean sides of **12–16 px**, Bhattacharyya upper bounds are **0.148 RGB**, **0.198 infrared**, and **0.046 paired** under an 8+8 PCA feature representation. Equal-dimensional comparisons reduce the gap; these are **not detector error rates**.
 - **Controlled added shifts:** at a **12-px per-axis shift budget**, the fitted fusion-gap retention is **0.844**, measured relative to the unshifted baseline in the specified representation.
 
-The published numerical values are checked against the included CSVs in [`VERIFICATION_REPORT.md`](VERIFICATION_REPORT.md). The full image corpus is on Hugging Face, not in this GitHub source archive.
-
-## Files and reproducibility
-
+## Files 
 ```text
 paper/                     final 28-page PDF, main.tex, references.bib, main.bbl, figures,
                            analysis code, metadata, synchronized reproducibility CSVs
