@@ -1,0 +1,37 @@
+[
+  {
+    "path": "assets/showcase/AVID_cover.png",
+    "bytes": 252011,
+    "sha256": "e9f9e6d22e019fb6855b5c131bccff745c53b89ace323a2cf1efa993b250ecdb"
+  },
+  {
+    "path": "assets/showcase/BIRD_03897_RGB_IR.gif",
+    "bytes": 819322,
+    "sha256": "e4d26072c8f152430797d5ec6bf11a6e53818ec8d7788ab2a08c624457b42e72"
+  },
+  {
+    "path": "assets/showcase/DRONE_082192_RGB_IR.gif",
+    "bytes": 945990,
+    "sha256": "5d575d05f708c548387d3deca15b8366e29ac14e4e17d19666886fd172921bd1"
+  },
+  {
+    "path": "assets/showcase/DRONE_083193_RGB_IR.gif",
+    "bytes": 1537604,
+    "sha256": "e2caf89f70a25b27a379be909f1ac25d3c2297fac9eda9d9c32262d8bdd91a51"
+  },
+  {
+    "path": "assets/showcase/DRONE_083193_RGB_IR.png",
+    "bytes": 115618,
+    "sha256": "b770406eb9e0e850bc30d10b5b8ee9178f2c27f5841b4329aee7a63d8514b63b"
+  },
+  {
+    "path": "assets/showcase/DRONE_085195_RGB_IR.gif",
+    "bytes": 1589851,
+    "sha256": "116ec0a94d5b4d738256d63ef7ee81884b56ef1bfcac6fc766b347f3cc91747f"
+  },
+  {
+    "path": "assets/showcase/DRONE_085195_RGB_IR.png",
+    "bytes": 119155,
+    "sha256": "9b0351871ea30b698ffffa3af94d4faa37209869c43bd5224430c81b73347a3b"
+  }
+]

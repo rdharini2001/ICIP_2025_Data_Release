@@ -1,61 +1,60 @@
-"""
-Assembles the final, upload-ready Hugging Face dataset folder from the
-pieces built/maintained elsewhere in this repo: the real images/labels/
-metadata from build_avid_v1.py's output, the polished dataset card
-(README_HF.md), the dataset LICENSE, the compiled paper PDF, the
-reproducibility CSVs, and the teaser image. Pure file assembly -- no new
-numbers are computed here.
+"""Assemble the AVID Hugging Face release from local data and repository assets.
 
-Usage:
-    python -m dataset_tools.hf_release.assemble_hf_folder --out E:\\ICIP_2025\\avid_hf_release
+Usage::
+    python -m dataset_tools.hf_release.assemble_hf_folder \
+        --source-dir /path/to/curated_AVID --out /path/to/avid_hf_release
+
+This is a local preparation step; it does not upload anything. When only
+updating the dataset card and display GIFs on an existing HF dataset, prefer
+release_notes/HF_CARD_ONLY_UPDATE.md and its allowlisted upload script.
 """
+from pathlib import Path
 import argparse
 import os
 import shutil
 
-REPO_ROOT = r"C:\Users\dragha4\avid_repo"
-AVID_RELEASE = r"E:\ICIP_2025\avid_release"
+REPO_ROOT = Path(__file__).resolve().parents[2]
 
 
-def copy_tree(src, dst):
-    if not os.path.isdir(src):
+def copy_tree(src: Path, dst: Path):
+    if src.is_dir():
+        shutil.copytree(src, dst, dirs_exist_ok=True)
+        print(f"  copied {src} -> {dst}")
+    else:
         print(f"  SKIP (not found): {src}")
-        return
-    shutil.copytree(src, dst, dirs_exist_ok=True)
-    print(f"  copied {src} -> {dst}")
 
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--out", required=True, help="destination folder, e.g. E:\\ICIP_2025\\avid_hf_release")
+    parser.add_argument("--source-dir", required=True,
+                        help="local curated AVID release folder containing images/, labels/, metadata/")
+    parser.add_argument("--out", required=True, help="output directory for HF dataset")
     args = parser.parse_args()
-
-    out = args.out
-    os.makedirs(out, exist_ok=True)
-    os.makedirs(os.path.join(out, "assets"), exist_ok=True)
-    os.makedirs(os.path.join(out, "paper"), exist_ok=True)
-
-    print("Copying real data (images, labels, metadata) ...")
-    copy_tree(os.path.join(AVID_RELEASE, "images"), os.path.join(out, "images"))
-    copy_tree(os.path.join(AVID_RELEASE, "labels"), os.path.join(out, "labels"))
-    copy_tree(os.path.join(AVID_RELEASE, "metadata"), os.path.join(out, "metadata"))
-
-    print("Copying dataset card, license, paper, reproducibility data ...")
-    shutil.copyfile(os.path.join(REPO_ROOT, "dataset_tools", "hf_release", "README_HF.md"),
-                     os.path.join(out, "README.md"))
-    shutil.copyfile(os.path.join(REPO_ROOT, "dataset_tools", "hf_release", "LICENSE"),
-                     os.path.join(out, "LICENSE"))
-    shutil.copyfile(os.path.join(REPO_ROOT, "paper", "main.pdf"),
-                     os.path.join(out, "paper", "main.pdf"))
-    shutil.copyfile(os.path.join(REPO_ROOT, "paper", "figures", "fig_hf_teaser.png"),
-                     os.path.join(out, "assets", "avid_teaser.png"))
-    copy_tree(os.path.join(REPO_ROOT, "reproducibility_data"), os.path.join(out, "reproducibility_data"))
-
-    n_images = sum(len(files) for _, _, files in os.walk(os.path.join(out, "images")))
-    n_labels = sum(len(files) for _, _, files in os.walk(os.path.join(out, "labels")))
-    print(f"\nDone. {out}:")
-    print(f"  {n_images} image files, {n_labels} label files")
-    print("  Sanity-check README.md's YAML frontmatter before uploading.")
+    source, out = Path(args.source_dir).expanduser().resolve(), Path(args.out).expanduser().resolve()
+    if source == out:
+        parser.error("--source-dir and --out must not be the same directory")
+    missing = [p for p in ("images", "labels", "metadata") if not (source / p).is_dir()]
+    if missing:
+        parser.error("source release is missing required folders: " + ", ".join(missing))
+    out.mkdir(parents=True, exist_ok=True)
+    for dirname in ("images", "labels", "metadata", "videos"):
+        copy_tree(source / dirname, out / dirname)
+    (out / "paper").mkdir(exist_ok=True)
+    (out / "media").mkdir(exist_ok=True)
+    (out / "assets").mkdir(exist_ok=True)
+    shutil.copyfile(REPO_ROOT / "dataset_tools/hf_release/README_HF.md", out / "README.md")
+    shutil.copyfile(REPO_ROOT / "dataset_tools/hf_release/LICENSE", out / "LICENSE")
+    shutil.copyfile(REPO_ROOT / "paper/main.pdf", out / "paper/main.pdf")
+    shutil.copyfile(REPO_ROOT / "paper/figures/fig_hf_teaser.png", out / "assets/avid_teaser.png")
+    copy_tree(REPO_ROOT / "reproducibility_data", out / "reproducibility_data")
+    src_gifs = REPO_ROOT / "assets/showcase"
+    for name in ("DRONE_082192_RGB_IR.gif", "DRONE_083193_RGB_IR.gif",
+                 "DRONE_085195_RGB_IR.gif", "BIRD_03897_RGB_IR.gif"):
+        shutil.copyfile(src_gifs / name, out / "media" / name)
+    for name in ("fig_diversity_montage.png", "fig_corruption_analysis.png",
+                 "fig_dataset_statistics.png"):
+        shutil.copyfile(REPO_ROOT / "paper/figures" / name, out / "media" / name)
+    print(f"Prepared local release in {out}. It has NOT been uploaded to Hugging Face.")
 
 
 if __name__ == "__main__":

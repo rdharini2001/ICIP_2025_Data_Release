@@ -1,19 +1,42 @@
-# Publishing the final AVID repository
+# Publish the AVID visual documentation update
 
-This ZIP contains the complete updated **working tree**, without its historical `.git/` directory or local test caches. It has **not** been pushed to GitHub or Hugging Face.
+This package is a **complete GitHub working tree** containing the audited final three-author paper, code, CSVs, figures, research website and redesigned README. It contains no `.git` directory; it has **not** been committed or pushed.
 
-## GitHub
+## GitHub instructions
 
-1. Review `VERIFICATION_REPORT.md` and the final PDF. In particular, confirm that the final author list and 264-pair target-relative alignment convention are approved.
-2. On your computer, clone `https://github.com/rdharini2001/ICIP_2025_Data_Release` and check out the branch on which you want to publish. The GitHub connector showed the repository contents on `claude/rgb-ir-drone-dataset-ppc03f` at the time of the audit; **do not assume `main` exists or is the release branch**.
-3. Copy the **contents** of `AVID_final_release/` into the checked-out repository (preserve `.git/` from your clone, do not copy build caches).
-4. Run `python paper/audit/verify_final_csvs.py`, the eight alignment/corruption tests, and compile `paper/main.tex` before publishing.
-5. Review the diff with `git diff --stat` and `git diff`, commit the intended changes, and push them to your selected branch. Configure GitHub Pages from `docs/` as appropriate.
+1. Clone `https://github.com/rdharini2001/ICIP_2025_Data_Release` on your computer. At the time of review, the default branch was `claude/rgb-ir-drone-dataset-ppc03f`. Confirm your branch before publishing.
+2. Copy the **contents** of the `AVID_visual_release/` directory into your working clone; keep its `.git/` directory.
+3. Review the changes, particularly `README.md`, `assets/showcase/`, and `dataset_tools/hf_release/README_HF.md`.
+4. Run the CSV verification (`python paper/audit/verify_final_csvs.py`) and the alignment/corruption unit tests. Make a commit and push when satisfied.
+5. If you change the GitHub default branch, revise branch-specific GitHub links in the Hugging Face dataset card. Also verify GitHub Pages continues serving `docs/`.
 
-## Hugging Face
+## Hugging Face instructions: card and GIF update only
 
-The remote Hugging Face dataset was **inspected but not modified**. The live card currently lists the outdated two-author paper and needs the third author and updated source/CC0 explanation. Use `release_notes/HF_DATASET_CARD_READY.md` as the proposed replacement for the dataset's `README.md` **after reviewing its file paths and links**. Update the dataset's mirrored `paper/main.pdf` only if you intend the hosted PDF to match the three-author final version.
+Use the **separate** archive `AVID_HuggingFace_Card_Update.zip`, which contains:
 
-## After arXiv/DOI
+- `README.md`: updated Hugging Face dataset card, including its existing YAML front matter;
+- `media/`: the four GIFs and supporting plots;
+- `upload_card_only.py`: an allowlisted upload script that modifies **only** `README.md` and new files in `media/`;
+- `UPLOAD_INSTRUCTIONS.md`: local publishing directions.
 
-Follow `release_notes/AFTER_ARXIV_AND_DOI.md`. Do not claim a paper DOI or arXiv identifier before assignment. The original upstream Data in Brief DOI belongs only to the original source dataset.
+**Do not upload the card-only directory as if it were a replacement for the entire dataset.** The hosted images, labels and metadata are intentionally absent from the update package. The script does not delete them.
+
+Upload the GitHub working tree first (so paper and code links point to final material), then upload the Hugging Face card assets.
+
+## Assets and type corrections
+
+- User-provided `DRONE_082192_RGB_IR.gif` is animated (40 frames).
+- User-provided `DRONE_RGB_IR.gif` is a byte-identical duplicate of that animation; it is not stored twice in `assets/showcase/`.
+- The files named `DRONE_083193_RGB_IR.gif` and `DRONE_085195_RGB_IR.gif` in the upload are **PNG still images**, not GIF animations. They are stored with `.png` extensions.
+- The repository already had the **animated** `DRONE_083193_RGB_IR.gif` and `DRONE_085195_RGB_IR.gif`, so the README uses those genuine animated sequences.
+- The existing bird GIF is reused for a contrasting bird example.
+
+For social sharing, `assets/showcase/AVID_cover.png` is a 1400×670 PNG made from real RGB/IR example frames. You can set it as the GitHub repository's social preview in repository settings; adding the PNG alone does not change that GitHub setting.
+
+## arXiv and DOI
+
+The AVID paper has three authors: Dharini Raghavan and Vishnu Rao (equal first authors) and Sethu Selvi S. No arXiv number or DOI has been invented. Update `README.md`, `CITATION.cff`, and both dataset cards once an actual identifier has been assigned. The source-data DOI `10.1016/j.dib.2021.107521` belongs to the *original* Drone Detection Dataset, not the AVID paper.
+
+## Numerical integrity
+
+The visual refresh makes **no changes** to the final manuscript's reported values, tables, or reproducibility CSVs. All key values continue to describe the 32,040 RGB–IR pairs and the 264 annotation-matched alignment subset. See `VERIFICATION_REPORT.md` for the previous 59-check audit and its limitations.

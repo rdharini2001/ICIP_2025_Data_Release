@@ -1,0 +1,1 @@
+Use the separate `AVID_HuggingFace_Card_Update.zip` archive. Its `upload_card_only.py` explicitly uploads only `README.md` and the listed images in `media/` and preserves the hosted dataset. See `HOW_TO_PUBLISH.md` for order and details.
