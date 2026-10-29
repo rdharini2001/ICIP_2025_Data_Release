@@ -56,7 +56,7 @@
 \hypersetup{
   pdftitle={AVID: A Weakly Aligned RGB-Infrared Dataset and Perturbation Benchmark for Tiny Aerial Targets},
   pdfauthor={Dharini Raghavan and Vishnu Rao and Sethu Selvi S},
-  pdfsubject={Dataset release and perturbation benchmark for weakly aligned RGB-infrared tiny aerial targets},
+  pdfsubject={Tiny aerial-target perception with weakly aligned RGB-infrared images and simulated perturbations},
   pdfkeywords={RGB-infrared, thermal, multimodal, drone, bird, tiny aerial targets, perturbation benchmark, weak alignment, dataset}
 }
 
@@ -106,47 +106,28 @@ $^3$Ramaiah Institute of Technology\\[3pt]
 \vspace{-0.3em}
 
 \begin{abstract}
-Detecting distant drones and distinguishing them from birds is difficult when targets occupy only a few pixels in surveillance videos. Using both RGB and infrared cameras can help, but the two views are not always aligned, and noise, blur, and other image distortions can affect each sensor differently. Understanding these effects is important for developing reliable drone detection systems. For the IEEE ICIP 2025 Video and Image Processing Cup, we curated bird and drone surveillance footage from an earlier multi-sensor dataset. In this work, we make the curated data available as \dataset{} and introduce new measures and a benchmark to study the effects of target size, sensor misalignment, and image degradation.
+Long-range detection of small drones is complicated by their visual similarity to birds and by the limited detail available from ground-based cameras. Combining visible and infrared observations offers complementary information, but their usefulness depends on target size, cross-modal alignment, and image quality. We present \dataset{}, a benchmark for studying these factors using real RGB-infrared bird-drone surveillance footage originating from the Drone Detection Dataset and curated for the IEEE ICIP 2025 Video and Image Processing Cup. \dataset{} comprises 32,040 corresponding frame pairs from 115 videos, with 35,952 existing bird and drone annotations at $320\times256$ resolution. Targets occupy an unusually narrow size range: 68.1\% have a geometric-mean bounding-box side of 8--16 pixels, and 99.0\% meet the COCO small-object criterion. To characterize the geometric difficulty of combining the modalities, we introduce an object-relative alignment ratio and an alignment burden curve. In a sample of 300 frame pairs, 32.3\% have estimated global translations greater than 5 pixels; among the 264 pairs with matching annotations, 16.3\% exceed one median target side. We further introduce \corrupt{}, which simulates seven families of image degradation at five severity levels independently in RGB, infrared, or both. A fixed-feature analysis examines how scale, degradation, and added cross-modal shifts affect fitted bird-drone class overlap. At 12--16 pixels, the Bhattacharyya error bounds are 0.148 for RGB, 0.198 for infrared, and 0.046 for their combined features. These values describe separation in the specified feature and density models, not detector accuracy. Together, \dataset{} and \corrupt{} support scale-aware, alignment-aware, and sensor-specific studies of tiny aerial targets.
 
-\dataset{} contains 32,040 corresponding RGB-infrared frame pairs from 115 ground-based surveillance videos, with 35,952 annotated bird and drone instances. The images have a resolution of $320\times256$ pixels, and most targets are very small. About 68.1\% of the annotations have a geometric-mean bounding-box side between 8 and 16 pixels, while 99.0\% fall within the COCO small-object category. We provide the images, annotations, video identifiers, and code needed to prepare and evaluate the data.
-
-To study the alignment between the two cameras, we introduce an object-relative alignment ratio and an alignment burden curve that measure displacement relative to target size. Among 300 sampled frame pairs, the median estimated shift is 1 pixel, but 32.3\% have shifts greater than 5 pixels. For the 264 pairs with matching target annotations, 16.3\% have a displacement larger than the median target side. We also introduce \corrupt{}, a perturbation benchmark with seven types of image degradation at five severity levels, which can be applied to RGB, infrared, or both. Using a fixed feature representation, we examine how target size, corruption, and misalignment affect the separation between birds and drones. For targets between 12 and 16 pixels, the fitted Bhattacharyya error bounds are 0.148 for RGB, 0.198 for infrared, and 0.046 for the combined features. These bounds describe class separation in the chosen representation rather than detector accuracy. By making \dataset{} and \corrupt{} available, we provide data and evaluation tools for studying how small target size, weak alignment, and image degradation affect RGB-infrared drone surveillance.
 \end{abstract}
 
 \section{Introduction}
 
-Detecting drones from ground-based surveillance cameras is difficult when they are far from the camera and occupy only a few pixels in an image. At this scale, birds and drones can look very similar, with little shape or texture to distinguish them. Even small amounts of noise or blur can hide the details needed for detection and classification. Previous studies have explored bird-drone classification using deep learning \citep{selvi2022deep}, as well as drone localization and tracking in surveillance videos \citep{10193217,10328384}. While these methods address important aspects of drone surveillance, their performance also depends on the quality of the images and the amount of information available about each target.
+A distant drone may occupy only a few pixels in a ground-based surveillance image. At this scale, the silhouette and texture that distinguish a drone from a bird are often poorly resolved, while background clutter, blur, and sensor noise can dominate the target appearance. Recognition is therefore difficult not only because the objects are small, but because their class-specific visual information is easily lost. Prior work has addressed bird-drone classification \citep{selvi2022deep}, drone localization and tracking \citep{10193217,10328384}, and multimodal drone localization \citep{11700652}. A complementary question concerns the observations themselves: how much class information remains when targets are tiny, the camera views are displaced, or one sensor is degraded?
 
-Using RGB and infrared cameras together can help address some of these challenges. RGB images capture visible appearance, texture, and background details, while infrared images provide thermal information that may be useful when visible contrast is poor. Recent work has also explored combining these modalities for drone localization \citep{11700652}. However, using both cameras introduces additional challenges. Since the sensors have separate optical systems, the same target may appear at different positions in the two images. A displacement of five pixels may have little effect on a large object, but it can represent half the width of a drone that is only ten pixels wide. Noise, blur, uneven illumination, and camera movement can further affect the two modalities differently. These factors make it important to understand not only how well a model performs, but also how target size, sensor alignment, and image quality influence the information available for detection.
+Visible and infrared imagery offer different views of the same aerial target. RGB captures appearance and scene context, whereas infrared records thermal contrast that may persist under poor visible-light conditions. These benefits are not unconditional. The cameras have different optics and response characteristics, and corresponding frames need not be registered. A shift of five pixels is minor for a large object but substantial for a target whose bounding box is ten pixels wide. Likewise, a perturbation affecting one modality may have a different effect on the other. Consequently, evaluations that report only an aggregate detection score can obscure the conditions under which multisensor observations become useful or unreliable.
 
-The imagery used in this work was originally published by Svanstr\"om and colleagues as part of the Drone Detection Dataset, which contains visible and infrared surveillance videos of drones and other flying objects \citep{svanstrom2021multisensor,svanstrom2020repository}. We used this dataset to curate bird-drone surveillance imagery for the IEEE ICIP 2025 Video and Image Processing Cup \citep{ieeevipcup2025}. The curated data provided corresponding RGB and infrared views of distant aerial targets. However, the original challenge did not specifically examine how target size, spatial differences between the sensors, or image degradation affect these observations. Studying these properties is particularly important for small targets, where even minor changes in image quality or alignment can remove a significant amount of useful information.
+\dataset{} provides a setting for studying these questions with birds and drones observed by ground-based RGB and infrared cameras. The benchmark comprises 32,040 corresponding frame pairs from 115 surveillance videos and 35,952 annotated instances. Its footage originates from the Drone Detection Dataset of Svanstr\"om and colleagues \citep{svanstrom2021multisensor,svanstrom2020repository}, with bird-drone observations curated for the IEEE ICIP 2025 Video and Image Processing Cup \citep{ieeevipcup2025}. Importantly, correspondence between the RGB and infrared views does not imply pixel-level registration. Rather than treating this discrepancy as incidental, \dataset{} makes it part of the evaluation setting.
 
-In this paper, we build on our earlier VIP Cup curation by making the bird-drone data available as \dataset{} and introducing additional tools to study these challenges. We prepare the dataset using the Train and Validation splits from the challenge, where the correspondence between RGB and infrared frames can be established from the available records. We remove duplicate noise-augmented images while preserving the original video identifiers, frame order, and annotations. The resulting dataset contains 32,040 RGB-infrared frame pairs from 115 surveillance videos, with 35,952 annotated instances, including 15,471 birds and 20,481 drones. Along with the dataset, we introduce new measures of sensor alignment, a controlled perturbation benchmark, and an analysis of how these factors affect the separation between birds and drones.
+Two properties distinguish the evaluation setting. First, 24,489 annotations (68.1\%) have a geometric-mean bounding-box side of only 8--16 pixels in the native $320\times256$ images; 99.0\% belong to the COCO small-object category. We therefore examine finer size intervals rather than treating virtually all targets as a single size group. Second, sensor displacement must be interpreted at the scale of these objects. We define an object-relative alignment ratio and an alignment burden curve, and estimate global RGB-infrared shifts in a 300-pair sample. Among 264 annotation-matched pairs, 16.3\% have an estimated shift exceeding one median target side.
 
-We first study the size of the targets and the alignment between the RGB and infrared images. In the native $320\times256$ frames, 24,489 annotations, or 68.1\%, have a geometric-mean bounding-box side between 8 and 16 pixels. Nearly all targets, 99.0\%, fall within the COCO small-object category. This makes it difficult to distinguish between different target sizes using the standard COCO categories alone. We therefore examine the objects at finer scales and measure sensor displacement relative to target size. To do this, we introduce an object-relative alignment ratio and an alignment burden curve that describe how often the estimated shift exceeds a given fraction of the target size. Among 300 sampled RGB-infrared pairs, 32.3\% have an estimated displacement greater than 5 pixels. For the 264 pairs with matching target annotations, 16.3\% have a displacement larger than the median target side. These results show why alignment should be considered relative to the size of the observed object rather than measured only in pixels. The alignment measures and estimation procedure are described in Section~\ref{sec:alignment}.
+To study image degradation separately from target geometry, we introduce \corrupt{}, a controlled benchmark comprising seven perturbation families at five severity levels. Noise, blur, illumination changes, and camera instability can be simulated in either modality or in both, making the affected sensor an explicit evaluation variable. We additionally analyze bird-drone separation in a fixed low-dimensional feature space under changes in target size, image quality, and cross-modal shift. This analysis is conditional on annotated target locations and does not substitute for evaluating trained detectors.
 
-To study the effects of image degradation, we introduce \corrupt{}, a perturbation benchmark designed for the small targets in \dataset{}. It includes seven perturbation families at five severity levels: Gaussian noise, speckle noise, salt-and-pepper noise, Gaussian blur, uneven illumination, motion blur, and camera instability. Each perturbation can be applied to RGB alone, infrared alone, or both modalities. This allows us to examine how degradation in one sensor affects the available information while the other remains unchanged. We also provide the code and parameters used to generate these perturbations so that the same experiments can be reproduced without storing separate copies of the corrupted images.
-
-We further study how target size, image degradation, and sensor misalignment affect the distinction between birds and drones. For this analysis, we extract patches around the annotated targets and represent them using a fixed set of low-dimensional features. We then estimate the overlap between the bird and drone feature distributions for RGB, infrared, and their combined representation. By repeating this analysis across different target sizes, perturbations, and controlled shifts, we examine when combining the two modalities provides additional information and how that information changes as image conditions worsen. These measurements describe class separation within the chosen feature representation and density models rather than the accuracy of a trained detector.
-
-Our goal is to provide a dataset and benchmark that allow researchers to study these effects separately. By reporting target size, sensor alignment, and the type and severity of image degradation, results on \dataset{} can be examined in greater detail than with a single overall performance score.
-
-The main contributions of this paper are:
-
+The contributions are as follows:
 \begin{enumerate}
-
-    \item \textbf{\dataset{}, a curated RGB-infrared dataset for tiny aerial targets.}
-    We make the bird-drone surveillance data curated for the IEEE ICIP 2025 VIP Cup available as \dataset{}, containing 32,040 corresponding RGB-infrared frame pairs from 115 videos and 35,952 existing target annotations. We provide the images, annotations, video identifiers, and code used to prepare the dataset.
-
-    \item \textbf{New measures for studying weak RGB-infrared alignment.}
-    We introduce an object-relative alignment ratio, an alignment burden curve, and a summary score to measure sensor displacement relative to target size. These measures help describe the effect of spatial misalignment when the observed objects occupy only a few pixels.
-
-    \item \textbf{\corrupt{}, a benchmark for studying image degradation.}
-    We introduce seven perturbation families at five severity levels, with the option to apply them independently to RGB, infrared, or both modalities. We provide the code and parameters needed to reproduce these perturbations and evaluate their effects.
-
-    \item \textbf{An analysis of target scale, sensor degradation, and alignment.}
-    We examine how bird-drone class separation changes with target size, image perturbations, and cross-modal displacement. Using a fixed feature representation, we compare RGB, infrared, and combined features and study how the results depend on feature dimension.
-
+    \item \textbf{A paired benchmark for tiny bird-drone surveillance targets.} \dataset{} provides 32,040 corresponding RGB-infrared frames from 115 videos, existing bounding-box annotations, and sequence identifiers suitable for video-disjoint evaluation.
+    \item \textbf{Target-relative alignment measures.} An object-relative displacement ratio, burden curve, and summary score describe estimated camera shifts in units of target size, rather than in pixels alone.
+    \item \textbf{Sensor-specific robustness testing.} \corrupt{} defines seven simulated image-degradation families at five severity levels for RGB-only, infrared-only, and joint perturbation experiments.
+    \item \textbf{An analysis of scale, degradation, and alignment.} Fixed-feature class-overlap estimates characterize these factors and include controls for the effect of representation dimension.
 \end{enumerate}
 
 \section{Related datasets and benchmark design}
@@ -154,17 +135,13 @@ The main contributions of this paper are:
 
 \subsection{Visible-infrared and UAV datasets}
 
-Several datasets have been developed to study the use of visible and infrared images in computer vision. The KAIST multispectral pedestrian dataset provides synchronized visible and thermal images for pedestrian detection \citep{hwang2015kaist}. LLVIP contains paired visible and infrared images captured under low-light conditions \citep{jia2021llvip}, while M3FD includes scenes from different environments for image fusion and object detection \citep{liu2022tardal}. The FLIR ADAS dataset provides visible and thermal images for object detection in road scenes \citep{flir2018adas}. Although these datasets support research on combining information from different sensors, they mainly focus on pedestrians, vehicles, and other objects in ground-level scenes. Detecting distant birds and drones presents a different challenge because the targets often occupy only a small number of pixels.
+Visible-infrared benchmarks have established the value of complementary sensors across several perception tasks. KAIST introduced synchronized RGB-thermal imagery for pedestrian detection \citep{hwang2015kaist}; LLVIP studies paired visible-infrared observations in low-light scenes \citep{jia2021llvip}. M3FD extends multimodal fusion and detection to varied environments \citep{liu2022tardal}, while FLIR ADAS focuses on thermal and visible perception in driving scenes \citep{flir2018adas}. These datasets primarily emphasize ground-level objects with imaging conditions distinct from distant bird-drone discrimination.
 
-Several datasets also focus on UAV detection and tracking, although their camera setups and objectives differ. VisDrone provides images and videos captured from cameras mounted on drones for detecting and tracking objects on the ground \citep{zhu2022visdrone}. In contrast, ground-based drone surveillance requires detecting the drone itself, often against the sky or a complex background. DroneRGBT uses RGB and thermal imagery for aerial crowd counting \citep{peng2020dronergbt}, while VTUAV provides visible and thermal video sequences for object tracking \citep{zhang2022vtuav}. The Anti-UAV benchmark focuses more directly on detecting and tracking drones from surveillance cameras and includes visible and infrared observations \citep{jiang2023antiuav,antiuavrepo}.
+UAV benchmarks differ both in the target and in the camera viewpoint. VisDrone concerns objects viewed from airborne cameras \citep{zhu2022visdrone}, whereas \dataset{} concerns an aerial target viewed from the ground. DroneRGBT addresses aerial crowd counting \citep{peng2020dronergbt}, and VTUAV introduces paired visible-thermal sequences for tracking \citep{zhang2022vtuav}. Anti-UAV directly addresses drone surveillance and provides visible and infrared observations \citep{jiang2023antiuav,antiuavrepo}. Related methods have studied bird-drone recognition \citep{selvi2022deep}, drone localization and tracking \citep{10193217,10328384}, and sensor fusion for localization \citep{11700652}.
 
-Previous studies have also developed methods for drone recognition and tracking in surveillance videos. Selvi et al. studied the classification of birds and drones using deep learning \citep{selvi2022deep}. SetNet was introduced for drone localization and zero-shot tracking \citep{10193217}, while IR-Setnet addressed localization and tracking in distorted infrared surveillance videos \citep{10328384}. ModalFuseNet further explored the use of sensor fusion for drone localization \citep{11700652}. These studies focus on developing methods to detect, classify, or track aerial targets. In this work, we focus on the data used for such tasks and study how target size, sensor alignment, and image degradation affect the information available in RGB and infrared observations.
+Recent UAV datasets further broaden sensing conditions and recognition tasks. MMFW-UAV emphasizes multi-view, multi-sensor fixed-wing observations \citep{liu2025mmfwuav}; MM-UAV combines RGB, infrared, and event data \citep{xu2025mmuav}; UAVNet-MS addresses fine-grained recognition with RGB and multispectral imagery \citep{luo2026uavnetms}; and UAV-CB considers complex backgrounds and camouflage \citep{huang2026uavcb}. These resources complement rather than replace a characterization of target scale, residual cross-modal translation, and sensor-specific degradation in ground-based bird-drone footage.
 
-More recent datasets have explored other combinations of sensors and UAV observation conditions. MMFW-UAV contains multi-sensor and multi-view observations of fixed-wing UAVs \citep{liu2025mmfwuav}. MM-UAV combines RGB, infrared, and event-camera data for UAV tracking \citep{xu2025mmuav}, while UAVNet-MS introduces RGB and multispectral imagery for recognizing small UAVs \citep{luo2026uavnetms}. UAV-CB focuses on detecting UAVs against complex backgrounds using RGB and thermal images \citep{huang2026uavcb}. These datasets provide different settings for studying UAV perception. Our work focuses specifically on small birds and drones observed from ground-based cameras, where the RGB and infrared frames correspond to the same scene but may have spatial differences.
-
-The imagery used in \dataset{} originates from the Drone Detection Dataset published by Svanstr\"om et al., which provides visible and infrared surveillance videos of drones and other flying objects \citep{svanstrom2021multisensor}. We previously used this imagery to curate bird-drone surveillance data for the IEEE ICIP 2025 Video and Image Processing Cup. In the present work, we make the curated data available as \dataset{}, with corresponding RGB-infrared frames, existing target annotations, and preserved video information. We also study properties that were not examined separately in the original challenge. In particular, we measure target size and the spatial displacement between the two camera views, and introduce \corrupt{} to study how different types of image degradation affect each modality. The aim is to provide both the data and the tools needed to examine these factors when developing and evaluating drone detection methods.
-
-Table~\ref{tab:related} compares \dataset{} with other visible-infrared and UAV datasets, focusing on their sensing modalities, observation settings, and main objectives.
+The surveillance imagery underlying \dataset{} was collected by Svanstr\"om et al. \citep{svanstrom2021multisensor} and the bird-drone observations were curated for the VIP Cup. Within this setting, \dataset{} emphasizes three factors that are difficult to disentangle using conventional benchmark scores: very small target size, residual RGB-infrared displacement, and sensor-specific image degradation. Table~\ref{tab:related} situates this focus among related datasets. As in the rest of the paper, paired observations should not be confused with pixel-registered images.
 
 \begin{table}[t]
 \centering
@@ -246,43 +223,31 @@ UAV-CB \citep{huang2026uavcb}
 
 \subsection{Corruption and data-centric benchmarks}
 
-Image quality can change because of sensor noise, blur, lighting conditions, or camera movement. These changes may affect the performance of detection and tracking methods, even when the scene and target remain the same. To study such effects, Hendrycks and Dietterich introduced ImageNet-C, which evaluates recognition models under different image corruptions and severity levels \citep{hendrycks2019benchmarking}. Similar benchmarks have since been developed for other tasks. UAV-C evaluates how common corruptions affect aerial object tracking \citep{liu2024uavc}, while MapBench studies the effect of sensor corruption on multi-sensor map construction \citep{hao2024mapbench}. These benchmarks show the value of testing image degradation under controlled conditions rather than relying only on performance measured using clean images.
+Robustness benchmarks make image degradation an explicit experimental variable. ImageNet-C organizes common corruptions by type and severity \citep{hendrycks2019benchmarking}, and UAV-C extends corruption-based evaluation to aerial tracking \citep{liu2024uavc}. MapBench similarly studies environmental and sensor disturbances in multimodal mapping \citep{hao2024mapbench}. Their central lesson is that averaging across perturbations can conceal the failure modes of individual conditions.
 
-We follow this approach in \corrupt{}, but design the perturbations for the small targets and paired RGB-infrared observations in \dataset{}. The benchmark contains seven perturbation families at five severity levels, covering noise, blur, uneven illumination, and camera instability. We choose the perturbation strengths for the native $320\times256$ images because a small amount of blur or displacement can remove much of the visible detail from a target that is only a few pixels wide. We also allow each perturbation to be applied to RGB alone, infrared alone, or both. This makes it possible to study how the two modalities respond to image degradation separately and whether the unaffected sensor retains useful information.
+\corrupt{} applies this principle to low-resolution paired surveillance. Its seven perturbation families are parameterized for the native $320\times256$ images and can affect RGB, infrared, or both. In contrast to a single pooled robustness score, this design exposes which modality is degraded and by how much. The benchmark does not assume that nominal perturbation severity is equivalent to downstream task difficulty.
 
-Our work is also related to research on dataset quality and evaluation. DataPerf introduced benchmarks for studying data-centric machine learning \citep{mazumder2023dataperf}, while DataComp examined how dataset construction and selection influence model performance \citep{gadre2023datacomp}. WhyShift studied the importance of identifying the sources of distribution shift when evaluating machine learning models \citep{liu2023whyshift}. Mayo et al. examined dataset difficulty by relating visual recognition performance to the time needed to interpret images \citep{mayo2023difficulty}. These studies motivate examining the characteristics of the data alongside the performance of models trained on them.
+Data-centric evaluation also motivates separating properties of a dataset from properties of a trained model. DataPerf and DataComp examine how data quality, selection, and composition affect learning \citep{mazumder2023dataperf,gadre2023datacomp}. WhyShift emphasizes identifying the sources of distribution change \citep{liu2023whyshift}, while Mayo et al. investigate image difficulty beyond a single model score \citep{mayo2023difficulty}. Following this line of work, we characterize object size, spatial correspondence, and simulated degradation before interpreting class separation in a fixed representation.
 
-In this work, we study three properties of the curated RGB-infrared data: target size, alignment between the two camera views, and the effect of image degradation. We measure each property separately and examine how it changes the overlap between bird and drone feature distributions. These measurements complement conventional detection and classification metrics by providing information about the image conditions under which a model is evaluated. Researchers can therefore use \dataset{} and \corrupt{} to compare methods across target sizes, alignment conditions, and perturbation types, rather than relying only on a single overall score.
-
-\section{Dataset construction and release scope}
+\section{The AVID dataset}
 \label{sec:dataset}
 
-\subsection{Source and scope}
+\subsection{Observation setting and provenance}
 
-The images used in this work come from the Drone Detection Dataset developed by Svanstr\"om, Alonso-Fernandez, and Englund, which contains visible and infrared surveillance videos of drones and other flying objects \citep{svanstrom2021multisensor,svanstrom2020repository}. We previously curated the bird-drone surveillance data from this collection for the IEEE ICIP 2025 Video and Image Processing Cup, which focused on drone detection, tracking, and payload identification \citep{ieeevipcup2025}. In this paper, we build on that curation by making the bird-drone data available as \dataset{} and introducing additional methods to study sensor alignment and image degradation. Our work focuses on the bird-drone surveillance data and does not include the separate payload-identification task.
+\dataset{} consists of RGB and infrared observations of birds and drones captured by ground-based surveillance cameras. The two modalities provide complementary views of distant aerial targets, which frequently occupy only a small region of the image. The imagery originates from the Drone Detection Dataset of Svanstr\"om, Alonso-Fernandez, and Englund \citep{svanstrom2021multisensor,svanstrom2020repository}; the bird-drone subset was curated for the IEEE ICIP 2025 Video and Image Processing Cup \citep{ieeevipcup2025}. The benchmark focuses on bird-drone observations rather than the challenge's separate payload-identification task.
 
-To prepare \dataset{}, we use the Train and Validation splits from the VIP Cup, where the correspondence between RGB and infrared frames can be established from the available records. We refer to these frames as paired because they provide corresponding observations of the same scene. However, the images are not necessarily aligned at the pixel level, as the two cameras may observe the target at slightly different positions. We preserve the original video identifiers and frame indices to maintain the connection between frames and their source sequences.
+Each RGB-infrared pair represents corresponding observations of a scene. Because the cameras have separate optics, the target may appear at different image coordinates in the two views. Pairing identifies corresponding observations, not pixel-level registration. Sequence-level identities support evaluation protocols that avoid placing adjacent frames in both training and test sets.
 
-We exclude the VIP Cup Test split because the RGB and infrared files use different numbering schemes, and the available records do not provide a reliable way to match the frames. Rather than introduce uncertain pairs, we restrict the dataset to the Train and Validation splits for which correspondence can be established.
+\subsection{Composition and annotations}
 
-\subsection{Curation and annotations}
+\dataset{} contains 32,040 paired frames from 115 videos at a native resolution of $320\times256$ pixels. The Train partition comprises 28,790 pairs from 102 videos, and the Validation partition contains 3,250 pairs from 13 different videos (Table~\ref{tab:corpus}). In total, 76 sequences depict drones and 39 depict birds. Clip lengths range from 50 to 329 paired frames, with a median of 306 and a mean of 278.6.
 
-The data prepared for the VIP Cup include clean frames and noise-augmented versions of the same observations. For \dataset{}, we group the images using their frame identifiers and retain only the clean versions. This removes duplicate observations and provides a consistent starting point for the perturbation experiments introduced in this work. We then use \corrupt{} to apply controlled image degradation at different severity levels.
-
-For each retained frame, we preserve its video identifier and frame index. This allows the original sequence order to be reconstructed and helps researchers separate videos when preparing training and evaluation sets.
-
-We retain the bounding-box annotations and bird-drone class labels from the VIP Cup data. These annotations were part of the earlier curation and were not newly created for this study. The available source records do not fully describe the annotation and review procedures, so we use the existing labels without making additional assumptions about how they were produced.
-
-\subsection{Dataset composition}
-
-The resulting \dataset{} contains 32,040 corresponding RGB-infrared frame pairs from 115 surveillance videos. As shown in Table~\ref{tab:corpus}, the Train split contains 28,790 pairs from 102 videos, while the Validation split contains 3,250 pairs from 13 videos.
-
-Of the 115 videos, 76 contain drones and 39 contain birds. The sequences range from 50 to 329 paired frames, with a median length of 306 frames and a mean of 278.6 frames. The dataset includes 35,952 annotated target instances, consisting of 15,471 birds and 20,481 drones.
+The dataset includes 35,952 annotated targets: 15,471 birds and 20,481 drones. The bounding boxes and class labels originate from the VIP Cup curation. They enable object-level analyses of target scale and appearance, while video-level grouping supports sequence-disjoint evaluation. Figure~\ref{fig:realpairs} illustrates representative examples. The different visual and thermal appearances of the same small target, together with residual positional differences between the views, motivate the geometry and perturbation analyses that follow.
 
 \begin{table}[t]
 \centering
-\caption{\textbf{Composition of the \dataset{} dataset.}
-The counts include the Train and Validation splits curated from the VIP Cup data after removing duplicate noise-augmented frames. RGB-infrared correspondence is established from the available frame records. Instance counts refer to the existing bird and drone bounding-box annotations.}
+\caption{\textbf{Composition of \dataset{}.}
+Train and Validation contain disjoint source videos. Instance counts refer to the existing bird and drone bounding-box annotations.}
 \label{tab:corpus}
 \small
 \begin{tabular}{lrrrrr}
@@ -297,13 +262,11 @@ Total      & 32,040 & 115 & 15,471 & 20,481 & 35,952 \\
 \end{tabular}
 \end{table}
 
-Figure~\ref{fig:realpairs} shows representative RGB and infrared frames containing a drone and a bird. In both examples, the targets occupy only a small part of the image, and their appearance differs between the two modalities. The same target may also appear at slightly different positions because the cameras are not perfectly aligned. These differences are important when working with small aerial targets, where even a few pixels of displacement can affect how information from the two sensors is combined.
-
 \begin{figure}[t]
     \centering
     \includegraphics[width=0.67\linewidth]{fig_real_samples.png}
     \caption{\textbf{Representative RGB-infrared frame pairs from \dataset{}.}
-    The top row shows a drone, and the bottom row shows a bird. Red bounding boxes indicate the annotated targets. The RGB and infrared images provide corresponding observations of the same scene, but the target's appearance and position may differ between the two modalities.}
+    The top row shows a drone, and the bottom row shows a bird. Red boxes mark the annotated targets. RGB and infrared provide corresponding observations but differ in target appearance and can retain spatial displacement.}
     \label{fig:realpairs}
 \end{figure}
 
@@ -314,50 +277,48 @@ Figure~\ref{fig:realpairs} shows representative RGB and infrared frames containi
 \subsection{A concentrated tiny-object regime}
 \label{sec:scale}
 
-One of the main challenges in \dataset{} is the small size of the birds and drones. Most targets occupy only a few pixels, leaving very little information about their shape or appearance. To understand how small these objects are, we first examine the distribution of their bounding-box sizes.
+Target scale is a defining property of \dataset{}. At long range, birds and drones are represented by few pixels, limiting the available shape and texture cues. We quantify this regime using the native bounding-box annotations rather than the resized inputs of a particular model.
 
-Using the COCO object-size convention \citep{lin2014coco}, 35,581 of the 35,952 annotated instances, or 99.0\%, fall within the ``small'' category. The remaining 371 instances are classified as ``medium,'' and none are ``large.'' Since nearly all objects belong to the same category, the standard COCO grouping does not capture the differences in target size within this dataset.
+Under the COCO area convention \citep{lin2014coco}, 35,581 of 35,952 instances (99.0\%) are ``small,'' 371 are ``medium,'' and none are ``large.'' This concentration makes the usual small/medium/large partition inadequate for distinguishing levels of difficulty within \dataset{}.
 
-We therefore use the geometric-mean side length of each bounding box to describe target size more precisely:
+We instead characterize each box by its geometric-mean side length,
 
 \begin{equation}
 s=\sqrt{w_{\mathrm{px}}h_{\mathrm{px}}},
 \end{equation}
 
-where $w_{\mathrm{px}}$ and $h_{\mathrm{px}}$ are the bounding-box width and height in pixels. This gives the side length of a square with the same area as the original bounding box, allowing us to represent each target using a single size measurement.
+where $w_{\mathrm{px}}$ and $h_{\mathrm{px}}$ denote box width and height in native pixels. This quantity equals the side length of a square with the same area as the annotated box.
 
-Figure~\ref{fig:datasetstats}a shows the distribution of target sizes in \dataset{}. The largest group falls between 12 and 16 pixels, containing 17,706 annotated instances. When the 8 to 12 pixel range is also included, 24,489 instances, or 68.1\% of the dataset, have a geometric-mean side between 8 and 16 pixels. Only 103 instances are smaller than 8 pixels, and no annotated target has a geometric-mean side larger than 48 pixels.
+Figure~\ref{fig:datasetstats}a shows that 17,706 instances fall in the 12--16 pixel interval. Together, the 8--12 and 12--16 pixel intervals contain 24,489 instances (68.1\%). Only 103 instances have sides below 8 pixels, and none exceed 48 pixels. Finer intervals are therefore necessary to assess changes within the overwhelmingly small-object distribution.
 
-This concentration of small objects is important when studying the relationship between RGB and infrared images. A displacement of only a few pixels can be substantial when the target itself is around 10 or 15 pixels wide. For this reason, we examine not only the displacement between the two camera views, but also how large that displacement is relative to the size of the target.
+The scale distribution also changes the interpretation of sensor displacement. A translation of three to five pixels can span a substantial fraction of the target, even when it appears small relative to the full $320\times256$ image. This motivates expressing alignment in target-side units.
 
 \subsection{Weak RGB-infrared alignment}
 \label{sec:alignment}
 
-Although the RGB and infrared frames in \dataset{} correspond to the same scene, the two views are not necessarily aligned at the pixel level. The cameras use separate optical systems, so an object may appear at slightly different positions in the corresponding images. This difference becomes particularly important for small targets, where even a modest displacement can affect the information available when combining the two modalities.
+Corresponding RGB and infrared frames share a scene but are not guaranteed to be pixel-registered. Separate optics and viewpoints can place the same bird or drone at different image coordinates. We estimate the dominant displacement and then evaluate its magnitude relative to object size.
 
-To estimate the spatial difference between the RGB and infrared frames, we use normalized mutual information (NMI). We first convert each RGB frame to grayscale and then search for the translation that maximizes its NMI with the corresponding infrared frame. The search considers integer translations between $-12$ and $12$ pixels along both the horizontal and vertical axes.
+The global translation is estimated by maximizing normalized mutual information (NMI) between each grayscale-converted RGB frame and its infrared counterpart. Integer horizontal and vertical offsets are searched over $[-12,12]$ pixels. Additional estimator details are provided in Appendix~\ref{app:alignment}.
 
-A displacement measured in pixels alone does not indicate how significant it is for the observed target. For example, a five-pixel shift represents half the width of a target that is 10 pixels wide, but only one tenth of a target that is 50 pixels wide. We therefore introduce an object-relative alignment ratio that expresses the estimated displacement in terms of target size.
+An absolute shift is not equally consequential at different scales: five pixels correspond to half the side length of a 10-pixel target but only one tenth of a 50-pixel target. We therefore normalize each estimated displacement by the target scale observed in that frame.
 
-For frame pair $i$, let $d_i$ denote the magnitude of the estimated global translation between the RGB and infrared images, and let $s_i$ denote the median geometric-mean side length of the annotated targets in that frame. We define the object-relative alignment ratio as
+For pair $i$, let $d_i$ denote the magnitude of the estimated global translation and $s_i$ the median geometric-mean side of its annotated targets. The object-relative alignment ratio is
 
 \begin{equation}
 \rho_i=\frac{d_i}{s_i}.
 \label{eq:rho}
 \end{equation}
 
-This ratio describes how large the estimated displacement is relative to the target. For example, $\rho_i=0.5$ means that the displacement is half the median target side, while $\rho_i>1$ means that it exceeds the median target side.
-
-To examine how frequently different levels of misalignment occur, we introduce the alignment burden curve:
+Thus, $\rho_i=0.5$ indicates a displacement of half the median target side, and $\rho_i>1$ indicates a shift larger than that side. The empirical alignment burden curve summarizes their prevalence across annotation-matched pairs:
 
 \begin{equation}
 \burden(\tau)=\frac{1}{n}\sum_{i=1}^{n}\mathbf{1}[\rho_i>\tau].
 \label{eq:burden}
 \end{equation}
 
-Here, $n$ is the number of frame pairs with matching target annotations, $\tau$ is a chosen alignment threshold, and $\mathbf{1}[\cdot]$ is an indicator function. The curve gives the fraction of frame pairs whose estimated displacement exceeds $\tau$ times the median target side. For example, $\burden(0.5)$ represents the fraction of pairs with a displacement greater than half the target size.
+Here $n$ is the number of pairs with matching annotations, and $\mathbf{1}[\cdot]$ is the indicator function. The curve gives the proportion of pairs exceeding a target-relative threshold $\tau$; in particular, $\burden(0.5)$ is the proportion exceeding half a median target side.
 
-We also summarize the burden curve using
+A scalar summary is obtained by integrating the burden curve up to a threshold $T$:
 
 \begin{equation}
 \widehat{\mathcal B}_T=\frac{1}{T}\int_0^T\burden(\tau)\,d\tau
@@ -365,29 +326,29 @@ We also summarize the burden curve using
 \label{eq:burdenscore}
 \end{equation}
 
-This measure summarizes the distribution of object-relative displacements up to a chosen threshold $T$. In this work, we use $T=1$, so ratios greater than one are clipped at one before averaging. The resulting score provides a single measure of alignment burden while the full curve shows how the displacements are distributed.
+For $T=1$, the score is the mean object-relative shift after values above one target side are clipped to one. The scalar facilitates comparison, while the curve retains the distribution of exceedance probabilities.
 
-We estimate the RGB-infrared displacement for a sample of 300 frame pairs. The estimated translation magnitude has a mean of 4.66 pixels, a median of 1.0 pixel, and a standard deviation of 6.44 pixels. About 46.0\% of the sampled pairs have an estimated integer translation of zero. However, 36.0\% have shifts greater than 2 pixels, and 32.3\% exceed 5 pixels, as shown in Figure~\ref{fig:datasetstats}b. These results indicate that although many corresponding frames have little estimated displacement, a substantial fraction show larger differences between the two camera views.
+Among 300 sampled pairs, the estimated global shift has a mean of 4.66 pixels, median of 1.0 pixel, and standard deviation of 6.44 pixels. The integer estimate is zero for 46.0\% of the sample; nevertheless, 36.0\% exceed 2 pixels and 32.3\% exceed 5 pixels (Figure~\ref{fig:datasetstats}b). A zero estimated integer translation should not be interpreted as exact registration.
 
-The estimated displacement is also limited by the range of the translation search. Since we consider shifts of up to 12 pixels along each axis, the largest translation magnitude that can be represented is
+The finite search range censors the upper displacement tail. A search of $\pm12$ pixels along each axis has a maximum representable radial magnitude of
 
 \begin{equation}
 \sqrt{12^2+12^2}=16.97 \text{ pixels}.
 \end{equation}
 
-This means that a pair assigned a shift near the search boundary may have a larger displacement than the method can estimate. The maximum measured value of 16.97 pixels therefore reflects the search limit rather than the largest possible misalignment between the cameras.
+A pair assigned a boundary translation may have a larger true offset. Accordingly, 16.97 pixels is the maximum representable estimate, not a physical limit on camera misalignment.
 
-For 264 of the 300 sampled frame pairs, matching target annotations are available to calculate the object-relative alignment ratio. The median target side in this subset is 14.18 pixels. The mean alignment ratio is 0.297, while the median is $\rho=0$, reflecting the large number of pairs with zero estimated integer translation.
+Object-relative statistics are available for the 264 pairs with matching target annotations. Their median target side is 14.18 pixels; the mean and median alignment ratios are 0.297 and 0, respectively. The zero median reflects the prevalence of zero estimated integer shifts rather than a claim of perfect registration.
 
-The burden curve provides a more detailed picture of these displacements. Among the 264 annotation-matched pairs, 27.3\% have an alignment ratio greater than 0.25, meaning that the estimated displacement exceeds one quarter of the median target side. Similarly, 26.1\% exceed half the target side, and 16.3\% have a displacement larger than the full median target side. Thus, for approximately one in six of these pairs, the estimated shift between RGB and infrared is larger than the target itself when measured using its median geometric-mean side length.
+The burden fractions reveal a substantial upper tail: 27.3\% of annotation-matched pairs exceed one quarter of a median target side, 26.1\% exceed one half, and 16.3\% exceed a full side. Thus, roughly one in six measured pairs has an estimated global translation larger than the median annotated target (Figure~\ref{fig:datasetstats}c).
 
-Figure~\ref{fig:datasetstats}c shows the alignment burden at these three thresholds. Using Eq.~\ref{eq:burdenscore}, the unit-scale alignment burden is
+Integrating the empirical burden curve over the first target-side unit yields
 
 \begin{equation}
 \widehat{\mathcal B}_1=0.265.
 \end{equation}
 
-This value summarizes the object-relative displacement after ratios above one have been clipped. It provides a compact measure of the alignment burden, while the individual threshold values show how frequently larger shifts occur.
+The value 0.265 summarizes the clipped target-relative shift (Eq.~\ref{eq:burdenscore}); the three threshold fractions retain information about how frequently the larger displacements arise.
 
 \begin{figure}[t]
     \centering
@@ -399,9 +360,9 @@ This value summarizes the object-relative displacement after ratios above one ha
     \label{fig:datasetstats}
 \end{figure}
 
-These measurements show why alignment is an important consideration when working with tiny aerial targets. A displacement that appears small in the full image can be large relative to the object being detected. Expressing alignment in terms of target size therefore provides a more meaningful description of the spatial differences between the two modalities.
+Taken together, the target-size and shift distributions show why pixel displacement alone is insufficient to characterize the paired observations. The object-relative measures connect the estimated translation to the spatial extent of the objects under study.
 
-The estimated shifts describe global translations between the RGB and infrared frames. They do not provide exact pixel correspondences for individual targets or account for more complex differences such as parallax, lens distortion, or spatially varying displacement. Nevertheless, the object-relative alignment ratio and burden curve offer a practical way to describe the weak alignment present in the sampled frames of \dataset{}.
+These measurements concern global integer translations and not exact target correspondences. They do not account for parallax, lens distortion, depth variation, or spatially varying shifts. Their purpose is a reproducible geometric characterization of the sampled paired observations.
 
 
 \section{AVID-C: a controlled perturbation benchmark}
@@ -409,11 +370,11 @@ The estimated shifts describe global translations between the RGB and infrared f
 
 \subsection{Perturbation families and severity levels}
 
-Apart from sensor misalignment, image quality also plays an important role in detecting small birds and drones. Noise can make a target difficult to distinguish from the background, while blur can remove details about its shape. Changes in illumination and camera movement can further affect how clearly a target appears. These problems are particularly important when the object occupies only a few pixels, and their effects may differ between RGB and infrared images.
+In addition to geometric mismatch, small-target recognition is sensitive to changes in image formation. Noise affects contrast, blur suppresses fine structure, and illumination variation or camera motion can alter the target and its surrounding background. Because RGB and infrared sensors respond differently, the affected modality is itself an important experimental variable.
 
-To study these effects, we introduce \corrupt{}, a benchmark that simulates common forms of image degradation in the RGB and infrared frames of \dataset{}. We consider seven types of perturbations: Gaussian noise, speckle noise, salt-and-pepper noise, Gaussian blur, uneven illumination, motion blur, and camera instability. Each perturbation is applied at five severity levels to examine how increasing degradation affects the images. The perturbations are generated from the original, unmodified frames using predefined parameters, allowing the same conditions to be reproduced across experiments without storing separate versions of the degraded images.
+\corrupt{} defines seven simulated degradation families: Gaussian noise, speckle noise, salt-and-pepper noise, Gaussian blur, uneven illumination, motion blur, and camera instability. Each family has five severity levels, generated from clean \dataset{} frames using specified parameters. The transformations can be reproduced without maintaining separate pre-rendered copies of every degraded condition.
 
-We choose the severity levels based on the native $320\times256$ image resolution and the small size of the targets in \dataset{}. Although ImageNet-C introduced a widely used approach for evaluating robustness under common image corruptions \citep{hendrycks2019benchmarking}, its settings are not necessarily suitable for very small objects. For example, a level of blur that has little effect on a large object may remove most of the visible details of a drone that is only 10 pixels wide. We therefore select perturbation strengths with the target sizes in \dataset{} in mind. Table~\ref{tab:corruptions} lists the parameters used at each severity level.
+Perturbation magnitudes are chosen for the native $320\times256$ resolution, where a blur kernel or translation of a few pixels can affect much of an 8--16 pixel target. The benchmark follows the controlled-corruption principle of ImageNet-C \citep{hendrycks2019benchmarking} without assuming that its image-size-dependent settings transfer unchanged to this regime. Table~\ref{tab:corruptions} specifies all five parameter settings per family.
 
 \begin{table}[t]
 \centering
@@ -459,21 +420,21 @@ Camera instability
 \end{tabularx}
 \end{table}
 
-For each perturbation, we consider three settings: degrading RGB alone, degrading infrared alone, and degrading both modalities. This allows us to examine how the two sensors respond when image quality changes. In particular, applying a perturbation to one modality while keeping the other unchanged helps us study whether the unaffected sensor retains useful information when the other becomes less reliable.
+Each perturbation is evaluated in three sensor configurations: RGB only, infrared only, and both modalities. Holding one stream clean isolates changes to the other; degrading both tests the combined observation under joint loss of image quality.
 
-Since different perturbations may affect RGB and infrared differently, we recommend reporting results separately for each perturbation type, severity level, and affected modality. Reporting only an overall average could hide important differences in how the two sensors respond to image degradation.
+Results should be stratified by perturbation family, severity, and affected modality. Such reporting preserves sensor-specific failure patterns that a single corruption average would hide.
 
 \subsection{Relating the perturbation scale to clean imagery}
 
-To understand how the simulated perturbations compare with the original images, we first examine the noise already present in the clean RGB and infrared frames. This is particularly useful for Gaussian noise, where the first severity level should introduce a change beyond the estimated noise in the original images.
+The lowest Gaussian-noise severity is compared with the estimated noise already present in the unmodified imagery. This provides an image-level reference for the injected standard deviation, without treating a no-reference estimate as a physical sensor calibration.
 
-We estimate the noise level using 200 frames from each modality and the no-reference method proposed by Immerkaer \citep{immerkaer1996}. The method uses the Laplacian response of an image to estimate noise without requiring a noise-free reference. However, image texture and other fine details can influence the result. We therefore treat these values as approximate estimates of image noise rather than direct measurements of the physical sensor noise.
+Noise is estimated from 200 frames per modality using Immerkaer's no-reference Laplacian estimator \citep{immerkaer1996}. Because high-frequency scene structure can influence this estimate, the reported values characterize image content approximately rather than sensor electronics directly.
 
-The median full-frame noise estimates are 0.302 intensity units for RGB and 0.638 for infrared on the 0--255 intensity scale. In comparison, the first Gaussian-noise severity level in \corrupt{} uses a standard deviation of 5 intensity units. This is approximately 16.6 times the estimated noise level in RGB and 7.8 times that in infrared.
+On the 0--255 intensity scale, the median full-frame estimate is 0.302 for RGB and 0.638 for infrared. Gaussian noise at severity 1 has an injected standard deviation of 5 intensity units, corresponding to approximately 16.6 and 7.8 times those estimates, respectively.
 
-We also repeat the estimation using only the upper third of each image, where relatively uniform sky regions are common. The median noise estimates in these regions are 0.027 intensity units for RGB and 0.047 for infrared, both lower than the corresponding full-frame estimates.
+When estimation is restricted to the upper third of each frame, where sky is often less textured, the medians fall to 0.027 for RGB and 0.047 for infrared. This difference is consistent with the estimator's sensitivity to image structure.
 
-Figure~\ref{fig:corruptionanalysis}i compares the estimated noise levels in the clean images with the first Gaussian-noise severity level. The simulated noise is higher than the estimated noise in both modalities, indicating that even the lowest severity level introduces additional degradation relative to the original frames. Although these estimates do not provide a physical calibration of the cameras, they help establish how the chosen perturbation levels relate to the noise already present in the dataset.
+The comparison in Figure~\ref{fig:corruptionanalysis}i confirms that the first injected Gaussian-noise level is above the estimated clean-frame noise for both modalities. It supports the chosen starting magnitude as a distinct image perturbation, but does not establish equivalence to noise produced by a particular physical sensor.
 
 
 \section{A fixed-representation analysis of the dataset}
@@ -481,11 +442,11 @@ Figure~\ref{fig:corruptionanalysis}i compares the estimated noise levels in the 
 
 \subsection{Measuring class structure under controlled variation}
 
-We next examine how target size, image degradation, and sensor misalignment affect the differences between birds and drones. Rather than evaluating a particular detection model, we study the visual information available in the annotated target regions. This allows us to examine how the two classes differ under changing image conditions without introducing differences caused by model architecture or training.
+The preceding measurements establish the scale and geometric properties of \dataset{}. To examine their consequences for bird-drone discrimination independently of a particular detector, we compare class-conditional distributions in a fixed patch representation. Target size, simulated degradation, and added cross-modal shift are varied while the representation remains unchanged.
 
-For each annotated target, we extract a square image patch centered on its bounding box, with $1.5\times$ padding around the target. We convert the patches to grayscale, resize them to $24\times24$ pixels, and flatten them into feature vectors. We then apply principal component analysis (PCA) separately to the RGB and infrared patches, using components learned from the clean images. We retain eight principal components for each modality, giving an 8-dimensional representation for RGB and another for infrared. To study the two modalities together, we concatenate their features into a 16-dimensional representation.
+Each annotated target defines a square crop centered on its bounding box, with $1.5\times$ padding. RGB and infrared crops are converted to grayscale, resized to $24\times24$, and flattened. Separate PCA bases fitted on clean patches reduce each modality to eight components. Their concatenation gives a 16-dimensional paired feature, compared with eight dimensions for each single-sensor feature.
 
-The PCA components are learned once from the clean images and remain unchanged throughout the experiments. This is important because we want to measure how the target features change under corruption or misalignment, rather than compare representations learned separately for each condition. Figure~\ref{fig:intrinsicframework} illustrates the analysis, from extracting target patches to comparing the resulting feature distributions.
+The clean-data PCA bases are held fixed across all conditions, so changes in class overlap cannot be attributed to refitting the projection for each perturbation. Figure~\ref{fig:intrinsicframework} summarizes the feature extraction and analysis.
 
 \begin{figure}[t]
     \centering
@@ -500,17 +461,15 @@ The PCA components are learned once from the clean images and remain unchanged t
 
 \subsection{Class overlap in the fixed representation}
 
-To measure how well birds and drones can be distinguished in the chosen feature space, we compare the distributions of their extracted features. When the two classes have similar feature distributions, distinguishing them becomes more difficult. When their distributions are more separated, the features provide stronger evidence for distinguishing one class from the other.
+Class structure is measured through the overlap of the bird and drone feature distributions. Greater overlap corresponds to weaker separation in the specified representation, without requiring a trained detector or an assumed full-frame localization mechanism.
 
-Let $Z$ represent the extracted features and let $Y\in\{0,1\}$ denote the bird or drone class. We model the features of each class using a Gaussian distribution:
+Let $Z$ denote the feature vector and $Y\in\{0,1\}$ the bird or drone label. Each conditional feature distribution is approximated by a Gaussian,
 
 \begin{equation}
 Z \mid Y=y \sim \mathcal{N}(\mu_y,\Sigma_y).
 \end{equation}
 
-Here, $\mu_y$ and $\Sigma_y$ are the estimated mean and covariance matrix for class $y$.
-
-We use the Bhattacharyya distance to measure the separation between the two fitted Gaussian distributions:
+Here, $\mu_y$ and $\Sigma_y$ denote the class-specific mean and covariance estimates. The Bhattacharyya distance between the fitted Gaussian distributions is
 
 \begin{align}
 D_B
@@ -531,7 +490,7 @@ D_B
 \frac{\Sigma_0+\Sigma_1}{2}.
 \end{align}
 
-The Bhattacharyya distance can also be used to obtain an upper bound on the classification error. For class priors $\pi_0$ and $\pi_1$, this bound is
+The corresponding upper bound on classification error under class priors $\pi_0$ and $\pi_1$ is
 
 \begin{equation}
 P_e
@@ -541,15 +500,13 @@ e^{-D_B}.
 \label{eq:bhatt}
 \end{equation}
 
-We assume equal priors for birds and drones and denote the resulting fitted error bound by $\Bhat$. A smaller value indicates greater separation between the two classes under the fitted Gaussian model. Importantly, this value describes the features extracted from known target locations. It is not the measured accuracy or error rate of a trained detection system.
+With equal bird and drone priors, we denote this fitted bound by $\Bhat$. Lower values indicate better class separation under the fitted Gaussian model. Because the target location and feature representation are supplied, $\Bhat$ is not an observed detector error rate and cannot establish full-frame recognition performance.
 
-Since the result may depend on the Gaussian assumption, we also calculate an optimized Chernoff bound and a kernel-density estimate (KDE). The Chernoff method searches for the parameter that gives the tightest bound between the fitted class distributions, while KDE provides a comparison without assuming Gaussian class densities. We use these three approaches to examine class separation for targets in the 12--16 pixel range, which contains the largest number of annotated instances in \dataset{}.
+Two complementary estimates test the dependence on the density model. An optimized Chernoff calculation minimizes the bound over its weighting parameter, while a kernel-density estimate (KDE) provides a non-Gaussian overlap comparison. We report these cross-checks at the dominant 12--16 pixel target scale.
 
 \subsection{Comparing single and paired modalities}
 
-One of the main reasons for using RGB and infrared cameras together is that the two sensors may capture different information about the same target. We therefore compare the class separation obtained from RGB alone, infrared alone, and their combined features.
-
-To measure the difference, we define the fusion gap as
+To compare paired features with the better individual modality, we define the fitted fusion gap as
 
 \begin{equation}
 \bfg
@@ -563,17 +520,15 @@ To measure the difference, we define the fusion gap as
 \label{eq:bfg}
 \end{equation}
 
-Here, $\Bhat_{\rgb}$ and $\Bhat_{\ir}$ are the fitted Bhattacharyya error bounds for the individual modalities, while $\Bhat_{\rgb+\ir}$ is the bound obtained from their combined features.
+Here $\Bhat_{\rgb}$, $\Bhat_{\ir}$, and $\Bhat_{\rgb+\ir}$ refer to RGB, infrared, and concatenated features. Positive values indicate a lower fitted bound for the paired representation, zero indicates no difference from the better single modality, and negative values favor that single modality.
 
-A positive fusion gap means that the combined representation has a lower fitted error bound than either individual modality. A value close to zero indicates little difference between the combined representation and the better-performing individual modality. A negative value means that the combined features produce a higher bound than the better individual modality.
+The gap is a within-representation diagnostic. In particular, the principal comparison uses 16 paired components but only eight per single sensor; the magnitude of the gap therefore cannot be attributed solely to cross-sensor complementarity without accounting for feature dimension.
 
-This comparison must also account for the number of features used. In our main analysis, RGB and infrared each have eight PCA components, while their combined representation has 16. The additional dimensions may influence the fitted error bound, independently of the information contributed by the second sensor. We therefore interpret the fusion gap within the chosen representation and examine the effect of feature dimension separately in Section~\ref{sec:findings}.
+Equal-total-dimension and redundant-feature controls are evaluated in Section~\ref{sec:findings} to assess this sensitivity. Neither a positive fusion gap nor a smaller fitted bound is interpreted as a guaranteed increase in detector accuracy.
 
 \subsection{Effect of corruption}
 
-We next use the same feature representation to examine how simulated image degradation changes the separation between birds and drones. For each perturbation in \corrupt{}, we compare the fitted Bhattacharyya error bound with the corresponding value obtained from clean images.
-
-For corruption type $c$ at severity level $s$, we define the corruption penalty as
+For corruption family $c$ and severity $s$, the fitted corruption penalty measures the change in the error bound relative to the clean condition:
 
 \begin{equation}
 \Delta_c(s)
@@ -584,17 +539,17 @@ For corruption type $c$ at severity level $s$, we define the corruption penalty 
 \label{eq:corruptpenalty}
 \end{equation}
 
-Here, $\Bhat_{c,s}$ is the fitted error bound after applying the perturbation, and $\Bhat_{\mathrm{clean}}$ is the bound for the same evaluation setting without added degradation.
+Here $\Bhat_{c,s}$ denotes the degraded-condition bound and $\Bhat_{\mathrm{clean}}$ its clean baseline. Positive penalties indicate increased fitted overlap, while negative penalties indicate increased fitted separation. Neither sign alone identifies the physical mechanism responsible.
 
-A positive value indicates that the fitted error bound increases after corruption, suggesting that the bird and drone features have become harder to separate. A negative value indicates a lower bound after corruption. This can occur because some image transformations, such as mild smoothing, may remove variation that does not help distinguish the two classes.
+A non-monotonic response is possible: mild smoothing, for example, may suppress nuisance variation before stronger blur removes discriminative target structure. The measured penalty characterizes the representation rather than presuming monotonic task degradation.
 
-We calculate the corruption penalty separately for RGB and infrared using the clean baseline for each modality. This allows us to compare how different perturbations affect the information available from the two sensors.
+Separate clean baselines are used for RGB and infrared, so reported penalties reflect changes within each modality instead of differences between the underlying evaluation subsets.
 
 \subsection{Sensitivity to cross-modal shift}
 
-We also examine how spatial misalignment affects the separation obtained from the combined RGB-infrared features. Since the cameras are not perfectly aligned, the same target may appear at different positions in the two images. To study this effect under controlled conditions, we introduce additional shifts to the infrared target patches while keeping the RGB patches unchanged.
+Controlled alignment stress tests displace infrared target patches relative to unchanged RGB patches. These shifts supplement, rather than replace, the estimates of native cross-modal displacement in Section~\ref{sec:alignment}.
 
-Let $a$ denote the maximum horizontal and vertical displacement allowed in the experiment. We measure how much of the original fusion gap remains as the shift range increases. For this purpose, we define fusion-gap retention as
+Let $a$ be the maximum horizontal or vertical offset permitted in a trial. The persistence of the paired-feature advantage is summarized by fusion-gap retention
 
 \begin{equation}
 R_{\mathrm{fusion}}(a)
@@ -604,11 +559,11 @@ R_{\mathrm{fusion}}(a)
 \label{eq:retention}
 \end{equation}
 
-Here, $\bfg(a)$ is the fusion gap measured with an added shift budget of $a$, while $\bfg(0)$ is the gap without additional displacement.
+Here $\bfg(a)$ is the fusion gap at shift budget $a$ and $\bfg(0)$ is the unshifted reference. A value of one indicates unchanged gap; values below one indicate its reduction. The ratio is interpreted only when the reference gap is nonzero.
 
-A retention value of 1 means that the fusion gap is unchanged from the reference condition. Values between 0 and 1 indicate that some of the initial gap has been lost as the shift increases. This allows us to examine how sensitive the combined representation is to additional spatial differences between the two modalities.
+The four diagnostics answer distinct questions: fitted bounds compare class overlap, the fusion gap compares feature configurations, corruption penalties compare image-quality conditions, and retention measures the response to added spatial disagreement. All share the same PCA representation, allowing controlled comparisons without implying detector-level performance.
 
-Together, these measurements allow us to study different aspects of the dataset. The Bhattacharyya and Chernoff bounds describe class separation in the fitted feature distributions. The fusion gap compares the combined RGB-infrared representation with the better individual modality. The corruption penalty measures how class separation changes under simulated image degradation, while fusion-gap retention shows how the combined representation responds to increasing misalignment. By keeping the feature representation fixed, we can examine these effects under consistent experimental settings.
+The accompanying analysis reports both the main estimates and representation-dimension checks, so numerical trends can be considered alongside their modeling assumptions.
 
 
 \section{Dataset behavior under scale, corruption, and alignment}
@@ -616,11 +571,11 @@ Together, these measurements allow us to study different aspects of the dataset.
 
 \subsection{Target scale shapes class separation}
 
-We first examine how target size affects the separation between birds and drones in the fixed feature representation. Figure~\ref{fig:scaleanalysis}a shows the fitted Bhattacharyya error bounds for RGB, infrared, and their combined features across different target sizes. A lower bound indicates that the two classes are more easily separated within the chosen representation.
+Figure~\ref{fig:scaleanalysis}a presents the fitted class-overlap bounds across native target-size intervals. Scale changes the available visual evidence, and the comparison shows whether paired features retain separation when the objects are represented by very few pixels.
 
-Across the size ranges with sufficient examples from both classes, combining RGB and infrared features generally produces lower fitted bounds than using either modality alone. This difference is particularly clear for targets between 12 and 16 pixels, which make up the largest group in \dataset{}. At this scale, the Bhattacharyya bounds are $\Bhat_{\rgb}=0.148$ for RGB, $\Bhat_{\ir}=0.198$ for infrared, and $\Bhat_{\rgb+\ir}=0.046$ for the combined representation. The corresponding fusion gap is 0.103, as shown in Figure~\ref{fig:scaleanalysis}b. These results suggest that the two modalities provide more distinguishable bird and drone features when considered together, although the magnitude of the difference depends on the feature representation.
+The 8+8-dimensional paired representation has the lowest fitted bound in every size interval with sufficient examples from both classes. For the dominant 12--16 pixel interval, the Bhattacharyya values are $\Bhat_{\rgb}=0.148$, $\Bhat_{\ir}=0.198$, and $\Bhat_{\rgb+\ir}=0.046$, giving a fusion gap of 0.103 (Figure~\ref{fig:scaleanalysis}b). The ordering indicates greater fitted separation in the combined feature space at this scale, but does not isolate a causal benefit from the increased number of components.
 
-We also examine whether this result holds when class overlap is estimated using other methods. Figure~\ref{fig:scaleanalysis}c compares the Bhattacharyya bounds with optimized Chernoff bounds and kernel-density estimates (KDE) for the 12--16 pixel range. The Chernoff bounds are 0.131 for RGB, 0.194 for infrared, and 0.040 for the combined features. The corresponding KDE estimates are 0.165, 0.177, and 0.047. All three methods give the lowest estimated overlap for the combined representation at this target size. This agreement suggests that the observed ordering is not limited to the Gaussian Bhattacharyya calculation alone.
+Alternative density comparisons support the same ordering at 12--16 pixels. Optimized Chernoff bounds are 0.131 for RGB, 0.194 for infrared, and 0.040 for paired features; KDE estimates are 0.165, 0.177, and 0.047 (Figure~\ref{fig:scaleanalysis}c). Their agreement in rank suggests that the paired ordering is not specific to the Bhattacharyya formula, although all results remain conditional on the extracted features.
 
 \begin{figure}[t]
     \centering
@@ -633,25 +588,25 @@ We also examine whether this result holds when class overlap is estimated using 
     \label{fig:scaleanalysis}
 \end{figure}
 
-An important consideration is that the combined representation contains more features than either individual modality. In the main experiment, RGB and infrared each use eight PCA components, while their combined representation contains 16. As shown in Figure~\ref{fig:scaleanalysis}d, the fitted error bounds generally decrease as more components are included. We therefore examine whether the lower bound obtained from the combined features is partly explained by this increase in dimensionality.
+Feature dimensionality is a substantive confound. The main paired vector has 16 components, whereas each single-sensor vector has eight; as shown in Figure~\ref{fig:scaleanalysis}d, fitted bounds generally decline as the number of retained PCA components increases.
 
-To make the comparison more balanced, we construct an 8-dimensional combined representation using four PCA components from RGB and four from infrared. For targets between 12 and 16 pixels, this representation gives a fitted bound of 0.140, compared with 0.148 for RGB alone and 0.198 for infrared alone, both using eight components. The combined features still produce the lowest bound, but the difference is considerably smaller than in the 16-dimensional comparison. This ordering also does not hold across every larger target-size range, indicating that the benefit of combining the modalities varies with target scale and the features used.
+At equal total dimension, four RGB and four infrared components yield a paired bound of 0.140, compared with 0.148 for eight RGB components and 0.198 for eight infrared components. The paired bound remains lower at 12--16 pixels, but its margin is substantially reduced, and the ordering does not extend uniformly to all larger-scale intervals.
 
-We perform an additional check by duplicating each single-modality feature vector to create a redundant 16-dimensional representation. Since the duplicated components contain no new information, this experiment helps reveal whether the fitted bounds are sensitive to the number of dimensions. After duplication, the RGB bound changes from 0.148 to 0.127, while the infrared bound changes from 0.198 to 0.191. These changes suggest that covariance estimation or regularization influences the fitted bounds, even when no additional information is introduced. Both values remain above the combined bound of 0.046, but the results show that the fusion gap should be interpreted within the chosen feature representation rather than as a direct measure of improved detection performance.
+Redundant-dimension controls further reveal sensitivity in the fitted estimator. Duplicating an eight-component RGB vector changes its bound from 0.148 to 0.127; duplicating infrared changes 0.198 to 0.191. Since duplicated features contain no new information, the changes are consistent with the influence of covariance estimation or regularization. The 16-dimensional paired bound of 0.046 remains smaller, but its gap must be interpreted as a property of the chosen fitted model, not as a dimension-independent measure of sensor complementarity.
 
 \subsection{RGB and infrared respond differently to corruption}
 
-We next examine how simulated image degradation affects the separation between birds and drones. Using \corrupt{}, we apply seven types of perturbations at five severity levels and compare their effects on RGB and infrared features. The experiments use the same 1,500 annotated target instances across all conditions, with the PCA representation kept unchanged. Figure~\ref{fig:corruptionanalysis}a--g shows how the fitted Bhattacharyya bounds change from the clean images through severity level 5.
+The \corrupt{} analysis uses the same 1,500 target instances for every perturbation and severity, with PCA bases fixed from clean images. Figure~\ref{fig:corruptionanalysis}a--g reports fitted bounds across severity levels 0--5 for each family and modality.
 
-For this 1,500-instance subset, the clean-image bounds are 0.148 for RGB and 0.162 for infrared. These values differ from those reported for the 12--16 pixel target-size subset because the two experiments use different groups of examples.
+Clean bounds for this evaluation subset are 0.148 for RGB and 0.162 for infrared. These differ from the 12--16 pixel scale-analysis baselines because the sample compositions are different; the two experiments should not be compared without accounting for that distinction.
 
-As the perturbation strength increases, the fitted bounds generally rise, although the changes differ across perturbation types and between the two modalities. At severity level 5, the RGB bounds are 0.329 for Gaussian noise, 0.375 for speckle noise, 0.321 for salt-and-pepper noise, 0.186 for Gaussian blur, 0.304 for uneven illumination, 0.222 for motion blur, and 0.224 for camera instability. The corresponding infrared bounds are 0.198, 0.222, 0.189, 0.204, 0.245, 0.215, and 0.224.
+At severity 5, RGB bounds are 0.329 for Gaussian noise, 0.375 for speckle noise, 0.321 for salt-and-pepper noise, 0.186 for Gaussian blur, 0.304 for uneven illumination, 0.222 for motion blur, and 0.224 for camera instability. Infrared bounds for the same families are 0.198, 0.222, 0.189, 0.204, 0.245, 0.215, and 0.224. The changes are therefore strongly dependent on both degradation type and modality.
 
-The largest differences between RGB and infrared occur under the three noise perturbations. Gaussian noise, speckle noise, and salt-and-pepper noise produce much larger increases in the RGB bound than in the infrared bound. For example, at severity level 5, speckle noise increases the RGB bound from 0.148 to 0.375, while the infrared bound increases from 0.162 to 0.222. This suggests that, within the chosen feature representation, the infrared features retain greater bird-drone separation under these simulated noise conditions.
+Noise perturbations produce the clearest modality asymmetry. At severity 5, speckle noise increases the RGB bound from 0.148 to 0.375, compared with 0.162 to 0.222 for infrared. Gaussian and salt-and-pepper noise show a similar ordering, suggesting greater retention of fitted infrared class separation under these particular simulated noise models.
 
-The differences are smaller for blur and camera-related perturbations. At severity level 5, Gaussian blur gives bounds of 0.186 for RGB and 0.204 for infrared, while motion blur produces values of 0.222 and 0.215. Camera instability results in a bound of approximately 0.224 for both modalities. These results show that neither sensor responds in the same way to every type of degradation.
+Other perturbations show smaller differences. Gaussian-blur bounds are 0.186 for RGB and 0.204 for infrared; motion-blur bounds are 0.222 and 0.215. Camera instability yields approximately 0.224 for both. These results do not support a blanket claim that one modality is more robust across all degradation families.
 
-When averaged across all seven perturbation families at severity level 5, the fitted error bound increases by 0.132 for RGB and 0.052 for infrared relative to their respective clean baselines (Figure~\ref{fig:corruptionanalysis}h). The mean severity-5 bound is approximately 1.90 times the clean RGB value and 1.32 times the clean infrared value. Although these averages indicate a larger overall change in the RGB features for the perturbations considered here, the individual results are more informative because the differences depend strongly on the type of degradation.
+Averaged over the seven severity-5 conditions, the clean-relative increase is 0.132 for RGB and 0.052 for infrared (Figure~\ref{fig:corruptionanalysis}h). Mean severity-5 bounds are 1.90 and 1.32 times their respective clean baselines. The family-level results remain essential: the averages summarize the selected transformations, not a universal ranking of sensor robustness.
 
 \begin{figure}[t]
     \centering
@@ -663,21 +618,21 @@ When averaged across all seven perturbation families at severity level 5, the fi
     \label{fig:corruptionanalysis}
 \end{figure}
 
-Not all perturbations produce a steady increase in the fitted error bound. Under Gaussian blur, for example, the RGB bound initially decreases before increasing at higher severity levels. One possible explanation is that mild smoothing removes high-frequency variation that does not help distinguish birds from drones, while stronger blur begins to remove useful target details. Although the fitted bounds do not establish the exact cause of this behavior, the result shows that increasing the strength of an image perturbation does not necessarily produce a corresponding increase in estimated class overlap at every level.
+Gaussian blur illustrates the non-monotonic nature of fitted overlap: the RGB bound initially decreases and rises at stronger severity. Mild smoothing could suppress irrelevant high-frequency variation before larger kernels remove target structure, although the experiment does not establish that mechanism. Nominal perturbation severity should therefore not be equated directly with a monotonic change in class separability.
 
 \subsection{Cross-modal shift weakens paired separation}
 
-We also examine how additional spatial misalignment affects the combined RGB-infrared representation. In this experiment, we keep the RGB target patches unchanged and introduce controlled shifts to the corresponding infrared patches. For each shift budget, horizontal and vertical offsets are sampled within the specified per-axis range. We repeat each nonzero shift condition five times while keeping the feature representation fixed.
+The alignment stress test shifts infrared patches while holding RGB fixed. Horizontal and vertical translations are sampled independently within each per-axis budget; five trials are evaluated for each nonzero budget. The feature representation is unchanged.
 
-Table~\ref{tab:alignstressmain} reports the results for shift budgets up to 12 pixels along each axis. We use this range to match the translation search described in Section~\ref{sec:alignment}. The shift budget represents the maximum allowed displacement along each axis rather than a fixed displacement applied to every target.
+Table~\ref{tab:alignstressmain} reports budgets through 12 pixels per axis, consistent with the native-image NMI search range. The budget is an interval bound on individual offsets, not an imposed radial shift of that magnitude.
 
-Without any additional shift, the fitted fusion gap is 0.111. As the allowed displacement increases, the gap gradually decreases, reaching 0.093 at the 12-pixel shift budget. The corresponding fusion-gap retention is
+The fusion gap decreases from 0.111 without added shift to 0.093 at a 12-pixel budget, yielding
 
 \begin{equation}
 R_{\mathrm{fusion}}(12)=0.844,
 \end{equation}
 
-indicating that approximately 84.4\% of the initial fitted fusion gap remains at the largest shift budget considered.
+Thus 84.4\% of the original fitted gap remains at the largest budget in the main comparison.
 
 \begin{table}[t]
 \centering
@@ -699,92 +654,50 @@ Shift budget $a$ (px) & Paired bound & Fusion gap & Gap retention \\
 \end{tabular}
 \end{table}
 
-The paired-feature bound also increases from 0.0370 to 0.0542 over the same range. Together, these changes indicate that additional displacement reduces the separation obtained from combining RGB and infrared features in this experiment. However, the result depends on the chosen feature representation and should not be interpreted as a direct prediction of detector accuracy.
+Over the same sweep, the paired bound rises from 0.0370 to 0.0542. Additional displacement therefore weakens the fitted paired-feature separation in this experiment, although the magnitude is specific to the feature representation and should not be interpreted as a detector accuracy loss.
 
-It is also important to distinguish this experiment from the alignment measurements reported earlier. Figure~\ref{fig:datasetstats}c describes the estimated spatial differences already present in sampled RGB-infrared frames. Table~\ref{tab:alignstressmain}, in contrast, shows how the fitted class separation changes when additional shifts are introduced under controlled conditions. The first measures a property of the dataset, while the second examines its effect on the chosen representation.
+Native-shift measurements and controlled shifts address different questions. Figure~\ref{fig:datasetstats}c quantifies translation estimates present in observed frame pairs; Table~\ref{tab:alignstressmain} measures the response of the fixed feature representation to additional displacement. Their numerical values are not interchangeable.
 
 \subsection{Scale, corruption, and alignment describe different sources of difficulty}
 
-The experiments in this section examine three factors that can make bird-drone discrimination difficult. Target size determines how much visual detail is available to describe the object. Image degradation can obscure that detail through noise, blur, or other distortions. Spatial misalignment affects how the observations from RGB and infrared cameras can be combined.
+Target scale, image degradation, and inter-sensor displacement represent different sources of difficulty. Scale limits the number of pixels containing object evidence; degradation alters that evidence; and displacement changes the spatial relation between the two observations.
 
-These factors are particularly relevant to \dataset{} because most annotated targets have a geometric-mean side between 8 and 16 pixels. At this scale, even a small amount of blur or a displacement of a few pixels can affect a substantial part of the target. The results also show that RGB and infrared do not respond identically to every perturbation, and that the separation obtained from combining their features can change as misalignment increases.
+Their interaction is especially consequential for \dataset{} because most targets have sides between 8 and 16 pixels. In this regime, a few pixels of blur or translation can affect a large proportion of the target region. The analyses show both modality-specific corruption responses and reduced fitted paired-feature separation under added shift.
 
-Taken together, these findings support evaluating small aerial targets under clearly described image conditions. Alongside conventional detection or classification metrics, we recommend reporting target size, the affected modality, perturbation type and severity, and the estimated alignment between the sensors. This would help distinguish whether changes in performance are associated with limited target detail, image degradation, or differences between the two camera views.
+Accordingly, aggregate detection or classification results should be accompanied by target-scale, perturbation, and alignment strata. Such measurements provide information about operating conditions that a single overall performance score cannot convey.
 
 \section{Benchmark use and reporting}
 \label{sec:protocol}
 
-To make results on \dataset{} easier to reproduce and compare, we recommend reporting the conditions under which each experiment is performed. In particular, target size, sensor alignment, and image degradation can influence performance in different ways. Reporting these details alongside conventional detection or classification metrics helps explain why a method performs well under some conditions but struggles under others.
+\dataset{} and \corrupt{} are intended for evaluations in which the acquisition and perturbation conditions are explicit. Because the corpus is dominated by tiny targets and the two modalities may differ geometrically and radiometrically, task metrics are most informative when stratified by target size, sensing modality, degradation, and alignment. Table~\ref{tab:reporting} summarizes the recommended protocol.
 
 \subsection{Clean paired evaluation}
 
-When evaluating models on the original images without added perturbations, researchers should specify whether they use RGB, infrared, or both modalities. Any resizing or cropping should also be reported, since changing the native $320\times256$ resolution affects the apparent size of the targets and may influence detection performance.
-
-The evaluation setup should identify the dataset split, number of frames, and video sequences used. The Train and Validation splits contain different source videos, and frames from the same video should remain within a single split to avoid overlap between training and evaluation. If new splits are created, we recommend separating the data by video rather than by individual frames.
-
-The current version of \dataset{} includes corresponding RGB-infrared frames from the VIP Cup Train and Validation splits. We do not include the original Test split because reliable frame correspondence could not be established from the available records. Therefore, the Test images should not be used as RGB-infrared pairs unless their correspondence is independently verified.
+Clean-data evaluations should specify the input modalities (RGB, infrared, or both), source videos, and any cropping or resizing relative to the native $320\times256$ resolution. Training and evaluation partitions should be disjoint at the video level: splitting adjacent frames across sets risks information leakage. The original Test partition is not part of the paired RGB-infrared benchmark.
 
 \subsection{Scale-aware evaluation}
 
-Since most targets in \dataset{} are very small, reporting performance only using the standard COCO object-size categories may hide differences between targets of different sizes. We recommend evaluating models across narrower size intervals using the geometric-mean side length of each bounding box:
-
+For object-level reporting, the geometric-mean side length
 \begin{equation}
-s=\sqrt{w_{\mathrm{px}}h_{\mathrm{px}}},
+s=\sqrt{w_{\mathrm{px}}h_{\mathrm{px}}}
 \end{equation}
-
-where $w_{\mathrm{px}}$ and $h_{\mathrm{px}}$ represent the bounding-box width and height in pixels.
-
-For \dataset{}, we use the intervals 0--8, 8--12, 12--16, 16--20, 20--24, 24--28, 28--32, and 32--48 pixels. Results should include the number of annotated instances in each interval together with the corresponding performance metric. This is especially important for the 0--8 pixel range, which contains only 103 instances and may not provide enough examples for reliable comparisons.
-
-For tracking and other sequence-level tasks, target size can be summarized using the distribution of bounding-box sizes across frames or a sequence-level statistic such as the median target side. This helps distinguish sequences containing consistently small targets from those in which the target appears larger or changes size over time.
+should be computed from the native annotated boxes. We recommend intervals of 0--8, 8--12, 12--16, 16--20, 20--24, 24--28, 28--32, and 32--48 pixels, with instance counts accompanying each score. The 0--8 pixel group contains only 103 annotations and warrants particular caution. For sequence-level tasks, the distribution or median of native target sizes can characterize the scale regime of each clip.
 
 \subsection{Corruption evaluation}
 
-When evaluating methods using \corrupt{}, we recommend reporting the type of simulated degradation, its severity level, and the modality to which it was applied. Each perturbation can be tested under three conditions:
-
-\begin{enumerate}
-    \item RGB is degraded while infrared remains unchanged.
-    \item Infrared is degraded while RGB remains unchanged.
-    \item Both RGB and infrared are degraded.
-\end{enumerate}
-
-These settings allow researchers to examine how a method performs when image quality decreases in one sensor or both. When perturbations are applied to both modalities, the experiment should also specify whether the random changes are generated independently or share the same random realization.
-
-We recommend presenting results for each perturbation type across all five severity levels rather than reporting only an average. As observed in our Gaussian-blur experiments, increasing the strength of a perturbation does not always produce a steady change in the fitted class-separation measure. Examining the full severity range can therefore reveal behavior that may be missed when results are combined into a single score.
+\corrupt{} results should specify the degradation family, severity level, and affected modality. The three standard configurations are RGB-only, infrared-only, and joint degradation. For joint perturbations, the relationship between random realizations across streams should also be stated. Severity curves and family-specific results are preferable to an isolated average because perturbation responses can be modality-dependent and non-monotonic.
 
 \subsection{Alignment-aware evaluation}
 
-Because the RGB and infrared frames are not necessarily aligned at the pixel level, we also recommend reporting the estimated displacement between the two views when an alignment measurement is available. A shift measured only in pixels may be difficult to interpret for very small targets. We therefore use the object-relative alignment ratio introduced in Section~\ref{sec:alignment}:
-
+Alignment reports should state the estimator, search range, and displacement units. In addition to pixel magnitude $d_{\mathrm{align}}$, we recommend the object-relative ratio
 \begin{equation}
-\rho=\frac{d_{\mathrm{align}}}{s_{\mathrm{target}}},
+\rho=\frac{d_{\mathrm{align}}}{s_{\mathrm{target}}}
 \end{equation}
-
-where $d_{\mathrm{align}}$ is the estimated displacement between the modalities and $s_{\mathrm{target}}$ is the target size used for normalization.
-
-To describe the extent of misalignment, we recommend using the thresholds $\tau\in\{0.25,0.5,1.0\}$. These indicate whether the estimated displacement exceeds one quarter, one half, or one full target side, respectively.
-
-The alignment burden at these thresholds can be reported as
-
-\begin{equation}
-\widehat A(0.25), \qquad
-\widehat A(0.5), \qquad
-\widehat A(1.0),
-\end{equation}
-
-along with the unit-scale burden $\widehat{\mathcal B}_1$, which summarizes the object-relative displacement up to one target side.
-
-The alignment estimation method and its search range should also be specified. In our analysis, we estimate global translation using normalized mutual information with a search range of $\pm12$ pixels along each axis. Other alignment methods may produce different displacement estimates, so their results should be interpreted using the corresponding estimation procedure.
-
-Expressing displacement relative to target size makes it easier to understand how significant a shift is for small objects. However, comparisons between studies still require a consistent definition of target size and a clear description of how alignment was estimated.
+and burden fractions $\burden(0.25)$, $\burden(0.5)$, and $\burden(1.0)$, together with $\widehat{\mathcal B}_1$ when a scalar summary is useful. These thresholds correspond to shifts exceeding one quarter, one half, and one median target side. Results obtained with different registration estimators should not be compared as though their displacement estimates were interchangeable; the target-size definition must also be consistent.
 
 \subsection{Comparison with the fixed-representation analysis}
 
-The class-separation results reported in Section~\ref{sec:intrinsic} depend on the features and statistical models used in the analysis. Researchers wishing to compare their results directly with these values should follow the same experimental setup, including the target-crop definition, $24\times24$ grayscale patches, PCA dimensions, equal class priors, and density-estimation methods.
-
-Other feature representations may provide useful insights, but their fitted error bounds and fusion gaps should not be compared directly with ours without accounting for differences in the representation and estimation procedure.
-
-Table~\ref{tab:reporting} summarizes the information we recommend including when reporting results on \dataset{} and \corrupt{}.
+Numerical comparison with the class-overlap bounds in Section~\ref{sec:intrinsic} requires matched target crops, $24\times24$ grayscale inputs, PCA dimensions, class priors, and density-fitting procedures. Alternative representations are valuable for studying generality, but their absolute bounds and fusion gaps should be reported as separate experimental settings rather than directly equated with the present estimates.
 
 \begin{table}[t]
 \centering
@@ -826,73 +739,37 @@ Fixed representation
 \section{Data access and licensing}
 \label{sec:repro}
 
-The original surveillance videos were made available through the Drone Detection Dataset under the CC0 1.0 Universal dedication \citep{svanstrom2020repository}. This allows the source material covered by that dedication to be reused, modified, and redistributed. The original dataset authors also request that users cite their research when using the data \citep{svanstrom2021multisensor}.
-
-We make the bird-drone data curated for the VIP Cup available as \dataset{} at \url{https://huggingface.co/datasets/Dharini24/AVID}. The dataset contains corresponding RGB-infrared frames, existing bird and drone annotations, and video identifiers that preserve the connection to the original sequences. The \dataset{} listing specifies CC BY-NC 4.0 for the released dataset package. This designation does not change the CC0 status of the underlying source imagery, which remains available under its original terms.
-
-The scripts used to prepare the dataset, the alignment analysis, and the code for generating the simulated perturbations in \corrupt{} are available at \url{https://github.com/rdharini2001/ICIP_2025_Data_Release}. The code is released under the MIT license. We encourage researchers to cite both the original Drone Detection Dataset and this work when using \dataset{}, and to report the dataset version used in their experiments.
-
+The \dataset{} corpus is hosted at \url{https://huggingface.co/datasets/Dharini24/AVID}, with corresponding RGB-infrared frames, existing annotations, and source video identifiers. The source recordings were published in the Drone Detection Dataset under CC0 1.0 Universal \citep{svanstrom2020repository}; the original authors request citation of the associated dataset publication \citep{svanstrom2021multisensor}. The AVID dataset package is listed as CC BY-NC 4.0, which does not revoke the original CC0 status of source imagery. The alignment analysis, \corrupt{} implementation, and dataset preparation code are available at \url{https://github.com/rdharini2001/ICIP_2025_Data_Release} under the MIT license. Users should identify the dataset version and cite both the source collection and this benchmark.
 
 \section{Responsible use}
 \label{sec:responsible}
 
-\dataset{} contains RGB and infrared surveillance images of birds and drones. It is intended to support research on small-object detection, sensor fusion, tracking, alignment, and robustness to image degradation. The dataset does not include labels identifying individuals or describing personal attributes.
-
-Research on drone surveillance can support applications such as airspace monitoring and safety, but it also raises concerns about how surveillance technologies may be used. The ability to distinguish birds from drones in a benchmark does not establish that a system is suitable for deployment. Real-world use requires additional evaluation of detection errors, false alarms, operating conditions, legal requirements, and the consequences of incorrect decisions. Human oversight is also important when detection results may lead to actions affecting people or property.
-
-We retain birds as a separate labeled class because they are a common source of confusion in drone surveillance. At long distances, birds and drones may have similar appearances, especially when only a few pixels describe the target. Treating birds only as background would make it harder to evaluate this distinction, which is an important part of the task.
-
+\dataset{} contains distant surveillance observations of birds and drones; it has no person-identity or personal-attribute labels. The benchmark can support research on aerial-target perception and sensor robustness, including the distinction between birds and drones that might otherwise be conflated with background. Counter-drone surveillance nevertheless raises deployment risks, including intrusive monitoring and consequential false alarms. Performance on these data is not evidence of operational safety or legal compliance. Deployment requires independent assessment of environmental transfer, false positives, human oversight, and the consequences of incorrect decisions.
 
 \section{Limitations}
 \label{sec:limitations}
 
-Although \dataset{} and \corrupt{} provide a way to study small aerial targets under different image conditions, several limitations should be considered when interpreting the results.
+\paragraph{Corpus scope and annotation provenance.}
+The paired benchmark excludes the original VIP Cup Test export because its RGB and infrared frame identities cannot be matched unambiguously using the available information. The dataset retains annotations prepared for the earlier challenge; a complete record of annotation assignment and adjudication is not available, so agreement and label uncertainty cannot be quantified independently.
 
-\paragraph{The original Test split is not included in the paired dataset.}
-We use the VIP Cup Train and Validation splits because their RGB and infrared frame correspondence can be established from the available records. The original Test files do not provide sufficient information to match the two modalities reliably. We therefore exclude them rather than introduce uncertain frame pairs into the dataset.
+\paragraph{Alignment sampling and model.}
+Translation statistics are estimated for 300 sampled pairs rather than the entire corpus, and only 264 have matching annotations for target-relative normalization. NMI estimates one global integer translation per frame pair, not local correspondence. Parallax, lens distortion, differences in viewpoint, and target-dependent offsets are not resolved. The $\pm12$-pixel per-axis search also censors the largest possible displacements; 16.97 pixels is the maximum representable radial estimate, not a physical upper bound.
 
-\paragraph{The original annotation process is not fully documented.}
-The bird and drone bounding boxes come from the data curated for the VIP Cup. We retain these annotations rather than create new labels for this paper. However, the available records do not fully describe how the annotations were assigned, reviewed, or resolved when disagreements occurred. As a result, we cannot report annotator agreement or provide an independent measure of annotation uncertainty.
+\paragraph{Representation dependence.}
+The fixed-feature analysis assumes known target locations and uses grayscale crops, PCA, and fitted class densities. It measures neither full-frame localization nor temporal tracking. Paired vectors contain more components than single-modality vectors, and redundant-feature experiments reveal numerical sensitivity to dimension and covariance treatment. Equal-dimension comparisons reduce the fitted fusion gap. KDE relaxes the Gaussian density assumption but does not remove dependence on the features themselves. None of these estimates is measured detector accuracy.
 
-\paragraph{Alignment is measured on a subset of the dataset.}
-We estimate RGB-infrared displacement using 300 sampled frame pairs, of which 264 have matching target annotations for the object-relative analysis. These measurements describe the sampled observations and should not be interpreted as alignment estimates for all 32,040 frame pairs.
-
-\paragraph{The alignment analysis considers only global translation.}
-We estimate one horizontal and vertical displacement for each RGB-infrared frame pair using normalized mutual information. This provides a measure of the overall spatial difference between the two images, but it cannot capture local variations caused by parallax, lens distortion, differences in viewing geometry, or target depth. The estimated shift therefore does not represent exact pixel correspondence between the modalities.
-
-\paragraph{The alignment search has a limited range.}
-The translation search is restricted to $\pm12$ pixels along each image axis, corresponding to a maximum measurable displacement magnitude of 16.97 pixels. When the estimated shift reaches this limit, the actual displacement may be larger. Consequently, the upper end of the measured alignment distribution may be affected by the search boundary, and the results should not be interpreted as a complete calibration of the cameras.
-
-\paragraph{Class-separation results depend on the feature representation.}
-Our main analysis uses eight PCA components from each modality and Gaussian models fitted to the bird and drone feature distributions. The combined representation contains more dimensions than either individual modality, which can affect the fitted error bounds. When we compare representations with the same total number of dimensions, the difference between paired and single-sensor features becomes smaller. Duplicating single-sensor features also changes the fitted bounds despite adding no new information, indicating sensitivity to covariance estimation or regularization. Although the KDE analysis provides a comparison without the Gaussian assumption, it still depends on the chosen features. These results describe class separation within the stated representation and should not be interpreted as detector accuracy.
-
-\paragraph{The analysis uses known target locations.}
-We extract image patches around the existing ground-truth bounding boxes. This allows us to study the visual information available for distinguishing birds from drones, but it does not measure the difficulty of locating the targets in full surveillance frames. The analysis also does not evaluate temporal tracking, association between frames, or the performance of a complete detection system.
-
-\paragraph{\corrupt{} represents a selected set of image degradations.}
-The benchmark simulates seven common types of degradation involving noise, blur, illumination changes, motion, and camera instability. These perturbations allow us to study their effects under controlled conditions, but they do not cover every problem that can arise in real surveillance. Other factors, including atmospheric interference, thermal sensor artifacts, compression failures, lens contamination, rolling-shutter effects, and more complex camera motion, are not included in the current benchmark.
-
-\paragraph{Increasing perturbation severity does not always increase difficulty.}
-The severity levels in \corrupt{} describe the strength of the simulated image transformation, not a guaranteed increase in classification or detection difficulty. As observed in the Gaussian-blur experiment, mild degradation can sometimes reduce the fitted class-overlap bound before stronger degradation increases it. The relationship between perturbation strength and model performance therefore needs to be examined rather than assumed.
-
-\paragraph{The dataset does not cover all surveillance conditions.}
-The 115 videos include different backgrounds, target appearances, and observation conditions, but they cannot represent every environment in which drone surveillance may be used. The dataset does not cover all bird species, drone designs, camera systems, weather conditions, viewing distances, or geographic locations. Evaluation on additional datasets and under different operating conditions is needed before drawing conclusions about how well a method generalizes beyond \dataset{}.
-
+\paragraph{Simulated degradation and generalization.}
+\corrupt{} covers seven selected perturbation families, not the full diversity of atmospheric effects, thermal artifacts, compression, lens contamination, or complex camera motion. Increasing simulated severity need not monotonically increase fitted overlap or downstream task error. Finally, the 115 source videos cannot represent all geographic regions, weather, sensor models, airframes, bird species, or observation distances. Claims about deployment or broad generalization require independent datasets and task-level evaluations.
 
 \section{Conclusion}
 
-In this work, we build on the bird-drone surveillance data curated for the IEEE ICIP 2025 Video and Image Processing Cup from the original Drone Detection Dataset \citep{svanstrom2021multisensor}. We make this curated data available as \dataset{}, containing 32,040 corresponding RGB-infrared frame pairs from 115 videos and 35,952 existing bird and drone annotations. We also introduce measures for studying sensor displacement relative to target size and \corrupt{}, a benchmark that simulates seven types of image degradation at five severity levels.
+\dataset{} provides a focused benchmark for a common but difficult surveillance setting: birds and drones represented by only a few pixels in corresponding, imperfectly aligned RGB and infrared frames. Built from the Drone Detection Dataset imagery and the IEEE ICIP 2025 VIP Cup bird-drone curation \citep{svanstrom2021multisensor}, it contains 32,040 frame pairs from 115 videos and 35,952 existing annotations. Its analysis makes the operating conditions measurable. In particular, 68.1\% of targets have sides of 8--16 pixels, and 16.3\% of 264 annotation-matched pairs have an estimated shift greater than one median target side.
 
-Our analysis shows why target size, alignment, and image quality are important when working with small aerial objects. About 68.1\% of the annotated targets have a geometric-mean bounding-box side between 8 and 16 pixels. At this scale, a displacement of only a few pixels can be large relative to the target. Among the 264 sampled frame pairs with matching annotations, 16.3\% have an estimated RGB-infrared shift greater than the median target side. We also find that simulated image degradation affects RGB and infrared features differently, particularly under noise perturbations.
-
-Using a fixed PCA representation, we further examine how these conditions affect the separation between birds and drones. The combined RGB-infrared features generally produce lower fitted class-overlap bounds than the individual modalities at the most common target size, although the difference depends on feature dimension. We also observe that the fitted advantage of combining the two modalities decreases as additional spatial shifts are introduced. These findings describe the behavior of the chosen feature representation rather than the accuracy of a trained detection system.
-
-By making \dataset{} and \corrupt{} available, we aim to support further research on detecting and distinguishing small birds and drones using RGB and infrared observations. The dataset, alignment measures, and simulated perturbations allow researchers to examine how performance changes with target size, sensor displacement, and image quality. Reporting these conditions alongside conventional evaluation metrics can provide a clearer understanding of when and why a method succeeds or fails.
-
+The \corrupt{} benchmark extends this characterization to sensor-specific simulated degradation. Fixed-feature experiments show that RGB and infrared respond differently to several noise conditions and that the fitted paired-modality advantage decreases under additional spatial shift. At the dominant 12--16 pixel scale, combined features show lower fitted class-overlap bounds, but dimension controls limit how broadly that difference can be interpreted. These findings concern the stated representation, not trained detector performance. By connecting scale, alignment, and image quality to evaluation conditions, \dataset{} and \corrupt{} support more informative comparisons of methods for tiny aerial-target perception.
 
 \section*{Acknowledgements}
 
-We thank Fredrik Svanstr\"om, Fernando Alonso-Fernandez, and Cristofer Englund for collecting and publicly sharing the original Drone Detection Dataset \citep{svanstrom2021multisensor}. We used this dataset to curate the bird-drone surveillance imagery for the IEEE ICIP 2025 Video and Image Processing Cup, ``Infrared-Visual Fusion for Enhanced Drone Detection, Tracking and Payload Identification in Surveillance Videos.'' We also thank the wider VIP Cup team for their contributions to organizing and preparing the challenge. The present work builds on this earlier curation by preparing the \dataset{} release and introducing the alignment measures, \corrupt{} benchmark, and accompanying analysis.
+We thank Fredrik Svanstr\"om, Fernando Alonso-Fernandez, and Cristofer Englund for collecting and sharing the original Drone Detection Dataset \citep{svanstrom2021multisensor}. The bird-drone material was curated for the IEEE ICIP 2025 Video and Image Processing Cup, ``Infrared-Visual Fusion for Enhanced Drone Detection, Tracking and Payload Identification in Surveillance Videos.'' We acknowledge the wider VIP Cup team for its contributions to the challenge. The present study develops the paired \dataset{} benchmark, target-relative alignment measures, simulated \corrupt{} perturbations, and accompanying analysis from that earlier curation.
 
 \bibliographystyle{unsrtnat}
 \bibliography{references}
@@ -904,17 +781,17 @@ We thank Fredrik Svanstr\"om, Fernando Alonso-Fernandez, and Cristofer Englund f
 \section{Dataset documentation}
 \label{app:datasheet}
 
-This appendix follows the structure of Datasheets for Datasets \citep{gebru2021datasheets} and provides additional information about the origin, composition, preparation, and availability of \dataset{}.
+The following dataset documentation follows the themes of Datasheets for Datasets \citep{gebru2021datasheets}, with additional information on provenance, composition, annotation scope, and maintenance.
 
 \subsection{Motivation}
 
 \textbf{Where does the imagery come from?}
 
-The original images come from the Drone Detection Dataset collected and released by Svanstr\"om and colleagues \citep{svanstrom2021multisensor}. We previously curated the bird-drone surveillance imagery from this collection for the IEEE ICIP 2025 Video and Image Processing Cup \citep{ieeevipcup2025}. The present work builds on that curation and does not involve collecting new surveillance videos.
+The source imagery was collected by Svanstr\"om et al. for the Drone Detection Dataset \citep{svanstrom2021multisensor}. The bird-drone portion was curated for the IEEE ICIP 2025 VIP Cup \citep{ieeevipcup2025}; no new video capture is claimed in this study.
 
 \textbf{What is new in \dataset{} and \corrupt{}?}
 
-We make the curated bird-drone data available as \dataset{}, with corresponding RGB-infrared frame pairs, existing bounding-box annotations, and video identifiers. We also introduce measures for estimating sensor misalignment relative to target size and \corrupt{}, a benchmark that simulates common forms of image degradation under controlled conditions. The payload-identification task from the original VIP Cup is not included in this work.
+\dataset{} comprises corresponding bird-drone RGB-infrared observations with inherited bounding boxes and video identifiers. The new benchmark components are target-relative alignment measures, \corrupt{} simulations, and fixed-feature class-separation analyses. Payload identification is outside this study's scope.
 
 \subsection{Composition}
 
@@ -922,7 +799,7 @@ We make the curated bird-drone data available as \dataset{}, with corresponding 
 
 \dataset{} contains 32,040 corresponding RGB-infrared frame pairs from 115 surveillance videos, with 35,952 annotated bird and drone instances. The Train split includes 28,790 frame pairs from 102 videos, while the Validation split contains 3,250 pairs from 13 videos. The annotations consist of 15,471 bird instances and 20,481 drone instances.
 
-The frames are paired based on their correspondence in the available records. This does not imply that the RGB and infrared images are perfectly aligned at the pixel level.
+Pair identity denotes corresponding observations of a scene, not registration at the pixel level.
 
 \textbf{What is the image resolution?}
 
@@ -934,7 +811,7 @@ The 115 video sequences contain between 50 and 329 paired frames. The median seq
 
 \textbf{How small are the targets?}
 
-Most birds and drones occupy only a small region of the image. About 68.1\% of the annotated targets have a geometric-mean bounding-box side between 8 and 16 pixels, while 99.0\% fall within the COCO ``small'' object category. Table~\ref{tab:scalehist} provides a more detailed breakdown of the target sizes.
+Target sizes are strongly concentrated in the small-object range: 68.1\% have a geometric-mean box side of 8--16 pixels and 99.0\% satisfy the COCO small criterion. The fine-grained counts are shown in Table~\ref{tab:scalehist}.
 
 \begin{table}[h]
 \centering
@@ -957,31 +834,23 @@ Count
 
 \textbf{What is not included?}
 
-The dataset does not include the payload-identification data used in the VIP Cup. We also exclude the original Test split from the paired dataset because the available file identifiers do not establish reliable correspondence between its RGB and infrared frames.
+The benchmark concerns bird-drone surveillance and does not include the payload-identification task. The VIP Cup Test split is also outside the paired evaluation corpus because reliable RGB-infrared correspondence is unavailable for that partition.
 
 \subsection{Collection and annotation}
 
 \textbf{What viewpoint does the dataset represent?}
 
-The images were captured using ground-based surveillance cameras observing birds and drones at a distance \citep{svanstrom2021multisensor}. Unlike datasets collected from cameras mounted on drones, \dataset{} focuses on distant aerial targets viewed from the ground.
+The camera viewpoint is ground-based and directed toward distant airborne birds and drones \citep{svanstrom2021multisensor}, not a UAV-mounted camera viewing ground objects.
 
 \textbf{Where do the bounding boxes come from?}
 
-We retain the bird and drone bounding-box annotations from the data curated for the VIP Cup. These labels were not newly created for this paper. The available records do not fully describe the original annotation and review process, so we do not report the number of annotators or an annotation agreement score.
-
-\textbf{Were multiple versions of the same frame present in the source data?}
-
-Yes. The VIP Cup Train and Validation data contained clean frames and noise-augmented versions associated with the same frame identifiers. When preparing \dataset{}, we grouped these observations by frame identifier and retained the clean version. All dataset counts and statistics in this paper refer to these deduplicated frames. The simulated perturbations in \corrupt{} are generated separately from the clean images.
+Bounding boxes and bird-drone class assignments originate in the VIP Cup curation. The available records do not fully document annotation review or adjudication, preventing independent estimation of annotator agreement.
 
 \subsection{Access and maintenance}
 
 \textbf{Where is the dataset maintained?}
 
-The dataset is available at \url{https://huggingface.co/datasets/Dharini24/AVID}. The project repository, including dataset preparation scripts, alignment analysis, and the implementation of \corrupt{}, is available at \url{https://github.com/rdharini2001/ICIP_2025_Data_Release}.
-
-\textbf{How should future corrections be handled?}
-
-Any corrections to frame pairing, annotations, or derived metadata should be recorded in a new dataset version so that earlier experimental results remain reproducible. If reliable RGB-infrared correspondence becomes available for the original Test split, those frames should be introduced in a separate version rather than changing the composition of the current paired dataset.
+The paired dataset is hosted at \url{https://huggingface.co/datasets/Dharini24/AVID}. Benchmark implementations, alignment measures, and scripts are available at \url{https://github.com/rdharini2001/ICIP_2025_Data_Release}.
 
 \textbf{What license applies to the data and code?}
 
@@ -991,9 +860,9 @@ The original source imagery was released under CC0 1.0 Universal \citep{svanstro
 \section{Alignment measurement}
 \label{app:alignment}
 
-This appendix provides additional details about how we estimate the spatial displacement between the RGB and infrared images. The analysis uses a sample of 300 corresponding frame pairs from the Train and Validation splits of \dataset{}.
+Global RGB-infrared translation is estimated for a fixed random sample of 300 frame pairs from the Train and Validation corpus. The procedure searches integer displacement and measures relative shift for annotation-matched pairs.
 
-We first convert each RGB image to grayscale and resize the infrared image to the same spatial dimensions when necessary. We then estimate the global translation between the two images using normalized mutual information (NMI).
+RGB frames are converted to grayscale, and infrared frames are brought to matching spatial dimensions where required. Candidate horizontal and vertical translations are considered over
 
 For each frame pair, we evaluate integer translations along the horizontal and vertical axes within the range
 
@@ -1001,9 +870,9 @@ For each frame pair, we evaluate integer translations along the horizontal and v
 (d_x,d_y)\in[-12,12]^2.
 \end{equation}
 
-For each candidate translation, we compare the shifted images after excluding a 12-pixel border. This prevents pixels introduced at the image boundaries during translation from affecting the measurement.
+For each candidate displacement, NMI is evaluated after excluding a 12-pixel border to avoid contamination by translated image boundaries.
 
-We calculate NMI using a 32-bin joint intensity histogram:
+NMI is computed from a 32-bin joint histogram as
 
 \begin{equation}
 \mathrm{NMI}(A,B)
@@ -1014,7 +883,7 @@ We calculate NMI using a 32-bin joint intensity histogram:
 
 where $H(A)$ and $H(B)$ are the individual image entropies and $H(A,B)$ is their joint entropy.
 
-We select the translation that produces the highest NMI value. The magnitude of the estimated displacement is then calculated as
+The translation maximizing NMI defines the estimated global shift. Its Euclidean magnitude is
 
 \begin{equation}
 d_{\mathrm{align}}
@@ -1022,17 +891,17 @@ d_{\mathrm{align}}
 \sqrt{d_x^2+d_y^2}.
 \end{equation}
 
-The 300 frame pairs are selected randomly from the paired Train and Validation data using a fixed selection. These frames provide a sample of the alignment conditions in \dataset{}, but their distribution may not represent every frame in the dataset.
+The sample is fixed for reproducibility, but its translation distribution need not match that of all 32,040 frame pairs.
 
-We also calculate a secondary displacement estimate using phase correlation on Sobel edge-magnitude images. This provides an additional comparison with the NMI estimates. However, neither method provides ground-truth registration. Their results may differ because infrared and RGB images have different intensity characteristics, and both approaches can be affected by regions with little texture.
+A Sobel-edge phase-correlation estimate provides a secondary cross-check. Neither the NMI nor phase-correlation estimate is registration ground truth; low texture and cross-modal intensity differences can affect both.
 
-To understand the significance of the estimated shift for a small target, we normalize the displacement by target size. For each sampled frame pair $i$, we use the median geometric-mean side length of its annotated targets, denoted by $s_i$. The object-relative alignment ratio is
+The displacement is normalized by the median geometric-mean annotated target side $s_i$ within frame pair $i$, giving
 
 \begin{equation}
 \rho_i=\frac{d_i}{s_i}.
 \end{equation}
 
-This ratio expresses the estimated displacement in units of the median target side. For example, $\rho_i=0.5$ indicates that the estimated displacement is half the median target size.
+A ratio of 0.5 denotes an estimated shift equal to half the median target side. The empirical burden curve records the fraction exceeding each threshold:
 
 We summarize the frequency of different relative displacements using the empirical alignment burden curve:
 
@@ -1044,9 +913,9 @@ We summarize the frequency of different relative displacements using the empiric
 \mathbf{1}[\rho_i>\tau].
 \end{equation}
 
-Here, $n$ is the number of frame pairs with matching target annotations, and $\tau$ is the chosen target-relative threshold. The burden curve gives the fraction of pairs whose estimated displacement exceeds that threshold.
+Here $n$ counts annotation-matched frame pairs and $\tau$ is the relative-shift threshold.
 
-We also calculate a summary score for displacements up to one target side:
+The unit-scale truncated burden is
 
 \begin{equation}
 \widehat{\mathcal B}_{1}
@@ -1059,13 +928,13 @@ We also calculate a summary score for displacements up to one target side:
 \min(\rho_i,1).
 \end{equation}
 
-This score is the average object-relative displacement after ratios greater than one have been clipped at one. It provides a single summary value while the burden curve describes how the displacements are distributed.
+The score is the mean ratio after clipping values above one. The threshold curve retains information about the distribution that the scalar alone cannot convey.
 
-Table~\ref{tab:alignsummary} reports the alignment statistics for the sampled frame pairs. Of the 300 pairs, 264 have matching target annotations that allow the object-relative displacement to be calculated.
+Table~\ref{tab:alignsummary} distinguishes the 300 raw-shift estimates from the 264 pairs that support target-relative normalization.
 
-The estimated translation has a mean of 4.66 pixels, a median of 1.00 pixel, and a standard deviation of 6.44 pixels. Although 46.0\% of the sampled pairs have an estimated integer translation of zero, 32.3\% have shifts greater than 5 pixels.
+Across all 300 pairs, the mean estimated shift is 4.66 pixels (median 1.00; standard deviation 6.44). Of these, 46.0\% have a zero estimated integer translation and 32.3\% exceed 5 pixels.
 
-For the 264 annotation-matched pairs, the median target side is 14.18 pixels. The alignment burden exceeds 0.25 target sides for 27.3\% of these pairs, 0.5 target sides for 26.1\%, and one full target side for 16.3\%. The resulting unit-scale burden is $\widehat{\mathcal B}_1=0.265$.
+For the 264 annotation-matched pairs, the median target side is 14.18 pixels. Burden fractions at $\tau=0.25,0.5,1$ are 27.3\%, 26.1\%, and 16.3\%, and the unit-scale burden is $\widehat{\mathcal B}_1=0.265$.
 
 \begin{table}[h]
 \centering
@@ -1096,9 +965,9 @@ $\widehat{\mathcal B}_{1}$ & 0.265 \\
 \end{tabular}
 \end{table}
 
-An important limitation of this analysis is the translation search range. Since shifts are restricted to $\pm12$ pixels along each axis, the largest displacement magnitude that can be represented is 16.97 pixels. A frame pair assigned a shift near this boundary may have a larger actual displacement.
+Because the per-axis search is limited to $\pm12$ pixels, translations with larger magnitudes can be clipped by the search boundary. The largest representable radial magnitude is 16.97 pixels.
 
-These measurements should therefore be interpreted as estimates of global image translation within the chosen search range. They do not provide exact correspondence between individual targets or account for local spatial differences between the two camera views.
+The resulting statistics characterize global translations within this range, not local or target-specific pixel correspondence.
 
 
 \section{Fixed-representation analysis details}
@@ -1106,15 +975,15 @@ These measurements should therefore be interpreted as estimates of global image 
 
 \subsection{Patch representation and scale analysis}
 
-The fixed-representation analysis uses the 35,952 annotated bird and drone instances in \dataset{}. For each instance, we extract a square image region centered on the annotated bounding box, with $1.5\times$ padding around the target. We convert the extracted region to grayscale, resize it to $24\times24$ pixels, and flatten the pixel intensities into a feature vector.
+The analysis covers 35,952 annotated bird and drone instances. Each annotation yields a centered square crop with $1.5\times$ padding, converted to grayscale, resized to $24\times24$, and flattened.
 
-We use principal component analysis (PCA) to reduce the feature dimension. Separate PCA bases are fitted to the clean RGB and infrared patches. In the main analysis, we retain eight components from each modality, giving an 8-dimensional RGB representation and an 8-dimensional infrared representation. We concatenate these two vectors to form the 16-dimensional paired representation.
+Separate PCA projections are fitted on clean RGB and infrared patches. The principal representation retains eight components from each modality; concatenating them gives a 16-dimensional paired feature.
 
-All experiments use equal bird and drone class priors. The PCA components are learned from the clean images and remain fixed when we examine different target sizes, image perturbations, and additional spatial shifts.
+Class priors are set equal for all overlap estimates. The PCA bases are fixed across scale, corruption, and added-shift experiments.
 
-To study the effect of target size, we group annotated instances according to their native geometric-mean bounding-box side length. We include a size interval in the class-separation analysis only when it contains at least 15 bird instances and 15 drone instances. This avoids estimating class distributions from intervals with too few examples from either class.
+Instances are stratified by native geometric-mean box side. A scale interval enters the fitted overlap comparison only if each class contributes at least 15 instances.
 
-Table~\ref{tab:scalebounds} reports the fitted Bhattacharyya error upper bounds for each supported target-size interval. Smaller bounds indicate greater separation between the fitted bird and drone feature distributions.
+Bhattacharyya bounds for supported size intervals are listed in Table~\ref{tab:scalebounds}; lower bounds indicate greater fitted separation.
 
 \begin{table}[h]
 \centering
@@ -1136,17 +1005,17 @@ RGB+IR (8+8)
 \end{tabular}
 \end{table}
 
-The smallest target-size interval, 0--8 pixels, contains only 103 instances, consisting of 52 birds and 51 drones. Although this interval meets the minimum sample requirement, its results should be interpreted more cautiously than those from intervals containing larger numbers of examples.
+The 0--8 pixel interval contains 52 birds and 51 drones (103 instances total). Although it meets the minimum class-count criterion, its estimates have less support than those from more populated bins.
 
 \subsection{Chernoff and KDE comparison}
 
-The main analysis uses the Bhattacharyya error bound to compare the fitted bird and drone distributions. Since this measure depends on the Gaussian models used for the class features, we also calculate an optimized Chernoff bound and a kernel-density estimate (KDE) for comparison.
+The Gaussian Bhattacharyya bound is supplemented by optimized Chernoff bounds and kernel-density estimation (KDE), allowing the class-overlap ordering to be assessed under different density assumptions.
 
-The Bhattacharyya bound corresponds to the $s=0.5$ case of the Chernoff family. To obtain the optimized Chernoff bound, we evaluate 99 values of the Chernoff parameter $s$ between 0.01 and 0.99 and retain the value that produces the smallest bound.
+The Bhattacharyya case fixes the Chernoff parameter at $s=0.5$. Optimization evaluates 99 values in the interval $[0.01,0.99]$ and retains the smallest resulting bound.
 
-We also use KDE to estimate class overlap without assuming that the feature distributions are Gaussian. For the 12--16 pixel target-size interval, we draw 4,000 samples across the two classes and estimate the Bhattacharyya coefficient by importance sampling from an equal mixture of the fitted class densities.
+For the 12--16 pixel subset, KDE-based overlap is evaluated using 4,000 importance samples from an equal mixture of the fitted class densities. This comparison does not impose Gaussian class densities.
 
-We focus on the 12--16 pixel range because it contains the largest number of annotated instances in \dataset{}. Table~\ref{tab:crosschecks} compares the three estimates at this target size.
+The 12--16 pixel interval is the most populated scale in \dataset{}; Table~\ref{tab:crosschecks} reports the three estimates for this regime.
 
 \begin{table}[h]
 \centering
@@ -1172,21 +1041,21 @@ RGB+IR
 \end{tabular}
 \end{table}
 
-All three methods produce the lowest estimated class overlap for the combined RGB-infrared representation. This suggests that the ordering observed in the main analysis is not limited to the Gaussian Bhattacharyya calculation.
+All three calculations rank the combined RGB-infrared representation as having the lowest fitted overlap at 12--16 pixels.
 
-However, the estimates still depend on the chosen feature representation and the corresponding density-estimation procedures. They should therefore be interpreted as measures of class separation within this experimental setting rather than as detection error rates.
+The absolute values remain conditional on the PCA features and density estimators, and do not measure errors of a trained full-frame detector.
 
 \subsection{Representation-dimension controls}
 
-The main analysis combines eight RGB and eight infrared PCA components into a 16-dimensional representation. Because the individual modalities each use only eight components, the lower fitted bound obtained from the paired representation may partly reflect the larger feature dimension.
+The main paired feature has twice the dimension of either individual modality. To test whether fitted separation partly reflects this difference, we include an equal-total-dimension comparison and redundant-feature controls.
 
-To examine this effect, we perform two additional comparisons.
+The controls isolate two distinct aspects of dimensionality: substituting a second modality while holding total dimension fixed, and increasing dimension without adding information.
 
-First, we construct an 8-dimensional paired representation using four PCA components from RGB and four from infrared. This gives the paired and individual modalities the same total number of features, allowing a more direct comparison of the fitted bounds.
+The equal-dimension paired representation retains four RGB and four infrared components, while each single-modality comparator retains eight.
 
-Second, we create redundant 16-dimensional representations by duplicating the eight-component RGB or infrared vectors. These duplicated features contain no additional information, but they allow us to examine whether the fitted bounds change simply because the feature dimension increases.
+The redundant controls repeat the eight-component RGB or infrared feature vector to produce 16 dimensions without any new sensor information.
 
-Table~\ref{tab:dimcontrol} reports the results for the 12--16 pixel target-size interval.
+Table~\ref{tab:dimcontrol} reports these comparisons in the dominant 12--16 pixel interval.
 
 \begin{table}[h]
 \centering
@@ -1219,19 +1088,19 @@ RGB+IR
 \end{tabular}
 \end{table}
 
-When all representations use eight dimensions, the combined RGB-infrared features give a fitted bound of 0.1396, compared with 0.1484 for RGB alone and 0.1979 for infrared alone. The paired representation still has the lowest bound, but the difference is much smaller than in the 16-dimensional comparison.
+With eight total components, the paired bound is 0.1396, versus 0.1484 for RGB and 0.1979 for infrared. This is a smaller paired-versus-single difference than the principal 16-dimensional result.
 
-The duplicated-feature experiments also change the estimated bounds. Repeating the RGB features reduces the fitted bound from 0.1484 to 0.1272, while repeating the infrared features changes it from 0.1979 to 0.1913. Because duplication introduces no new information, these differences indicate sensitivity to the fitting procedure, including covariance estimation or regularization.
+Redundant duplication changes the fitted RGB bound from 0.1484 to 0.1272 and the infrared bound from 0.1979 to 0.1913. Because the data contain no additional information, this sensitivity points to covariance estimation, regularization, or other numerical aspects of fitting.
 
-These checks show that the magnitude of the fusion gap depends on the selected feature dimension and statistical model. We therefore use the fitted bounds to compare conditions within a fixed representation rather than treating them as a general measure of the information gained by combining sensors.
+The controls justify interpreting the fusion gap within a specified feature dimension and fitting procedure rather than as a representation-independent measure of multimodal information.
 
 \subsection{Corruption analysis}
 
-To study the effects of simulated image degradation, we select 1,500 annotated target instances and use the same examples across all perturbation conditions. The PCA bases are fitted using clean patches and remain unchanged as the perturbation type and severity level vary.
+The corruption experiments use a fixed subset of 1,500 annotated instances across all families and severities. PCA is fitted once to the clean data and retained for every degraded condition.
 
-We apply the seven perturbation families in \corrupt{} and compare the resulting Bhattacharyya error bounds with those obtained from the clean images. For this subset, the clean bounds are 0.1477 for RGB and 0.1623 for infrared.
+The clean Bhattacharyya baselines for this subset are 0.1477 in RGB and 0.1623 in infrared. Their difference from the scale-analysis baselines reflects the use of a different subset.
 
-Table~\ref{tab:severityfive} reports the fitted bounds at severity level 5 for each perturbation family.
+The severity-5 bounds for all seven perturbations are listed in Table~\ref{tab:severityfive}.
 
 \begin{table}[h]
 \centering
@@ -1254,29 +1123,29 @@ Camera instability & 0.2241 & 0.2240 \\
 \end{tabular}
 \end{table}
 
-The results show that different perturbations affect RGB and infrared features by different amounts. The largest differences between the modalities occur under Gaussian noise, speckle noise, and salt-and-pepper noise. In these cases, the fitted RGB bound increases more than the infrared bound.
+The largest modality differences occur under Gaussian, speckle, and salt-and-pepper noise, for which the fitted RGB bound rises more than its infrared counterpart.
 
-The differences are smaller for Gaussian blur, motion blur, and camera instability. These observations show why it is useful to report the results for each perturbation family separately instead of relying only on an average across all types of degradation.
+Blur and camera-instability results show smaller between-modality differences, motivating separate reporting for each perturbation rather than inference from an aggregate score.
 
-As in the main analysis, these values describe the separation between fitted bird and drone feature distributions. They do not directly measure the performance of a trained detector under the simulated perturbations.
+All values quantify fitted class separation in known target crops; none is a measured detector error rate.
 
 \subsection{Controlled cross-modal shift}
 
-We also examine how additional spatial displacement affects the combined RGB-infrared representation. In this experiment, we keep the RGB target patch fixed and translate the corresponding infrared patch.
+The alignment stress test holds RGB target patches fixed and translates corresponding infrared patches to introduce controlled cross-modal disagreement.
 
-We define the shift budget $a$ as the maximum allowed displacement along each image axis. The tested budgets are
+The per-axis shift budget $a$ takes values
 
 \begin{equation}
 a\in\{1,2,5,8,12,17\}\text{ pixels}.
 \end{equation}
 
-For each nonzero shift budget, we perform five trials. Within each trial, horizontal and vertical translations are drawn independently from the interval $[-a,a]$.
+For every nonzero budget, five trials sample horizontal and vertical translations independently from $[-a,a]$.
 
-Because the extracted target patches are resized to $24\times24$ pixels, the sampled displacements are mapped from native-image coordinates into the resized patch space. We use a scale factor of $24/16=1.5$, corresponding to the dominant 12--16 pixel target-size range.
+Displacements in native-image coordinates are mapped into the $24\times24$ patch space by a factor of $24/16=1.5$, chosen for the dominant 12--16 pixel target regime.
 
-The main comparison includes shift budgets up to 12 pixels along each axis, matching the search range used in the measured alignment analysis. The 17-pixel condition is outside this range and is therefore not included in the main results table.
+The principal results stop at a 12-pixel per-axis budget, matching the NMI search range; the 17-pixel stress condition is outside that comparison.
 
-Table~\ref{tab:alignsweep} shows how the fitted paired bound, fusion gap, and fusion-gap retention change as the shift budget increases.
+Table~\ref{tab:alignsweep} reports the corresponding paired bound, fusion gap, and retention.
 
 \begin{table}[h]
 \centering
@@ -1301,19 +1170,19 @@ Shift budget
 \end{tabular}
 \end{table}
 
-The paired Bhattacharyya bound increases from 0.0370 without additional displacement to 0.0542 at the 12-pixel shift budget. Over the same range, the fusion gap decreases from 0.1107 to 0.0935, leaving 84.4\% of the initial gap.
+Across budgets 0--12 pixels, the paired bound increases from 0.0370 to 0.0542 and the fusion gap decreases from 0.1107 to 0.0935, leaving 84.4\% of the initial gap. This is a feature-space stress test, not a prediction of tracking or detection accuracy.
 
-This result indicates that increasing spatial displacement reduces the fitted class-separation advantage of the paired representation in the controlled experiment. However, the measurement is specific to the selected features and density models. It does not establish how a particular detection or tracking model would perform under the same shifts.
+The trend demonstrates sensitivity to added displacement under the selected fixed representation. It cannot establish the sensitivity of a trained detector to the same transformations.
 
 
 \section{Full-frame \corrupt{} examples}
 \label{app:corruptionfigs}
 
-Figures~\ref{fig:rgbcorruptgrid} and \ref{fig:ircorruptgrid} show examples of the seven simulated perturbation families applied to representative RGB and infrared frames.
+Figures~\ref{fig:rgbcorruptgrid} and \ref{fig:ircorruptgrid} show the seven \corrupt{} families at five severity levels in representative full-frame RGB and infrared observations.
 
-For each perturbation, the examples show how the image changes as severity increases from level 1 to level 5. The images are presented at the native frame resolution so that the effect of each transformation can be viewed in relation to the small aerial target and its background.
+The native-resolution examples make the transformations visible in the context of the small target and its background. Their parameter values are given in Table~\ref{tab:corruptions}.
 
-These examples provide a visual reference for the perturbation parameters listed in Table~\ref{tab:corruptions}. They also illustrate that the same type of simulated degradation may appear different in RGB and infrared images because the two modalities capture different scene information.
+RGB and infrared examples also illustrate that the same simulated transformation can alter different image structures in the two modalities.
 
 \begin{figure}[p]
     \centering
@@ -1335,9 +1204,9 @@ These examples provide a visual reference for the perturbation parameters listed
 \section{Additional dataset examples}
 \label{app:diversity}
 
-Figure~\ref{fig:diversity} shows additional RGB-infrared frame pairs selected from different source videos in \dataset{}. The examples illustrate variation in scene backgrounds, target appearance, the number of visible targets, and thermal contrast.
+Figure~\ref{fig:diversity} samples corresponding RGB-infrared observations from distinct source videos, illustrating variation in target appearance, background, target count, and thermal contrast.
 
-Although all the images contain small aerial targets observed from ground-based surveillance cameras, their appearance can differ substantially across scenes. The surrounding background and the visibility of the target may also differ between RGB and infrared. These examples provide additional context for the dataset characteristics and the challenges discussed in the main paper.
+This variation contextualizes the geometric and class-overlap statistics, while remaining limited to the surveillance conditions represented by the 115 source sequences.
 
 \begin{figure}[h]
     \centering
