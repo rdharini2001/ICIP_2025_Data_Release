@@ -1,4 +1,4 @@
-<h1 align="center">AVID: A Weakly Aligned RGB-Infrared Dataset and Perturbation Benchmark<br/>for Tiny Aerial Targets</h1>
+<h1 align="center">AVID: A Weakly Aligned RGB-Infrared Dataset and Perturbation Benchmark for Tiny Aerial Targets</h1>
 
 <p align="center">
   <a href="paper/main.pdf"><img alt="Paper PDF" src="https://img.shields.io/badge/Paper-PDF-6141ac?style=for-the-badge"></a>
