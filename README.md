@@ -67,8 +67,6 @@ Georgia Institute of Technology · ARTPARK, Indian Institute of Science · Ramai
 
 [**Paper PDF**](paper/main.pdf) · [**LaTeX source**](paper/main.tex) · [**Bibliography**](paper/references.bib) · [**Results audit**](VERIFICATION_REPORT.md)
 
-> [!NOTE]
-> **Publication update:** The final three-author manuscript is included in this repository. An arXiv identifier and paper DOI are **not yet included**. The citation below is temporary and can be replaced when official identifiers are available.
 
 ## What AVID makes possible
 
@@ -140,12 +138,14 @@ python -m pytest -q dataset_tools/alignment/test_alignment_metrics.py dataset_to
 Please cite **both** AVID and the original Drone Detection Dataset. Until the AVID manuscript receives an arXiv ID or DOI, use:
 
 ```bibtex
-@misc{raghavan2026avid,
-  title  = {AVID: A Weakly Aligned RGB-Infrared Dataset and Perturbation Benchmark for Tiny Aerial Targets},
-  author = {Raghavan, Dharini and Rao, Vishnu and S, Sethu Selvi},
-  year   = {2026},
-  note   = {Manuscript and dataset release; arXiv ID and DOI pending},
-  url    = {https://github.com/rdharini2001/ICIP_2025_Data_Release}
+@misc{raghavan2026avidweaklyalignedrgbinfrared,
+      title={AVID: A Weakly Aligned RGB-Infrared Dataset and Perturbation Benchmark for Tiny Aerial Targets}, 
+      author={Dharini Raghavan and Vishnu Rao and Sethu Selvi S},
+      year={2026},
+      eprint={2610.40949},
+      archivePrefix={arXiv},
+      primaryClass={cs.CV},
+      url={https://arxiv.org/abs/2610.40949}, 
 }
 ```
 
